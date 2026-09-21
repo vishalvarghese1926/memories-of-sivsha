@@ -9,6 +9,7 @@ export type SceneType =
   | "act-3-beach"
   | "act-3-late-talks"
   | "act-3-car-memory"
+  | "act-3-august-31"
   | "act-3-october-31"
   | "act-3-classic-350"
   | "act-3-himalayan-450"

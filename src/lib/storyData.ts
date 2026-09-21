@@ -256,7 +256,7 @@ export const INITIAL_MILESTONES: Milestone[] = [
   {
     id: "m-9",
     sequence: 9,
-    sceneType: "act-3-october-31",
+    sceneType: "act-3-august-31",
     title: "31 AUGUST 2025",
     subtitle: "THE DAY WE BECAME US.",
     captions: [

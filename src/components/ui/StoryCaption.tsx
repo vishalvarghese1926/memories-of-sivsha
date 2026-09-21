@@ -72,6 +72,24 @@ export default function StoryCaption() {
       else if (localProgress < 0.55) index = 1;
       else if (localProgress < 0.78) index = 2;
       else index = 3;
+    } else if (currentMilestone.id === "m-11" && total === 8) {
+      // Precise narrative pacing for Himalayan 450 / Mountain Fall:
+      // 0.00–0.20: "Climbing into misty heights on the brown Himalayan 450."
+      // 0.20–0.34: "A wet patch on a steep turn — the bike slipped."
+      // 0.34–0.48: "We fell."
+      // 0.48–0.62: "We were scared."
+      // 0.62–0.74: "Checking frantically if you were hurt... but you were safe."
+      // 0.74–0.84: "Just a scraped knee, the motorcycle still standing strong."
+      // 0.84–0.93: "But we were okay."
+      // 0.93–1.00: "And that's what mattered."
+      if (localProgress < 0.20) index = 0;
+      else if (localProgress < 0.34) index = 1;
+      else if (localProgress < 0.48) index = 2;
+      else if (localProgress < 0.62) index = 3;
+      else if (localProgress < 0.74) index = 4;
+      else if (localProgress < 0.84) index = 5;
+      else if (localProgress < 0.93) index = 6;
+      else index = 7;
     } else {
       index = Math.min(total - 1, Math.floor(localProgress * total));
     }

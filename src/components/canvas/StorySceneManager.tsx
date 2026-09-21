@@ -10,8 +10,10 @@ import Act1Before from "./scenes/Act1Before";
 import Act2College from "./scenes/Act2College";
 import Act3Train from "./scenes/Act3Train";
 import Act3Beach from "./scenes/Act3Beach";
+import Act3LateTalks from "./scenes/Act3LateTalks";
 import Act3Car from "./scenes/Act3Car";
 import Act3Bikes from "./scenes/Act3Bikes";
+import Act3Home from "./scenes/Act3Home";
 import Act4Finale from "./scenes/Act4Finale";
 import ScenePlaceholder from "./scenes/ScenePlaceholder";
 
@@ -19,11 +21,11 @@ import ScenePlaceholder from "./scenes/ScenePlaceholder";
 const MILESTONE_Z_POSITIONS: Record<string, number> = {
   "m-6": -185,  // Train
   "m-7": -235,  // Beach
-  "m-8": -290,  // Late Talks
-  "m-9": -395,  // October 31
+  "m-8": -290,  // Late Night Conversations
+  "m-9": -345,  // August 31
   "m-10": -450, // Classic 350
   "m-11": -570, // Himalayan / Mountain Fall
-  "m-12": -625, // Home / Life Together
+  "m-12": -625, // Home / Everyday Life
   "m-13": -685, // Finale
 };
 
@@ -160,17 +162,23 @@ export default function StorySceneManager() {
           sceneContent = <Act3Train localProgress={local} />;
         } else if (m.id === "m-7") {
           sceneContent = <Act3Beach localProgress={local} />;
-        } else if (m.id === "m-8" || m.id === "m-9") {
-          // Late talks & Car road memory
+        } else if (m.id === "m-8") {
+          // Late Night Conversations: distinct midnight visual beat
+          sceneContent = <Act3LateTalks localProgress={local} />;
+        } else if (m.id === "m-9") {
+          // August 31, 2025: Quiet cinematic car road milestone
           sceneContent = <Act3Car localProgress={local} />;
         } else if (m.id === "m-10" || m.id === "m-11") {
-          // Royal Enfield Classic 350 & Himalayan 450
+          // Royal Enfield Classic 350 & Himalayan 450 Mountain Fall
           sceneContent = <Act3Bikes milestoneId={m.id} localProgress={local} />;
+        } else if (m.id === "m-12") {
+          // Home / Everyday Life: warm interior togetherness
+          sceneContent = <Act3Home localProgress={local} />;
         } else if (m.id === "m-13") {
           // Act IV Finale: Pedestal, floating lanterns & wax seal envelope
           sceneContent = <Act4Finale localProgress={local} />;
         } else {
-          // Fallback placeholder for other interim markers (e.g. m-12)
+          // Fallback placeholder for other interim markers
           sceneContent = (
             <ScenePlaceholder
               milestone={m}

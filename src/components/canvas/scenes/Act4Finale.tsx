@@ -205,9 +205,22 @@ export default function Act4Finale({ localProgress }: Act4FinaleProps) {
 
         {/* Gold particle burst & pulsing prompt when unopened */}
         {!isOpened && (
-          <group position={[0, -0.22, 0.15]}>
-            <Sparkles count={24} scale={1.2} size={2.2} speed={0.6} color="#fde047" opacity={0.8} />
-          </group>
+          <>
+            <group position={[0, -0.22, 0.15]}>
+              <Sparkles count={24} scale={1.2} size={2.2} speed={0.6} color="#fde047" opacity={0.8} />
+            </group>
+            <group position={[0, 0.72, 0.1]}>
+              <Text
+                fontSize={0.095}
+                color="#fef08a"
+                anchorX="center"
+                anchorY="middle"
+                letterSpacing={0.12}
+              >
+                TAP TO OPEN
+              </Text>
+            </group>
+          </>
         )}
 
         {/* Letter paper sliding out when opened */}
@@ -220,6 +233,28 @@ export default function Act4Finale({ localProgress }: Act4FinaleProps) {
             />
           </mesh>
         </group>
+      </group>
+
+      {/* Final Cinematic Title & Subtitle */}
+      <group position={[0, 3.4, -3.5]}>
+        <Text
+          fontSize={0.26}
+          color="#fff1f2"
+          anchorX="center"
+          anchorY="middle"
+          letterSpacing={0.14}
+        >
+          MEMORIES OF SIVSHA
+        </Text>
+        <Text
+          position={[0, -0.38, 0]}
+          fontSize={0.11}
+          color="#fbcfe8"
+          anchorX="center"
+          anchorY="middle"
+        >
+          Every picture is a place we once existed together.
+        </Text>
       </group>
     </group>
   );
