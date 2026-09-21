@@ -123,10 +123,10 @@ export const INITIAL_MILESTONES: Milestone[] = [
     title: "Tribaly / Classroom",
     subtitle: "Back bench to front row",
     captions: [
-      "Day 1.",
-      "Day 2.",
-      "Still no conversation.",
-      "But somehow, I kept noticing you.",
+      "Somewhere between lectures and ordinary days...",
+      "She slowly became someone I noticed.",
+      "Not all at once.",
+      "Just little moments.",
     ],
     media: [
       {

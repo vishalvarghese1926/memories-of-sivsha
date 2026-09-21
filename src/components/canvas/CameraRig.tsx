@@ -103,7 +103,82 @@ export default function CameraRig() {
       const penFocalPoint = new THREE.Vector3(0.1, 1.35, -75.2);
       targetLook = targetLook.clone().lerp(penFocalPoint, penFactor * 0.85);
     }
-    // 2. August 31 milestone (t ~ 0.75 to 0.80): lock focus on car interior & couple
+    // 2. Classroom milestone (t ~ 0.38 to 0.45): rack focus from back-row boy to front-row Sivani
+    else if (t >= 0.38 && t <= 0.45) {
+      const classProgress = (t - 0.38) / (0.45 - 0.38);
+      let classFocalPoint = new THREE.Vector3(0, 1.8, -125); // 0.00-0.18: wide classroom / blackboard
+
+      if (classProgress < 0.18) {
+        classFocalPoint = new THREE.Vector3(0, 1.8, -125);
+      } else if (classProgress < 0.38) {
+        // 0.18-0.38: reveal boy in back row
+        const sub = (classProgress - 0.18) / 0.20;
+        classFocalPoint = new THREE.Vector3(
+          THREE.MathUtils.lerp(0, -0.9, sub),
+          THREE.MathUtils.lerp(1.8, 1.25, sub),
+          THREE.MathUtils.lerp(-125, -114.2, sub)
+        );
+      } else if (classProgress < 0.70) {
+        // 0.38-0.70: rack focus toward Sivani in front row
+        const sub = (classProgress - 0.38) / 0.32;
+        classFocalPoint = new THREE.Vector3(
+          THREE.MathUtils.lerp(-0.9, 0.8, sub),
+          THREE.MathUtils.lerp(1.25, 1.25, sub),
+          THREE.MathUtils.lerp(-114.2, -120.8, sub)
+        );
+      } else if (classProgress < 0.84) {
+        // 0.70-0.84: shared composition
+        const sub = (classProgress - 0.70) / 0.14;
+        classFocalPoint = new THREE.Vector3(
+          THREE.MathUtils.lerp(0.8, 0.0, sub),
+          THREE.MathUtils.lerp(1.25, 1.35, sub),
+          THREE.MathUtils.lerp(-120.8, -118.0, sub)
+        );
+      } else {
+        // 0.84-1.00: subtle return toward classroom center
+        const sub = (classProgress - 0.84) / 0.16;
+        classFocalPoint = new THREE.Vector3(
+          0.0,
+          THREE.MathUtils.lerp(1.35, 1.4, sub),
+          THREE.MathUtils.lerp(-118.0, -122.0, sub)
+        );
+      }
+
+      const classFactor = Math.sin(classProgress * Math.PI);
+      targetLook = targetLook.clone().lerp(classFocalPoint, Math.min(0.9, classFactor * 0.95 + 0.35));
+    }
+    // 3. Friend Group milestone (t ~ 0.45 to 0.53): focus on shared study table & Sivani explaining
+    else if (t >= 0.45 && t <= 0.53) {
+      const fgProgress = (t - 0.45) / (0.53 - 0.45);
+      let fgFocalPoint = new THREE.Vector3(0, 1.2, -152);
+
+      if (fgProgress < 0.25) {
+        fgFocalPoint = new THREE.Vector3(0, 1.2, -152);
+      } else if (fgProgress < 0.60) {
+        // Focus on study notes & Sivani explaining
+        const sub = (fgProgress - 0.25) / 0.35;
+        fgFocalPoint = new THREE.Vector3(
+          0,
+          THREE.MathUtils.lerp(1.2, 1.1, sub),
+          THREE.MathUtils.lerp(-152, -152.4, sub)
+        );
+      } else if (fgProgress < 0.85) {
+        // Shared glance across table & subtle under-desk tap
+        const sub = (fgProgress - 0.60) / 0.25;
+        fgFocalPoint = new THREE.Vector3(
+          0,
+          THREE.MathUtils.lerp(1.1, 0.95, sub),
+          -152.0
+        );
+      } else {
+        // Settle back to study circle
+        fgFocalPoint = new THREE.Vector3(0, 1.2, -152);
+      }
+
+      const fgFactor = Math.sin(fgProgress * Math.PI);
+      targetLook = targetLook.clone().lerp(fgFocalPoint, Math.min(0.9, fgFactor * 0.9 + 0.4));
+    }
+    // 4. August 31 milestone (t ~ 0.75 to 0.80): lock focus on car interior & couple
     else if (t >= 0.75 && t <= 0.80) {
       const augFactor = Math.sin(((t - 0.75) / (0.80 - 0.75)) * Math.PI);
       const augFocalPoint = new THREE.Vector3(-0.2, 1.25, -345);

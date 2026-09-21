@@ -80,6 +80,16 @@ export default function StorySceneManager() {
   const m3End = m3?.custom3DConfig?.splineProgressEnd ?? 0.38;
   const m3Local = calculateLocalProgress(scrollProgress, m3Start, m3End);
 
+  const m4 = milestones[4];
+  const m4Start = m4?.custom3DConfig?.splineProgressStart ?? 0.38;
+  const m4End = m4?.custom3DConfig?.splineProgressEnd ?? 0.45;
+  const m4Local = calculateLocalProgress(scrollProgress, m4Start, m4End);
+
+  const m5 = milestones[5];
+  const m5Start = m5?.custom3DConfig?.splineProgressStart ?? 0.45;
+  const m5End = m5?.custom3DConfig?.splineProgressEnd ?? 0.53;
+  const m5Local = calculateLocalProgress(scrollProgress, m5Start, m5End);
+
   const collegeStart = 0.18;
   const collegeEnd = 0.53;
   const collegeLocal = calculateLocalProgress(scrollProgress, collegeStart, collegeEnd);
@@ -120,7 +130,13 @@ export default function StorySceneManager() {
           fadeSpan={0.1}
         >
           <Suspense fallback={null}>
-            <Act2College localProgress={m2Local} penProgress={m3Local} globalProgress={scrollProgress} />
+            <Act2College
+              localProgress={m2Local}
+              penProgress={m3Local}
+              classroomProgress={m4Local}
+              friendGroupProgress={m5Local}
+              globalProgress={scrollProgress}
+            />
           </Suspense>
         </SceneTransitionWrapper>
       )}

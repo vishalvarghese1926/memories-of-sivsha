@@ -7,11 +7,15 @@ import { ContactShadows } from "@react-three/drei";
 import FloatingMediaFrame from "../media/FloatingMediaFrame";
 import CharacterBoy from "../characters/CharacterBoy";
 import CharacterGirl from "../characters/CharacterGirl";
+import Act2Classroom from "./Act2Classroom";
+import Act2FriendGroup from "./Act2FriendGroup";
 
 interface Act2CollegeProps {
   localProgress?: number;
   penProgress?: number;
   globalProgress?: number;
+  classroomProgress?: number;
+  friendGroupProgress?: number;
 }
 
 // Procedural Marine Engineering Blueprint texture
@@ -116,7 +120,17 @@ function createNoticeBoardTexture(): THREE.CanvasTexture {
 export default function Act2College({
   localProgress = 0,
   penProgress = 0,
+  globalProgress = 0,
+  classroomProgress,
+  friendGroupProgress,
 }: Act2CollegeProps) {
+  // Local progress for Classroom (0.38 - 0.45) and Friend Group (0.45 - 0.53)
+  const cProgress =
+    classroomProgress ??
+    Math.max(0, Math.min(1, (globalProgress - 0.38) / (0.45 - 0.38)));
+  const fgProgress =
+    friendGroupProgress ??
+    Math.max(0, Math.min(1, (globalProgress - 0.45) / (0.53 - 0.45)));
   const charactersGroupRef = useRef<THREE.Group>(null);
   const dustParticlesRef = useRef<THREE.Points>(null);
 
@@ -897,119 +911,13 @@ export default function Act2College({
       </points>
 
       {/* ========================================================================= */}
-      {/* 7. DOWN-HALL FUTURE SCENES (PRESERVED FOR PHASES 5D & 5E)                 */}
+      {/* 7. CINEMATIC CLASSROOM & FRIEND GROUP SCENES (PHASE 7A)                    */}
       {/* ========================================================================= */}
-      {/* Classroom — Boy Back Bench, Girl Front Row (z: -118) */}
-      <group position={[0, 0, -118]}>
-        <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[10, 18]} />
-          <meshStandardMaterial color="#1a1824" roughness={0.4} />
-        </mesh>
-        <mesh position={[0, 2.2, -7]}>
-          <boxGeometry args={[4.5, 1.8, 0.1]} />
-          <meshStandardMaterial color="#064e3b" roughness={0.7} />
-        </mesh>
-        {/* Front Row Desk & Seated Sivani */}
-        <group position={[0.6, 0, -3]}>
-          <mesh position={[0, 0.6, 0]} castShadow>
-            <boxGeometry args={[1.8, 0.7, 0.6]} />
-            <meshStandardMaterial color="#451a03" roughness={0.8} />
-          </mesh>
-          <group position={[0, -0.2, 0.35]}>
-            <CharacterGirl
-              pose="sitting"
-              scale={0.86}
-              rotation={[0, 0, 0]}
-              lookAtTarget={[0, 2.2, -7]}
-            />
-          </group>
-        </group>
+      {/* Classroom — Marine Engineering Lecture, Boy Back Bench, Girl Front Row (z: -118) */}
+      <Act2Classroom progress={cProgress} />
 
-        {/* Back Bench Desk & Seated Vishal looking towards front */}
-        <group position={[-0.8, 0, 4]}>
-          <mesh position={[0, 0.6, 0]} castShadow>
-            <boxGeometry args={[2.0, 0.7, 0.6]} />
-            <meshStandardMaterial color="#451a03" roughness={0.8} />
-          </mesh>
-          <group position={[0, -0.2, 0.35]}>
-            <CharacterBoy
-              pose="sitting"
-              scale={0.88}
-              rotation={[0, 0, 0]}
-              lookAtTarget={[0.6, 1.2, -3]}
-            />
-          </group>
-        </group>
-
-        {/* Classroom Ground Contact Shadow */}
-        <ContactShadows
-          position={[0, 0.01, 0]}
-          opacity={0.65}
-          scale={12}
-          blur={2.0}
-          far={4}
-          frames={1}
-        />
-      </group>
-
-      {/* Same Class — Six-Person Friend Group (z: -152) */}
-      <group position={[0, 0, -152]}>
-        <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-          <planeGeometry args={[12, 16]} />
-          <meshStandardMaterial color="#191624" roughness={0.5} />
-        </mesh>
-        <mesh position={[0, 0.6, -1.8]} castShadow>
-          <boxGeometry args={[4.2, 0.7, 0.7]} />
-          <meshStandardMaterial color="#5c2c16" roughness={0.7} />
-        </mesh>
-
-        {/* Girls' side of the table with Sivani in middle */}
-        <group position={[-1.2, -0.2, -1.3]}>
-          <CharacterGirl pose="sitting" scale={0.82} rotation={[0, 0.2, 0]} />
-        </group>
-        <group position={[0, -0.2, -1.3]}>
-          <CharacterGirl
-            pose="sitting"
-            scale={0.86}
-            rotation={[0, 0, 0]}
-            lookAtTarget={[0, 1.1, 2.0]}
-          />
-        </group>
-        <group position={[1.2, -0.2, -1.3]}>
-          <CharacterGirl pose="sitting" scale={0.82} rotation={[0, -0.2, 0]} />
-        </group>
-
-        <mesh position={[0, 0.6, 1.5]} castShadow>
-          <boxGeometry args={[4.2, 0.7, 0.7]} />
-          <meshStandardMaterial color="#5c2c16" roughness={0.7} />
-        </mesh>
-
-        {/* Boys' side of the table with Vishal in middle */}
-        <group position={[-1.2, -0.2, 2.0]}>
-          <CharacterBoy pose="sitting" scale={0.84} rotation={[0, Math.PI - 0.2, 0]} />
-        </group>
-        <group position={[0, -0.2, 2.0]}>
-          <CharacterBoy
-            pose="sitting"
-            scale={0.88}
-            rotation={[0, Math.PI, 0]}
-            lookAtTarget={[0, 1.1, -1.3]}
-          />
-        </group>
-        <group position={[1.2, -0.2, 2.0]}>
-          <CharacterBoy pose="sitting" scale={0.84} rotation={[0, Math.PI + 0.2, 0]} />
-        </group>
-
-        {/* Friend group contact shadow */}
-        <ContactShadows
-          position={[0, 0.01, 0]}
-          opacity={0.7}
-          scale={14}
-          blur={2.2}
-          far={4}
-          frames={1}
-        />
-      </group>
+      {/* Same Class — Six-Person Friend Group Study Table (z: -152) */}
+      <Act2FriendGroup progress={fgProgress} />
     </group>
   );
 }

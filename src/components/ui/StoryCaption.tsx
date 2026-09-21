@@ -62,6 +62,16 @@ export default function StoryCaption() {
       else if (localProgress < 0.48) index = 2;
       else if (localProgress < 0.68) index = 3;
       else index = 4;
+    } else if (total === 4 && currentMilestone.sceneType === "act-2-tribly-class") {
+      // Precise narrative pacing for Classroom:
+      // 0.00–0.25: "Somewhere between lectures and ordinary days..."
+      // 0.25–0.55: "She slowly became someone I noticed."
+      // 0.55–0.78: "Not all at once."
+      // 0.78–1.00: "Just little moments."
+      if (localProgress < 0.25) index = 0;
+      else if (localProgress < 0.55) index = 1;
+      else if (localProgress < 0.78) index = 2;
+      else index = 3;
     } else {
       index = Math.min(total - 1, Math.floor(localProgress * total));
     }
