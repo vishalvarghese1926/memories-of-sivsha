@@ -7,6 +7,7 @@ import { ContactShadows, Text } from "@react-three/drei";
 import CharacterBoy from "../characters/CharacterBoy";
 import CharacterGirl from "../characters/CharacterGirl";
 import FloatingMediaFrame from "../media/FloatingMediaFrame";
+import ExternalAsset from "../environment/ExternalAsset";
 
 interface Act3CarProps {
   localProgress: number;
@@ -84,11 +85,19 @@ export default function Act3Car({ localProgress }: Act3CarProps) {
 
       {/* Car Interior Perspective Cabin */}
       <group ref={carGroupRef} position={[0, 0.4, 0]}>
-        {/* Chassis / Cabin Shell */}
-        <mesh position={[0, 0.6, 0]}>
-          <boxGeometry args={[2.5, 1.2, 4.0]} />
-          <meshStandardMaterial color="#18181b" roughness={0.6} />
-        </mesh>
+        {/* Real Exterior Car Chassis with Procedural Fallback */}
+        <ExternalAsset
+          assetKey="car"
+          position={[0, 0.45, 0]}
+          scale={0.95}
+          rotation={[0, Math.PI, 0]}
+          proceduralFallback={
+            <mesh position={[0, 0.6, 0]}>
+              <boxGeometry args={[2.5, 1.2, 4.0]} />
+              <meshStandardMaterial color="#18181b" roughness={0.6} />
+            </mesh>
+          }
+        />
 
         {/* Dashboard and Windshield Frame */}
         <mesh position={[0, 1.0, -1.5]}>

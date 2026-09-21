@@ -7,6 +7,7 @@ import { ContactShadows, Text } from "@react-three/drei";
 import CharacterBoy from "../characters/CharacterBoy";
 import CharacterGirl from "../characters/CharacterGirl";
 import FloatingMediaFrame from "../media/FloatingMediaFrame";
+import ExternalAsset from "../environment/ExternalAsset";
 
 interface Act3BikesProps {
   milestoneId: string; // "m-10" (Classic 350) or "m-11" (Himalayan 450)
@@ -171,6 +172,36 @@ export default function Act3Bikes({ milestoneId, localProgress }: Act3BikesProps
             <meshStandardMaterial color="#0c0a09" roughness={0.9} />
           </mesh>
         </group>
+      )}
+
+      {/* Mountain Ghats Road Shoulder Boulders — Real Poly Haven Photogrammetry Rocks with Fallback */}
+      {!isClassic && (
+        <>
+          <ExternalAsset
+            assetKey="mountainEnvironment"
+            position={[3.8, 0, -3.5]}
+            scale={1.8}
+            rotation={[0, 0.5, 0]}
+            proceduralFallback={
+              <mesh position={[3.8, 0.6, -3.5]}>
+                <boxGeometry args={[1.8, 1.2, 2.2]} />
+                <meshStandardMaterial color="#292524" roughness={0.9} />
+              </mesh>
+            }
+          />
+          <ExternalAsset
+            assetKey="mountainEnvironment"
+            position={[-4.2, 0, 2.2]}
+            scale={1.4}
+            rotation={[0.2, -0.7, 0]}
+            proceduralFallback={
+              <mesh position={[-4.2, 0.5, 2.2]}>
+                <boxGeometry args={[1.4, 1.0, 1.6]} />
+                <meshStandardMaterial color="#292524" roughness={0.9} />
+              </mesh>
+            }
+          />
+        </>
       )}
 
       {/* ========================================================================= */}

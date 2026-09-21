@@ -7,6 +7,7 @@ import { ContactShadows } from "@react-three/drei";
 import CharacterBoy from "../characters/CharacterBoy";
 import CharacterGirl from "../characters/CharacterGirl";
 import FloatingMediaFrame from "../media/FloatingMediaFrame";
+import ExternalAsset from "../environment/ExternalAsset";
 
 interface Act3HomeProps {
   localProgress: number;
@@ -75,38 +76,46 @@ export default function Act3Home({ localProgress }: Act3HomeProps) {
       {/* ========================================================================= */}
       {/* 2. FURNITURE: COZY 2-SEATER SOFA & COFFEE TABLE                           */}
       {/* ========================================================================= */}
-      {/* 2-Seater Sofa / Couch */}
-      <group position={[0, 0.35, 0.2]}>
-        {/* Sofa Base */}
-        <mesh position={[0, 0.15, 0]} castShadow receiveShadow>
-          <boxGeometry args={[2.5, 0.4, 1.1]} />
-          <meshStandardMaterial color="#3f3f46" roughness={0.7} />
-        </mesh>
-        {/* Soft Seat Cushions */}
-        <mesh position={[-0.55, 0.38, 0.05]} castShadow>
-          <boxGeometry args={[1.05, 0.2, 0.9]} />
-          <meshStandardMaterial color="#52525b" roughness={0.85} />
-        </mesh>
-        <mesh position={[0.55, 0.38, 0.05]} castShadow>
-          <boxGeometry args={[1.05, 0.2, 0.9]} />
-          <meshStandardMaterial color="#52525b" roughness={0.85} />
-        </mesh>
-        {/* Sofa Backrest */}
-        <mesh position={[0, 0.75, 0.45]} castShadow>
-          <boxGeometry args={[2.5, 0.75, 0.3]} />
-          <meshStandardMaterial color="#3f3f46" roughness={0.8} />
-        </mesh>
-        {/* Left Armrest */}
-        <mesh position={[-1.2, 0.52, 0.05]} castShadow>
-          <boxGeometry args={[0.25, 0.45, 1.05]} />
-          <meshStandardMaterial color="#3f3f46" roughness={0.8} />
-        </mesh>
-        {/* Right Armrest */}
-        <mesh position={[1.2, 0.52, 0.05]} castShadow>
-          <boxGeometry args={[0.25, 0.45, 1.05]} />
-          <meshStandardMaterial color="#3f3f46" roughness={0.8} />
-        </mesh>
-      </group>
+      {/* 2-Seater Sofa / Couch — Real Poly Haven PBR Sofa with Procedural Fallback */}
+      <ExternalAsset
+        assetKey="homeFurniture"
+        position={[0, 0, 0.25]}
+        scale={1.25}
+        rotation={[0, 0, 0]}
+        proceduralFallback={
+          <group position={[0, 0.35, 0.2]}>
+            {/* Sofa Base */}
+            <mesh position={[0, 0.15, 0]} castShadow receiveShadow>
+              <boxGeometry args={[2.5, 0.4, 1.1]} />
+              <meshStandardMaterial color="#3f3f46" roughness={0.7} />
+            </mesh>
+            {/* Soft Seat Cushions */}
+            <mesh position={[-0.55, 0.38, 0.05]} castShadow>
+              <boxGeometry args={[1.05, 0.2, 0.9]} />
+              <meshStandardMaterial color="#52525b" roughness={0.85} />
+            </mesh>
+            <mesh position={[0.55, 0.38, 0.05]} castShadow>
+              <boxGeometry args={[1.05, 0.2, 0.9]} />
+              <meshStandardMaterial color="#52525b" roughness={0.85} />
+            </mesh>
+            {/* Sofa Backrest */}
+            <mesh position={[0, 0.75, 0.45]} castShadow>
+              <boxGeometry args={[2.5, 0.75, 0.3]} />
+              <meshStandardMaterial color="#3f3f46" roughness={0.8} />
+            </mesh>
+            {/* Left Armrest */}
+            <mesh position={[-1.2, 0.52, 0.05]} castShadow>
+              <boxGeometry args={[0.25, 0.45, 1.05]} />
+              <meshStandardMaterial color="#3f3f46" roughness={0.8} />
+            </mesh>
+            {/* Right Armrest */}
+            <mesh position={[1.2, 0.52, 0.05]} castShadow>
+              <boxGeometry args={[0.25, 0.45, 1.05]} />
+              <meshStandardMaterial color="#3f3f46" roughness={0.8} />
+            </mesh>
+          </group>
+        }
+      />
 
       {/* Low Wooden Coffee Table */}
       <group position={[0, 0, -1.0]}>

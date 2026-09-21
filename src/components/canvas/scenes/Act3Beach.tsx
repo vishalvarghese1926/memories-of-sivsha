@@ -7,6 +7,7 @@ import { ContactShadows } from "@react-three/drei";
 import CharacterBoy from "../characters/CharacterBoy";
 import CharacterGirl from "../characters/CharacterGirl";
 import FloatingMediaFrame from "../media/FloatingMediaFrame";
+import ExternalAsset from "../environment/ExternalAsset";
 
 interface Act3BeachProps {
   localProgress: number;
@@ -161,6 +162,32 @@ export default function Act3Beach({ localProgress }: Act3BeachProps) {
           roughness={0.3}
         />
       </mesh>
+
+      {/* Coastal Shoreline Rocks — Real Poly Haven Photogrammetry Rocks with Fallback */}
+      <ExternalAsset
+        assetKey="beachProps"
+        position={[-3.8, 0, -2.5]}
+        scale={6.0}
+        rotation={[0, 0.4, 0]}
+        proceduralFallback={
+          <mesh position={[-3.8, 0.35, -2.5]}>
+            <sphereGeometry args={[0.9, 12, 10]} />
+            <meshStandardMaterial color="#292524" roughness={0.8} />
+          </mesh>
+        }
+      />
+      <ExternalAsset
+        assetKey="beachProps"
+        position={[-4.5, 0, 3.8]}
+        scale={4.8}
+        rotation={[0.2, 1.2, -0.1]}
+        proceduralFallback={
+          <mesh position={[-4.5, 0.28, 3.8]}>
+            <sphereGeometry args={[0.7, 12, 10]} />
+            <meshStandardMaterial color="#292524" roughness={0.8} />
+          </mesh>
+        }
+      />
 
       {/* ========================================================================= */}
       {/* 3. CHARACTERS WALKING HAND IN HAND IN SHALLOW WATER                       */}
