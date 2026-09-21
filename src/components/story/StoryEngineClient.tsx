@@ -1,0 +1,53 @@
+"use client";
+
+import React, { useEffect } from "react";
+import SmoothScrollProvider from "@/components/common/SmoothScrollProvider";
+import StoryCanvas from "@/components/canvas/StoryCanvas";
+import StoryCaption from "@/components/ui/StoryCaption";
+import StoryHeader from "@/components/ui/StoryHeader";
+import LetterModal from "@/components/ui/LetterModal";
+import { useStory } from "@/context/StoryContext";
+
+export default function StoryEngineClient() {
+  const { setScrollProgress } = useStory();
+
+  // Reset scroll to top on first mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.scrollTo(0, 0);
+      setScrollProgress(0);
+    }
+  }, [setScrollProgress]);
+
+  const handleScroll = (progress: number) => {
+    setScrollProgress(progress);
+  };
+
+  return (
+    <div className="relative w-full bg-[#07050d] text-[#f4edea] select-none">
+      {/* Fixed Sticky Story Viewport */}
+      <div className="fixed inset-0 w-full h-[100dvh] overflow-hidden bg-[#07050d]">
+        {/* ONE Persistent R3F Canvas */}
+        <StoryCanvas />
+
+        {/* DOM Caption Narrative Layer */}
+        <StoryCaption />
+
+        {/* Story Navigation Header & Controls */}
+        <StoryHeader />
+
+        {/* Interactive Birthday Letter Parchment Modal */}
+        <LetterModal />
+      </div>
+
+      {/* Smooth Scroll Driver with Lenis & GSAP ScrollTrigger */}
+      <SmoothScrollProvider onScroll={handleScroll}>
+        {/* Scroll Track: 1400vh provides a cinematic, unhurried pace for all 14 milestones */}
+        <div
+          className="w-full h-[1400vh] pointer-events-none"
+          aria-hidden="true"
+        />
+      </SmoothScrollProvider>
+    </div>
+  );
+}
