@@ -100,7 +100,7 @@ export default function StoryCaption() {
 
   return (
     <div
-      className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-between p-6 sm:p-12 pt-safe pb-safe select-none"
+      className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-between p-4 sm:p-12 pt-safe pb-safe select-none max-w-full overflow-hidden"
       aria-live="polite"
     >
       {/* Top Header Placeholder (Spacing) */}

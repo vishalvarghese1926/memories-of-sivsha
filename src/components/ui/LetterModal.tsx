@@ -37,9 +37,8 @@ export default function LetterModal() {
     setScrollProgress(0);
   };
 
-  const handleMemoriesGallery = () => {
+  const handleClose = () => {
     setIsLetterModalOpen(false);
-    router.push("/memories");
   };
 
   return (
@@ -57,10 +56,10 @@ export default function LetterModal() {
           backgroundSize: "24px 24px",
         }}
       >
-        {/* Close button */}
+        {/* Close button with >= 44px touch target */}
         <button
-          onClick={() => setIsLetterModalOpen(false)}
-          className="absolute top-4 right-4 p-2 rounded-full bg-[#1c1917]/5 hover:bg-[#1c1917]/10 text-[#78716c] hover:text-[#1c1917] transition-colors z-10"
+          onClick={handleClose}
+          className="absolute top-4 right-4 min-w-[44px] min-h-[44px] p-2.5 rounded-full bg-[#1c1917]/5 hover:bg-[#1c1917]/10 text-[#78716c] hover:text-[#1c1917] transition-colors z-10 flex items-center justify-center"
           aria-label="Close letter"
         >
           <X className="w-5 h-5" />
@@ -104,19 +103,19 @@ export default function LetterModal() {
           {/* Revisit Our Story Button */}
           <button
             onClick={handleRevisit}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-white hover:bg-rose-50 border border-rose-200 text-rose-900 font-sans font-medium text-xs sm:text-sm tracking-wider uppercase transition-all shadow-sm flex items-center justify-center gap-2"
+            className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-full bg-white hover:bg-rose-50 border border-rose-200 text-rose-900 font-sans font-medium text-xs sm:text-sm tracking-wider uppercase transition-all shadow-sm flex items-center justify-center gap-2"
           >
             <RotateCcw className="w-4 h-4 text-rose-600" />
             <span>Revisit Our Story</span>
           </button>
 
-          {/* Memories of Sivsha Gallery Button */}
+          {/* Keep In My Heart Close Button */}
           <button
-            onClick={handleMemoriesGallery}
-            className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-sans font-medium text-xs sm:text-sm tracking-wider uppercase transition-all shadow-md flex items-center justify-center gap-2"
+            onClick={handleClose}
+            className="w-full sm:w-auto min-h-[44px] px-6 py-2.5 rounded-full bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-sans font-medium text-xs sm:text-sm tracking-wider uppercase transition-all shadow-md flex items-center justify-center gap-2"
           >
-            <ImageIcon className="w-4 h-4" />
-            <span>Memories of Sivsha</span>
+            <Heart className="w-4 h-4 fill-white" />
+            <span>Keep Close To Heart</span>
           </button>
         </div>
       </div>

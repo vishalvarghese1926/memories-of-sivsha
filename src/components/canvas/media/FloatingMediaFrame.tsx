@@ -4,6 +4,7 @@ import React, { useRef, useMemo, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useStory } from "@/context/StoryContext";
+import { resolveMilestoneMedia } from "@/lib/mediaRegistry";
 
 interface FloatingMediaFrameProps {
   milestoneId: string;
@@ -22,59 +23,135 @@ export default function FloatingMediaFrame({
   width = 2.0,
   height = 1.35,
 }: FloatingMediaFrameProps) {
-  const { milestones } = useStory();
+  const { milestones, activeMilestoneIndex } = useStory();
   const groupRef = useRef<THREE.Group>(null);
-  const [videoTexture, setVideoTexture] = useState<THREE.VideoTexture | null>(null);
 
-  // Retrieve media asset associated with milestone
+  const [imageTexture, setImageTexture] = useState<THREE.Texture | null>(null);
+  const [videoTexture, setVideoTexture] = useState<THREE.VideoTexture | null>(null);
+  const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  // Check prefers-reduced-motion
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mediaQuery.matches);
+    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
+
+  // Retrieve milestone and resolved personal or placeholder media
   const milestone = useMemo(() => {
     return milestones.find((m) => m.id === milestoneId);
   }, [milestones, milestoneId]);
 
-  const mediaAsset = milestone?.media?.[0];
+  const milestoneIndex = milestone?.sequence ?? -1;
+  // Windowing: load asset only if within current or neighboring milestone
+  const isInActiveWindow =
+    milestoneIndex === -1 || Math.abs(milestoneIndex - activeMilestoneIndex) <= 1;
 
-  // Texture loader for image assets with memory cleanup
-  const imageTexture = useMemo(() => {
-    if (!mediaAsset || mediaAsset.type !== "image" || !mediaAsset.url) {
-      return null;
-    }
-    const loader = new THREE.TextureLoader();
-    const tex = loader.load(mediaAsset.url);
-    tex.generateMipmaps = true;
-    tex.minFilter = THREE.LinearMipmapLinearFilter;
-    return tex;
-  }, [mediaAsset]);
+  const mediaAsset = useMemo(() => {
+    return resolveMilestoneMedia(milestoneId, milestone?.media);
+  }, [milestoneId, milestone]);
 
-  // Video texture handling for video assets (playsInline, muted, autoPlay, loop)
+  // Image texture loader with loading, error fallback, and explicit disposal
   useEffect(() => {
-    if (mediaAsset?.type === "video" && mediaAsset.url && typeof window !== "undefined") {
-      const vid = document.createElement("video");
-      vid.src = mediaAsset.url;
-      vid.crossOrigin = "anonymous";
-      vid.loop = true;
-      vid.muted = true;
-      vid.playsInline = true;
-      vid.autoplay = true;
-      vid.preload = "auto";
-      vid.play().catch(() => {
-        // Autoplay may be deferred until user interaction
-      });
-
-      const tex = new THREE.VideoTexture(vid);
-      tex.minFilter = THREE.LinearFilter;
-      tex.magFilter = THREE.LinearFilter;
-      tex.format = THREE.RGBAFormat;
-      setVideoTexture(tex);
-
-      return () => {
-        vid.pause();
-        vid.src = "";
-        tex.dispose();
-      };
+    if (!isInActiveWindow || !mediaAsset || mediaAsset.type !== "image" || !mediaAsset.url) {
+      return;
     }
-  }, [mediaAsset]);
 
-  // Procedural elegant romantic fallback texture if no media asset is attached
+    let isSubscribed = true;
+    setIsLoading(true);
+    setHasError(false);
+
+    const loader = new THREE.TextureLoader();
+    loader.setCrossOrigin("anonymous");
+
+    const tex = loader.load(
+      mediaAsset.url,
+      () => {
+        if (isSubscribed) {
+          tex.generateMipmaps = true;
+          tex.minFilter = THREE.LinearMipmapLinearFilter;
+          setImageTexture(tex);
+          setIsLoading(false);
+        }
+      },
+      undefined,
+      () => {
+        if (isSubscribed) {
+          setHasError(true);
+          setIsLoading(false);
+        }
+      }
+    );
+
+    return () => {
+      isSubscribed = false;
+      tex.dispose();
+      setImageTexture(null);
+    };
+  }, [mediaAsset, isInActiveWindow]);
+
+  // Mobile Safari compliant Video Texture Handling
+  useEffect(() => {
+    if (!isInActiveWindow || !mediaAsset || mediaAsset.type !== "video" || !mediaAsset.url) {
+      setVideoTexture(null);
+      return;
+    }
+
+    if (typeof window === "undefined") return;
+
+    let isSubscribed = true;
+    setIsLoading(true);
+    setHasError(false);
+
+    const vid = document.createElement("video");
+    vid.src = mediaAsset.url;
+    vid.crossOrigin = "anonymous";
+    vid.loop = true;
+    vid.muted = true; // Required for mobile iOS Safari autoplay
+    vid.playsInline = true; // Prevent automatic fullscreen on iOS Safari
+    vid.preload = "metadata"; // Do not aggressively buffer until active
+
+    const onCanPlay = () => {
+      if (!isSubscribed) return;
+      vid.play().catch(() => {
+        // Autoplay may be deferred until user gesture
+      });
+      setIsLoading(false);
+    };
+
+    const onError = () => {
+      if (!isSubscribed) return;
+      setHasError(true);
+      setIsLoading(false);
+    };
+
+    vid.addEventListener("canplay", onCanPlay);
+    vid.addEventListener("error", onError);
+
+    const tex = new THREE.VideoTexture(vid);
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    tex.format = THREE.RGBAFormat;
+    setVideoTexture(tex);
+
+    return () => {
+      isSubscribed = false;
+      vid.removeEventListener("canplay", onCanPlay);
+      vid.removeEventListener("error", onError);
+      vid.pause();
+      vid.removeAttribute("src");
+      vid.load();
+      tex.dispose();
+      setVideoTexture(null);
+    };
+  }, [mediaAsset, isInActiveWindow]);
+
+  // Procedural elegant monogram fallback canvas texture
   const fallbackTexture = useMemo(() => {
     if (typeof window === "undefined") {
       return new THREE.CanvasTexture({} as HTMLCanvasElement);
@@ -99,18 +176,18 @@ export default function FloatingMediaFrame({
       ctx.fillStyle = glow;
       ctx.fillRect(0, 0, 512, 340);
 
-      // Elegant gold/rose monogram "S & V"
+      // Elegant monogram "S & V"
       ctx.font = "italic 44px 'Playfair Display', Georgia, serif";
       ctx.fillStyle = "#fecdd3";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText("S  &  V", 256, 160);
+      ctx.fillText("S  &  V", 256, 155);
 
       // Subtext
-      ctx.font = "12px monospace";
+      ctx.font = "11px monospace";
       ctx.fillStyle = "rgba(253, 164, 175, 0.75)";
       ctx.letterSpacing = "4px";
-      ctx.fillText("MEMORIES OF SIVSHA", 256, 210);
+      ctx.fillText("MEMORIES OF SIVSHA", 256, 205);
 
       // Subtle border line
       ctx.strokeStyle = "rgba(251, 113, 133, 0.35)";
@@ -122,16 +199,17 @@ export default function FloatingMediaFrame({
     return tex;
   }, []);
 
-  // Frame animation: gentle floating breath & tilt
+  // Frame floating animation: gentle breath & tilt (disabled under reduced-motion)
   useFrame((state) => {
+    if (reducedMotion || !groupRef.current) return;
     const t = state.clock.getElapsedTime();
-    if (groupRef.current) {
-      groupRef.current.position.y = position[1] + Math.sin(t * 1.5 + position[0]) * 0.04;
-      groupRef.current.rotation.z = rotation[2] + Math.sin(t * 1.2 + position[2]) * 0.015;
-    }
+    groupRef.current.position.y = position[1] + Math.sin(t * 1.5 + position[0]) * 0.04;
+    groupRef.current.rotation.z = rotation[2] + Math.sin(t * 1.2 + position[2]) * 0.015;
   });
 
-  const activeTexture = videoTexture || imageTexture || fallbackTexture;
+  const activeTexture = hasError
+    ? fallbackTexture
+    : videoTexture || imageTexture || fallbackTexture;
 
   return (
     <group ref={groupRef} position={position} rotation={rotation} scale={scale}>
