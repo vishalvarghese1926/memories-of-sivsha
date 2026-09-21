@@ -102,6 +102,10 @@ export interface CharacterControllerProps {
   // Facial Animation & Morph Targets
   facialConfig?: CharacterFacialConfig;
 
+  // Character Identity & Model Mode
+  isHero?: boolean; // Defaults to true for hero characters (loads real GLB). Set false for background actors.
+  useFallback?: boolean; // When true, forces the stylized procedural mesh
+
   // Visual Quality & Optimization
   castShadow?: boolean;
   receiveShadow?: boolean;

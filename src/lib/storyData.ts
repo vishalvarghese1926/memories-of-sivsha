@@ -406,7 +406,7 @@ export const INITIAL_TRIVIA_QUESTIONS: TriviaQuestion[] = [
     id: "q1",
     question: "What small object connected us for the very first time on admission day?",
     hint: "You gave it to my father when he needed it most.",
-    acceptedAnswers: ["pen", "a pen", "the pen", "ballpoint pen", "ink pen"],
+    acceptedAnswers: ["pen", "a pen", "the pen", "black pen", "ballpoint pen", "ink pen"],
   },
   {
     id: "q2",

@@ -250,6 +250,7 @@ export default function Act2FriendGroup({ progress = 0 }: Act2FriendGroupProps) 
       {/* Female Friend 1 (Left Front, x: -1.4, z: -1.2) */}
       <group position={[-1.4, -0.2, -1.2]}>
         <CharacterGirl
+          isHero={false}
           pose="sitting"
           scale={0.82}
           rotation={[0, 0.18, 0]}
@@ -262,6 +263,7 @@ export default function Act2FriendGroup({ progress = 0 }: Act2FriendGroupProps) 
       {/* Female Friend 2 (Right Front, x: +1.4, z: -1.2) */}
       <group position={[1.4, -0.2, -1.2]}>
         <CharacterGirl
+          isHero={false}
           pose="sitting"
           scale={0.82}
           rotation={[0, -0.18, 0]}
@@ -287,6 +289,7 @@ export default function Act2FriendGroup({ progress = 0 }: Act2FriendGroupProps) 
       {/* Male Friend 1 (Left Back, x: -1.4, z: +1.2) */}
       <group position={[-1.4, -0.2, 1.2]}>
         <CharacterBoy
+          isHero={false}
           pose="sitting"
           scale={0.84}
           rotation={[0, Math.PI - 0.22, 0]}
@@ -299,6 +302,7 @@ export default function Act2FriendGroup({ progress = 0 }: Act2FriendGroupProps) 
       {/* Male Friend 2 (Right Back, x: +1.4, z: +1.2) */}
       <group position={[1.4, -0.2, 1.2]}>
         <CharacterBoy
+          isHero={false}
           pose="sitting"
           scale={0.84}
           rotation={[0, Math.PI + 0.22, 0]}

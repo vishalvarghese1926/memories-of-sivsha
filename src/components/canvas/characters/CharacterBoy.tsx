@@ -11,6 +11,32 @@ import { applySkeletalLookAt } from "./lookAtController";
 import { updateFacialBlendshapes, FacialControllerState } from "./facialController";
 import { applyHandReach } from "./reachController";
 
+interface ErrorBoundaryProps {
+  fallback: React.ReactNode;
+  onError?: () => void;
+  children: React.ReactNode;
+}
+interface ErrorBoundaryState {
+  hasError: boolean;
+}
+class GLTFErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error: any) {
+    console.warn("CharacterBoy GLB load failure, falling back to procedural mesh:", error);
+    this.props.onError?.();
+  }
+  render() {
+    if (this.state.hasError) return this.props.fallback;
+    return this.props.children;
+  }
+}
+
 /**
  * Rigged SkinnedMesh Character Loader.
  * Safely mounts an external rigged GLB model with full skeletal hierarchy,
@@ -64,6 +90,21 @@ function RiggedGLTFCharacter({
     scrollVelocity,
   });
 
+  // Measure and normalize model dimensions and ground alignment
+  const { normalizedScale, groundOffset } = useMemo(() => {
+    if (!clonedScene) return { normalizedScale: 1, groundOffset: 0 };
+    const box = new THREE.Box3().setFromObject(clonedScene);
+    const size = new THREE.Vector3();
+    box.getSize(size);
+
+    // Realistic hero height ~1.75m
+    const targetHeight = 1.75;
+    const s = size.y > 0.1 ? targetHeight / size.y : 1;
+    // Ground offset: align the bottom of the bounding box to y = 0
+    const offsetY = -box.min.y * s;
+    return { normalizedScale: s, groundOffset: offsetY };
+  }, [clonedScene]);
+
   // Extract key humanoid bones & facial morph meshes
   const bones = useMemo(() => {
     if (!clonedScene) return {};
@@ -98,9 +139,17 @@ function RiggedGLTFCharacter({
     blinkProgress: 0,
   });
 
+  const innerRef = useRef<THREE.Group>(null);
+
   // Frame kinematics
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (!clonedScene) return;
+
+    // Organic idle breathing when no skeletal animations are present
+    if (innerRef.current && (!actions || Object.keys(actions).length === 0)) {
+      const t = state.clock.getElapsedTime();
+      innerRef.current.position.y = groundOffset + Math.sin(t * 1.8) * 0.005;
+    }
 
     // 1. Skeletal Head Tracking
     const activeLookTarget = lookAtTarget || lookAtConfig?.target;
@@ -143,7 +192,11 @@ function RiggedGLTFCharacter({
     return null;
   }
 
-  return <primitive object={clonedScene} />;
+  return (
+    <group ref={innerRef} position={[0, groundOffset, 0]} scale={normalizedScale}>
+      <primitive object={clonedScene} />
+    </group>
+  );
 }
 
 // Procedural Fallback Mesh Generator (Guarantees uninterrupted story rendering until GLB models are supplied)
@@ -631,7 +684,9 @@ export default function CharacterBoy({
   rotation = [0, 0, 0],
   scale = 1,
   pose = "idle",
-  modelUrl,
+  modelUrl = "/models/characters/you.glb",
+  isHero = true,
+  useFallback = false,
   lookAtTarget,
   lookAtConfig,
   reachProgress = 0,
@@ -645,52 +700,54 @@ export default function CharacterBoy({
   receiveShadow = true,
   visible = true,
 }: CharacterControllerProps) {
-  const [useFallback, setUseFallback] = useState(!modelUrl);
+  const [loadFailed, setLoadFailed] = useState(false);
 
-  // If modelUrl changes, reset fallback state
-  useEffect(() => {
-    setUseFallback(!modelUrl);
-  }, [modelUrl]);
+  // If isHero is explicitly false, or useFallback is true, or loadFailed, use procedural
+  const forceProcedural = useFallback || isHero === false || loadFailed || !modelUrl;
 
   if (!visible) return null;
 
+  const proceduralFallback = (
+    <ProceduralBoyMesh
+      pose={pose}
+      lookAtTarget={lookAtTarget || lookAtConfig?.target}
+      reachProgress={reachConfig?.progress ?? reachProgress}
+      windIntensity={windIntensity}
+    />
+  );
+
   return (
     <group position={position} rotation={rotation} scale={scale}>
-      {!useFallback && modelUrl ? (
-        <React.Suspense
-          fallback={
-            <ProceduralBoyMesh
+      {!forceProcedural ? (
+        <GLTFErrorBoundary fallback={proceduralFallback} onError={() => setLoadFailed(true)}>
+          <React.Suspense fallback={proceduralFallback}>
+            <RiggedGLTFCharacter
+              modelUrl={modelUrl}
               pose={pose}
-              lookAtTarget={lookAtTarget || lookAtConfig?.target}
-              reachProgress={reachConfig?.progress ?? reachProgress}
-              windIntensity={windIntensity}
+              lookAtTarget={lookAtTarget}
+              lookAtConfig={lookAtConfig}
+              reachProgress={reachProgress}
+              reachConfig={reachConfig}
+              facialConfig={facialConfig}
+              playbackSpeed={playbackSpeed}
+              scrollVelocity={scrollVelocity}
+              crossfadeDuration={crossfadeDuration}
+              castShadow={castShadow}
+              receiveShadow={receiveShadow}
+              onError={() => setLoadFailed(true)}
             />
-          }
-        >
-          <RiggedGLTFCharacter
-            modelUrl={modelUrl}
-            pose={pose}
-            lookAtTarget={lookAtTarget}
-            lookAtConfig={lookAtConfig}
-            reachProgress={reachProgress}
-            reachConfig={reachConfig}
-            facialConfig={facialConfig}
-            playbackSpeed={playbackSpeed}
-            scrollVelocity={scrollVelocity}
-            crossfadeDuration={crossfadeDuration}
-            castShadow={castShadow}
-            receiveShadow={receiveShadow}
-            onError={() => setUseFallback(true)}
-          />
-        </React.Suspense>
+          </React.Suspense>
+        </GLTFErrorBoundary>
       ) : (
-        <ProceduralBoyMesh
-          pose={pose}
-          lookAtTarget={lookAtTarget || lookAtConfig?.target}
-          reachProgress={reachConfig?.progress ?? reachProgress}
-          windIntensity={windIntensity}
-        />
+        proceduralFallback
       )}
     </group>
   );
+}
+
+// Preload the hero model
+try {
+  useGLTF.preload("/models/characters/you.glb");
+} catch {
+  // Graceful no-op in non-browser or test environments
 }

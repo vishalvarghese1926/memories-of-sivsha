@@ -37,8 +37,17 @@ export async function POST(req: NextRequest) {
     }
 
     // Mode B: Full Verification (batch of answers)
-    const answers = body.answers as Record<string, string> | undefined;
-    if (!answers || typeof answers !== "object") {
+    // Seamlessly support both Record<string, string> and Array<{ id: string, answer: string }>
+    const answersMap: Record<string, string> = {};
+    if (Array.isArray(body.answers)) {
+      for (const item of body.answers) {
+        if (item && item.id) {
+          answersMap[item.id] = String(item.answer || "");
+        }
+      }
+    } else if (body.answers && typeof body.answers === "object") {
+      Object.assign(answersMap, body.answers);
+    } else {
       return NextResponse.json(
         { success: false, error: "Invalid answers submitted." },
         { status: 400 }
@@ -48,7 +57,7 @@ export async function POST(req: NextRequest) {
     const failedQuestions: string[] = [];
 
     for (const q of INITIAL_TRIVIA_QUESTIONS) {
-      const submittedRaw = answers[q.id] || "";
+      const submittedRaw = answersMap[q.id] || "";
       const submittedNorm = submittedRaw.trim().toLowerCase();
 
       // Accept valid answers or previously verified indicator

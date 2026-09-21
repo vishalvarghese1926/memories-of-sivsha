@@ -11,6 +11,32 @@ import { applySkeletalLookAt } from "./lookAtController";
 import { updateFacialBlendshapes, FacialControllerState } from "./facialController";
 import { applyHandReach } from "./reachController";
 
+interface ErrorBoundaryProps {
+  fallback: React.ReactNode;
+  onError?: () => void;
+  children: React.ReactNode;
+}
+interface ErrorBoundaryState {
+  hasError: boolean;
+}
+class GLTFErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error: any) {
+    console.warn("CharacterGirl GLB load failure, falling back to procedural mesh:", error);
+    this.props.onError?.();
+  }
+  render() {
+    if (this.state.hasError) return this.props.fallback;
+    return this.props.children;
+  }
+}
+
 /**
  * Rigged SkinnedMesh Character Loader for Sivani.
  * Supports external GLB character models with skeletal animation,
@@ -61,6 +87,21 @@ function RiggedGLTFGirlCharacter({
     scrollVelocity,
   });
 
+  // Measure and normalize model dimensions and ground alignment
+  const { normalizedScale, groundOffset } = useMemo(() => {
+    if (!clonedScene) return { normalizedScale: 1, groundOffset: 0 };
+    const box = new THREE.Box3().setFromObject(clonedScene);
+    const size = new THREE.Vector3();
+    box.getSize(size);
+
+    // Sivani hero target height ~1.65m
+    const targetHeight = 1.65;
+    const s = size.y > 0.1 ? targetHeight / size.y : 1;
+    // Ground offset: align the bottom of the bounding box to y = 0
+    const offsetY = -box.min.y * s;
+    return { normalizedScale: s, groundOffset: offsetY };
+  }, [clonedScene]);
+
   const bones = useMemo(() => {
     if (!clonedScene) return {};
     const found: Record<string, THREE.Object3D> = {};
@@ -93,8 +134,16 @@ function RiggedGLTFGirlCharacter({
     blinkProgress: 0,
   });
 
-  useFrame((_, delta) => {
+  const innerRef = useRef<THREE.Group>(null);
+
+  useFrame((state, delta) => {
     if (!clonedScene) return;
+
+    // Organic idle breathing when no skeletal animations are present
+    if (innerRef.current && (!actions || Object.keys(actions).length === 0)) {
+      const t = state.clock.getElapsedTime();
+      innerRef.current.position.y = groundOffset + Math.sin(t * 2.0) * 0.005;
+    }
 
     // 1. Skeletal Head Tracking
     const activeLookTarget = lookAtTarget || lookAtConfig?.target;
@@ -137,7 +186,11 @@ function RiggedGLTFGirlCharacter({
     return null;
   }
 
-  return <primitive object={clonedScene} />;
+  return (
+    <group ref={innerRef} position={[0, groundOffset, 0]} scale={normalizedScale}>
+      <primitive object={clonedScene} />
+    </group>
+  );
 }
 
 // Procedural Sivani Mesh Generator (Resilient Fallback)
@@ -604,7 +657,9 @@ export default function CharacterGirl({
   rotation = [0, 0, 0],
   scale = 1,
   pose = "idle",
-  modelUrl,
+  modelUrl = "/models/characters/sivani.glb",
+  isHero = true,
+  useFallback = false,
   lookAtTarget,
   lookAtConfig,
   offerProgress = 0,
@@ -619,52 +674,55 @@ export default function CharacterGirl({
   receiveShadow = true,
   visible = true,
 }: CharacterControllerProps) {
-  const [useFallback, setUseFallback] = useState(!modelUrl);
+  const [loadFailed, setLoadFailed] = useState(false);
 
-  useEffect(() => {
-    setUseFallback(!modelUrl);
-  }, [modelUrl]);
+  // If isHero is explicitly false, or useFallback is true, or loadFailed, use procedural
+  const forceProcedural = useFallback || isHero === false || loadFailed || !modelUrl;
 
   if (!visible) return null;
 
+  const proceduralFallback = (
+    <ProceduralGirlMesh
+      pose={pose}
+      lookAtTarget={lookAtTarget || lookAtConfig?.target}
+      offerProgress={reachConfig?.progress ?? (offerProgress || reachProgress)}
+      windIntensity={windIntensity}
+    />
+  );
+
   return (
     <group position={position} rotation={rotation} scale={scale}>
-      {!useFallback && modelUrl ? (
-        <React.Suspense
-          fallback={
-            <ProceduralGirlMesh
+      {!forceProcedural ? (
+        <GLTFErrorBoundary fallback={proceduralFallback} onError={() => setLoadFailed(true)}>
+          <React.Suspense fallback={proceduralFallback}>
+            <RiggedGLTFGirlCharacter
+              modelUrl={modelUrl}
               pose={pose}
-              lookAtTarget={lookAtTarget || lookAtConfig?.target}
-              offerProgress={reachConfig?.progress ?? (offerProgress || reachProgress)}
-              windIntensity={windIntensity}
+              lookAtTarget={lookAtTarget}
+              lookAtConfig={lookAtConfig}
+              offerProgress={offerProgress}
+              reachProgress={reachProgress}
+              reachConfig={reachConfig}
+              facialConfig={facialConfig}
+              playbackSpeed={playbackSpeed}
+              scrollVelocity={scrollVelocity}
+              crossfadeDuration={crossfadeDuration}
+              castShadow={castShadow}
+              receiveShadow={receiveShadow}
+              onError={() => setLoadFailed(true)}
             />
-          }
-        >
-          <RiggedGLTFGirlCharacter
-            modelUrl={modelUrl}
-            pose={pose}
-            lookAtTarget={lookAtTarget}
-            lookAtConfig={lookAtConfig}
-            offerProgress={offerProgress}
-            reachProgress={reachProgress}
-            reachConfig={reachConfig}
-            facialConfig={facialConfig}
-            playbackSpeed={playbackSpeed}
-            scrollVelocity={scrollVelocity}
-            crossfadeDuration={crossfadeDuration}
-            castShadow={castShadow}
-            receiveShadow={receiveShadow}
-            onError={() => setUseFallback(true)}
-          />
-        </React.Suspense>
+          </React.Suspense>
+        </GLTFErrorBoundary>
       ) : (
-        <ProceduralGirlMesh
-          pose={pose}
-          lookAtTarget={lookAtTarget || lookAtConfig?.target}
-          offerProgress={reachConfig?.progress ?? (offerProgress || reachProgress)}
-          windIntensity={windIntensity}
-        />
+        proceduralFallback
       )}
     </group>
   );
+}
+
+// Preload the hero model
+try {
+  useGLTF.preload("/models/characters/sivani.glb");
+} catch {
+  // Graceful no-op in non-browser or test environments
 }

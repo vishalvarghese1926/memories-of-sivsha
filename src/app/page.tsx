@@ -42,7 +42,19 @@ export default function EntryPage() {
     }
   }, [isUnlocked]);
 
-  // Load sanitized questions when entering trivia stage
+  // Pre-fetch sanitized trivia questions on mount to eliminate transition latency
+  useEffect(() => {
+    fetch("/api/trivia/questions")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.questions && Array.isArray(data.questions)) {
+          setQuestions(data.questions);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Fallback check if questions failed on initial mount
   useEffect(() => {
     if (stage === "trivia" && questions.length === 0) {
       fetch("/api/trivia/questions")
@@ -57,6 +69,9 @@ export default function EntryPage() {
         });
     }
   }, [stage, questions.length]);
+
+  // Track verified answers
+  const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
 
   // Stage 1 Form Submission
   const handleEntrySubmit = async (e?: FormEvent) => {
@@ -131,40 +146,46 @@ export default function EntryPage() {
 
     setIsCheckingTrivia(true);
     try {
-      const res = await fetch("/api/auth/verify-trivia", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          questionId: currentQ.id,
-          answer: trimmed,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success || !data.correct) {
-        setTriviaError(data.message || "That answer doesn't feel quite right. Try again.");
-        setIsCheckingTrivia(false);
-        return;
-      }
-
-      // Correct answer! Advance to next or complete
       if (currentQIndex < questions.length - 1) {
+        // Individual Question Verification
+        const res = await fetch("/api/auth/verify-trivia", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            questionId: currentQ.id,
+            answer: trimmed,
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success || !data.correct) {
+          setTriviaError(data.message || "That answer doesn't feel quite right. Try again.");
+          setIsCheckingTrivia(false);
+          return;
+        }
+
+        setUserAnswers((prev) => ({ ...prev, [currentQ.id]: trimmed }));
         setCurrentQIndex((prev) => prev + 1);
         setCurrentAnswer("");
         setShowHint(false);
       } else {
-        // All 3 questions completed! Also submit batch to establish session cookie
-        const answersBatch: Record<string, string> = {};
-        questions.forEach((q, idx) => {
-          answersBatch[q.id] = idx === currentQIndex ? trimmed : "verified";
-        });
-
-        await fetch("/api/auth/verify-trivia", {
+        // Final Question: Verify complete answers set and establish signed session cookie in ONE reliable trip
+        const completeBatch = { ...userAnswers, [currentQ.id]: trimmed };
+        const res = await fetch("/api/auth/verify-trivia", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ answers: answersBatch }),
+          body: JSON.stringify({ answers: completeBatch }),
         });
 
+        const data = await res.json();
+        if (!res.ok || !data.success || !data.correct) {
+          setTriviaError(data.message || "That answer doesn't feel quite right. Try again.");
+          setIsCheckingTrivia(false);
+          return;
+        }
+
+        // Purge client-side router cache so Next.js server components recognize the fresh cookie
+        router.refresh();
         setIsUnlocked(true);
         setStage("ready-to-unlock");
       }
@@ -186,13 +207,13 @@ export default function EntryPage() {
   }, [setIsUnlocked, setUnlockState]);
 
   const handleEnterStory = useCallback(() => {
-    router.push("/story");
-    // Fallback in case client-side transition is stalled
-    setTimeout(() => {
-      if (typeof window !== "undefined" && window.location.pathname !== "/story") {
-        window.location.assign("/story");
-      }
-    }, 250);
+    // Authoritative full-page navigation guarantees the httpOnly cookie is sent
+    // directly to the server, completely bypassing any stale client-side router cache
+    if (typeof window !== "undefined") {
+      window.location.href = "/story";
+    } else {
+      router.push("/story");
+    }
   }, [router]);
 
   return (
@@ -308,8 +329,7 @@ export default function EntryPage() {
 
               {/* Submit Button */}
               <button
-                type="button"
-                onClick={handleEntrySubmit}
+                type="submit"
                 disabled={isSubmittingEntry}
                 className="w-full mt-2 py-3.5 px-6 rounded-xl bg-gradient-to-r from-rose-700 via-rose-600 to-rose-700 text-white font-medium text-sm tracking-wide shadow-romantic-glow hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[48px]"
               >
@@ -400,8 +420,7 @@ export default function EntryPage() {
 
                   {/* Continue Button */}
                   <button
-                    type="button"
-                    onClick={handleTriviaSubmit}
+                    type="submit"
                     disabled={isCheckingTrivia}
                     className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-rose-700 via-rose-600 to-rose-700 text-white font-medium text-sm tracking-wide shadow-romantic-glow hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[48px]"
                   >
