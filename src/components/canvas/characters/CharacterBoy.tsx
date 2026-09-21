@@ -10,6 +10,8 @@ import { useCharacterAnimationController } from "./animationController";
 import { applySkeletalLookAt } from "./lookAtController";
 import { updateFacialBlendshapes, FacialControllerState } from "./facialController";
 import { applyHandReach } from "./reachController";
+import { getHeroModelUrl } from "@/config/assets";
+import { inspectGLTFModel, checkAndWarnAssetPerformance } from "@/lib/gltfDiagnostics";
 
 interface ErrorBoundaryProps {
   fallback: React.ReactNode;
@@ -105,18 +107,26 @@ function RiggedGLTFCharacter({
     return { normalizedScale: s, groundOffset: offsetY };
   }, [clonedScene]);
 
-  // Extract key humanoid bones & facial morph meshes
+  // Inspect model diagnostics and warn if mobile budgets are exceeded
+  useEffect(() => {
+    if (clonedScene) {
+      const diag = inspectGLTFModel(clonedScene, gltf?.animations || [], modelUrl);
+      checkAndWarnAssetPerformance(diag);
+    }
+  }, [clonedScene, gltf, modelUrl]);
+
+  // Extract key humanoid bones & facial morph meshes (supports Mixamo, Blender, Rigify)
   const bones = useMemo(() => {
     if (!clonedScene) return {};
     const found: Record<string, THREE.Object3D> = {};
     clonedScene.traverse((obj: THREE.Object3D) => {
       const n = obj.name.toLowerCase();
-      if (n.includes("head")) found.head = obj;
-      else if (n.includes("neck")) found.neck = obj;
-      else if (n.includes("spine")) found.spine = obj;
-      else if (n.includes("rightarm") || n.includes("arm_r") || n.includes("shoulder_r")) found.rightArm = obj;
-      else if (n.includes("rightforearm") || n.includes("forearm_r")) found.rightForearm = obj;
-      else if (n.includes("righthand") || n.includes("hand_r")) found.rightHand = obj;
+      if (n.includes("head") || n.includes("def-head") || n.includes("b_head")) found.head = obj;
+      else if (n.includes("neck") || n.includes("def-neck") || n.includes("b_neck")) found.neck = obj;
+      else if (n.includes("spine") || n.includes("def-spine") || n.includes("b_spine")) found.spine = obj;
+      else if (n.includes("rightarm") || n.includes("arm_r") || n.includes("shoulder_r") || n.includes("mixamorigrightarm") || n.includes("b_r_arm")) found.rightArm = obj;
+      else if (n.includes("rightforearm") || n.includes("forearm_r") || n.includes("mixamorigrightforearm") || n.includes("b_r_forearm")) found.rightForearm = obj;
+      else if (n.includes("righthand") || n.includes("hand_r") || n.includes("mixamorigrighthand") || n.includes("b_r_hand")) found.rightHand = obj;
     });
     return found;
   }, [clonedScene]);
@@ -684,7 +694,7 @@ export default function CharacterBoy({
   rotation = [0, 0, 0],
   scale = 1,
   pose = "idle",
-  modelUrl = "/models/characters/you.glb",
+  modelUrl = getHeroModelUrl("you"),
   isHero = true,
   useFallback = false,
   lookAtTarget,
@@ -747,7 +757,7 @@ export default function CharacterBoy({
 
 // Preload the hero model
 try {
-  useGLTF.preload("/models/characters/you.glb");
+  useGLTF.preload(getHeroModelUrl("you"));
 } catch {
   // Graceful no-op in non-browser or test environments
 }

@@ -13,10 +13,24 @@ export interface MorphTargetDiagnostic {
   morphTargetNames: string[];
 }
 
+import { ASSET_PERFORMANCE_BUDGETS } from "@/config/assets";
+
+export interface PerformanceBudgetEvaluation {
+  requiresOptimization: boolean;
+  violations: string[];
+  fileSizeViolation: boolean;
+  vertexCountViolation: boolean;
+  triangleCountViolation: boolean;
+  missingSkeleton: boolean;
+  missingAnimations: boolean;
+  statusText: "MODEL REQUIRES OPTIMIZATION" | "OPTIMIZED FOR PRODUCTION";
+}
+
 export interface ModelDiagnostics {
   modelUrl: string;
   isLoaded: boolean;
   fileSizeEstimate?: string;
+  fileSizeBytes?: number;
   dimensions: {
     width: number;
     height: number;
@@ -65,6 +79,7 @@ export interface ModelDiagnostics {
   };
   memoryRiskAssessment: "LOW" | "MODERATE" | "HIGH" | "CRITICAL";
   recommendations: string[];
+  performanceEvaluation: PerformanceBudgetEvaluation;
 }
 
 /**
@@ -267,5 +282,130 @@ export function inspectGLTFModel(
     supportedMorphTargets,
     memoryRiskAssessment: memoryRisk,
     recommendations,
+    performanceEvaluation: evaluateModelPerformance({
+      triangleCount: Math.round(triangleCount),
+      vertexCount,
+      boneCount: boneNames.length,
+      animationClipNames,
+      modelUrl,
+    }),
   };
 }
+
+/**
+ * Technical evaluator that tests a model against mobile performance budgets.
+ * Flags:
+ * - GLB > 25 MB
+ * - vertices > 250,000
+ * - triangles > 500,000
+ * - no skeleton exists
+ * - no animations exist
+ */
+export function evaluateModelPerformance(params: {
+  triangleCount: number;
+  vertexCount: number;
+  boneCount: number;
+  animationClipNames: string[];
+  modelUrl: string;
+  fileSizeBytes?: number;
+}): PerformanceBudgetEvaluation {
+  const violations: string[] = [];
+
+  const fileSizeViolation =
+    params.fileSizeBytes !== undefined &&
+    params.fileSizeBytes > ASSET_PERFORMANCE_BUDGETS.maxFileSizeBytes;
+
+  const vertexCountViolation =
+    params.vertexCount > ASSET_PERFORMANCE_BUDGETS.maxVertices;
+
+  const triangleCountViolation =
+    params.triangleCount > ASSET_PERFORMANCE_BUDGETS.maxTriangles;
+
+  const missingSkeleton =
+    ASSET_PERFORMANCE_BUDGETS.requiresArmature && params.boneCount === 0;
+
+  const missingAnimations =
+    ASSET_PERFORMANCE_BUDGETS.requiresAnimations &&
+    params.animationClipNames.length === 0;
+
+  if (fileSizeViolation) {
+    violations.push(
+      `File size (${(params.fileSizeBytes! / (1024 * 1024)).toFixed(1)} MB) exceeds 25 MB mobile budget`
+    );
+  }
+
+  if (vertexCountViolation) {
+    violations.push(
+      `Vertex count (${params.vertexCount.toLocaleString()}) exceeds 250k mobile budget`
+    );
+  }
+
+  if (triangleCountViolation) {
+    violations.push(
+      `Triangle count (${params.triangleCount.toLocaleString()}) exceeds 500k budget`
+    );
+  }
+
+  if (missingSkeleton) {
+    violations.push(
+      "No skeletal armature detected (0 bones) - required for locomotion & reach kinematics"
+    );
+  }
+
+  if (missingAnimations) {
+    violations.push(
+      "No animation clips detected (0 clips) - standard locomotion clips missing"
+    );
+  }
+
+  const requiresOptimization = violations.length > 0;
+
+  return {
+    requiresOptimization,
+    violations,
+    fileSizeViolation,
+    vertexCountViolation,
+    triangleCountViolation,
+    missingSkeleton,
+    missingAnimations,
+    statusText: requiresOptimization
+      ? "MODEL REQUIRES OPTIMIZATION"
+      : "OPTIMIZED FOR PRODUCTION",
+  };
+}
+
+// Cache of models that have already logged performance diagnostics to prevent console spam
+const warnedAssetUrls = new Set<string>();
+
+/**
+ * Checks model performance and logs a structured development warning if budgets are exceeded.
+ */
+export function checkAndWarnAssetPerformance(
+  diagnostics: ModelDiagnostics,
+  fileSizeBytes?: number
+): PerformanceBudgetEvaluation {
+  const evaluation = evaluateModelPerformance({
+    triangleCount: diagnostics.triangleCount,
+    vertexCount: diagnostics.vertexCount,
+    boneCount: diagnostics.boneCount,
+    animationClipNames: diagnostics.animationClipNames,
+    modelUrl: diagnostics.modelUrl,
+    fileSizeBytes: fileSizeBytes || diagnostics.fileSizeBytes,
+  });
+
+  if (evaluation.requiresOptimization && !warnedAssetUrls.has(diagnostics.modelUrl)) {
+    warnedAssetUrls.add(diagnostics.modelUrl);
+
+    if (typeof window !== "undefined") {
+      console.warn(
+        `%c⚠️ [3D ASSET PERFORMANCE] ${evaluation.statusText}: ${diagnostics.modelUrl}\n` +
+          evaluation.violations.map((v) => `  • ${v}`).join("\n") +
+          `\n  💡 Note: Real asset continues to load with graceful fallback. Optimization required before final mobile deployment.`,
+        "color: #f43f5e; font-weight: bold; font-size: 11px;"
+      );
+    }
+  }
+
+  return evaluation;
+}
+

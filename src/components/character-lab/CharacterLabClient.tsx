@@ -9,6 +9,7 @@ import { ModelDiagnostics } from "@/lib/gltfDiagnostics";
 import GLBValidationLoader from "@/components/canvas/characters/GLBValidationLoader";
 import CharacterBoy from "@/components/canvas/characters/CharacterBoy";
 import CharacterGirl from "@/components/canvas/characters/CharacterGirl";
+import { getHeroModelUrl } from "@/config/assets";
 import {
   User,
   Activity,
@@ -21,6 +22,7 @@ import {
   AlertTriangle,
   FileQuestion,
   RefreshCw,
+  Sparkles,
 } from "lucide-react";
 
 type CharacterChoice = "you" | "sivani";
@@ -29,6 +31,7 @@ type ReachMode = "none" | "partial" | "full";
 
 export default function CharacterLabClient() {
   const [selectedCharacter, setSelectedCharacter] = useState<CharacterChoice>("you");
+  const [preferOptimized, setPreferOptimized] = useState(false);
   const [selectedPose, setSelectedPose] = useState<CharacterPose>("idle");
   const [facialExpression, setFacialExpression] = useState<"neutral" | "smile">("neutral");
   const [autoBlink, setAutoBlink] = useState(true);
@@ -40,10 +43,7 @@ export default function CharacterLabClient() {
   const [modelAvailable, setModelAvailable] = useState<boolean | null>(null);
   const [diagnostics, setDiagnostics] = useState<ModelDiagnostics | null>(null);
 
-  const modelUrl =
-    selectedCharacter === "you"
-      ? "/models/characters/you.glb"
-      : "/models/characters/sivani.glb";
+  const modelUrl = getHeroModelUrl(selectedCharacter, preferOptimized);
 
   // Check whether the physical file exists on the server
   useEffect(() => {
@@ -100,7 +100,27 @@ export default function CharacterLabClient() {
           </span>
           <span className="text-neutral-500">|</span>
           <span className="text-rose-300 uppercase font-medium">{selectedCharacter}</span>
+          {preferOptimized && (
+            <span className="bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full text-[10px] border border-amber-500/40">
+              OPTIMIZED PIPELINE
+            </span>
+          )}
         </div>
+
+        {/* Real-time Performance Warning Pill */}
+        {diagnostics?.performanceEvaluation?.requiresOptimization && (
+          <div className="absolute top-4 right-4 z-10 max-w-sm bg-rose-950/90 backdrop-blur-md px-3.5 py-2 rounded-2xl border border-rose-500/50 text-xs text-rose-200 flex items-center gap-2.5 shadow-xl animate-in fade-in duration-300">
+            <AlertTriangle className="w-4 h-4 text-rose-400 flex-shrink-0 animate-pulse" />
+            <div>
+              <span className="font-bold text-rose-300 uppercase tracking-wide text-[11px] block">
+                MODEL REQUIRES OPTIMIZATION
+              </span>
+              <span className="text-[10px] text-rose-300/80 block">
+                {diagnostics.performanceEvaluation.violations.length} budget threshold violation(s)
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Model Asset Installation Banner */}
         {modelAvailable === false && (
@@ -281,8 +301,43 @@ export default function CharacterLabClient() {
                 SIVANI
               </button>
             </div>
+            <div className="pt-2">
+              <div className="flex items-center justify-between text-[11px] mb-1.5 text-neutral-300">
+                <span className="flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-amber-400" />
+                  <span>Asset Pipeline Variant:</span>
+                </span>
+                <span className="font-mono text-[10px] text-neutral-400">
+                  {preferOptimized ? "Optimized Asset" : "Current Hero Asset"}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPreferOptimized(false)}
+                  className={`py-1.5 px-2 rounded-lg text-[11px] font-medium transition-all ${
+                    !preferOptimized
+                      ? "bg-neutral-700 text-white shadow-sm"
+                      : "bg-white/5 text-neutral-400 hover:text-white"
+                  }`}
+                >
+                  Current (.glb)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreferOptimized(true)}
+                  className={`py-1.5 px-2 rounded-lg text-[11px] font-medium transition-all ${
+                    preferOptimized
+                      ? "bg-amber-600 text-white shadow-sm"
+                      : "bg-white/5 text-neutral-400 hover:text-white"
+                  }`}
+                >
+                  Optimized (-optimized.glb)
+                </button>
+              </div>
+            </div>
             <p className="text-[10px] text-neutral-500">
-              Path: <code className="text-neutral-400">{modelUrl}</code>
+              Active Path: <code className="text-neutral-300 bg-black/40 px-1 py-0.5 rounded">{modelUrl}</code>
             </p>
           </section>
 
@@ -458,6 +513,50 @@ export default function CharacterLabClient() {
 
             {diagnostics ? (
               <div className="space-y-2.5 bg-black/40 p-3 rounded-xl border border-white/5 text-[11px] font-mono">
+                {/* Mobile Performance Budget Evaluation Banner */}
+                {diagnostics.performanceEvaluation && (
+                  <div
+                    className={`p-2.5 rounded-lg border text-xs ${
+                      diagnostics.performanceEvaluation.requiresOptimization
+                        ? "bg-rose-950/50 border-rose-500/50 text-rose-200"
+                        : "bg-emerald-950/50 border-emerald-500/50 text-emerald-200"
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5 font-bold uppercase tracking-wide text-[11px]">
+                      {diagnostics.performanceEvaluation.requiresOptimization ? (
+                        <>
+                          <AlertTriangle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+                          <span className="text-rose-300">MODEL REQUIRES OPTIMIZATION</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                          <span className="text-emerald-300">OPTIMIZED FOR PRODUCTION</span>
+                        </>
+                      )}
+                    </div>
+
+                    {diagnostics.performanceEvaluation.requiresOptimization && (
+                      <div className="mt-2 space-y-1 text-[10px]">
+                        <p className="text-rose-300/80 font-sans">
+                          Current asset exceeds mobile performance thresholds:
+                        </p>
+                        <ul className="space-y-0.5 font-mono text-rose-200/90 pl-1">
+                          {diagnostics.performanceEvaluation.violations.map((violation, idx) => (
+                            <li key={idx} className="flex items-start gap-1.5">
+                              <span className="text-rose-400 mt-0.5 font-bold">⚠️</span>
+                              <span>{violation}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <p className="text-[9px] text-neutral-400 pt-1 italic font-sans">
+                          Note: Asset will continue to load for development. Optimization recommended before final release.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className="flex justify-between text-neutral-400">
                   <span>Dimensions (W×H×D):</span>
                   <span className="text-neutral-200">
@@ -466,9 +565,9 @@ export default function CharacterLabClient() {
                   </span>
                 </div>
                 <div className="flex justify-between text-neutral-400">
-                  <span>Triangles:</span>
+                  <span>Vertices / Triangles:</span>
                   <span className="text-neutral-200">
-                    {diagnostics.triangleCount.toLocaleString()}
+                    {diagnostics.vertexCount ? diagnostics.vertexCount.toLocaleString() : "N/A"} / {diagnostics.triangleCount.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between text-neutral-400">
