@@ -118,7 +118,10 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
 
   const setScrollProgress = useCallback((progress: number) => {
     const clamped = Math.max(0, Math.min(1, progress));
-    setScrollProgressState(clamped);
+    setScrollProgressState((prev) => {
+      if (Math.abs(prev - clamped) < 0.00005) return prev;
+      return clamped;
+    });
 
     // Determine active milestone based on progress boundaries
     const count = milestones.length;
@@ -133,7 +136,7 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
         break;
       }
     }
-    setActiveMilestoneIndex(foundIndex);
+    setActiveMilestoneIndex((prev) => (prev === foundIndex ? prev : foundIndex));
   }, [milestones]);
 
   const toggleAudioMute = useCallback(() => {

@@ -6,6 +6,7 @@ import StoryCanvas from "@/components/canvas/StoryCanvas";
 import StoryCaption from "@/components/ui/StoryCaption";
 import StoryHeader from "@/components/ui/StoryHeader";
 import LetterModal from "@/components/ui/LetterModal";
+import StoryDebugOverlay from "@/components/ui/StoryDebugOverlay";
 import { useStory } from "@/context/StoryContext";
 
 export default function StoryEngineClient() {
@@ -38,6 +39,9 @@ export default function StoryEngineClient() {
 
         {/* Interactive Birthday Letter Parchment Modal */}
         <LetterModal />
+
+        {/* Development Diagnostic Overlay */}
+        {process.env.NODE_ENV === "development" && <StoryDebugOverlay />}
       </div>
 
       {/* Smooth Scroll Driver with Lenis & GSAP ScrollTrigger */}
