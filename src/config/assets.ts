@@ -98,7 +98,7 @@ export const HERO_CHARACTER_CONFIGS: Record<"you" | "sivani", HeroCharacterConfi
  */
 export function getHeroModelUrl(
   character: "you" | "sivani",
-  preferOptimized: boolean = false
+  preferOptimized: boolean = true
 ): string {
   const config = HERO_CHARACTER_CONFIGS[character];
   return preferOptimized ? config.optimizedModelUrl : config.primaryModelUrl;
@@ -249,4 +249,16 @@ export const ENVIRONMENT_ASSET_REGISTRY: Record<EnvironmentAssetKey, Environment
  */
 export function getEnvironmentAsset(key: EnvironmentAssetKey): EnvironmentAssetItem {
   return ENVIRONMENT_ASSET_REGISTRY[key];
+}
+
+/**
+ * Resolves the active model URL for an environment asset, preferring optimized variants.
+ */
+export function getEnvironmentModelUrl(
+  key: EnvironmentAssetKey,
+  preferOptimized: boolean = true
+): string {
+  const asset = ENVIRONMENT_ASSET_REGISTRY[key];
+  if (!asset) return "";
+  return (preferOptimized && asset.optimizedModelUrl) ? asset.optimizedModelUrl : asset.modelUrl;
 }

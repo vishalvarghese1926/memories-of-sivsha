@@ -17,29 +17,34 @@ export default function SmoothScrollProvider({
   onScroll,
 }: SmoothScrollProviderProps) {
   const lenisRef = useRef<Lenis | null>(null);
+  const onScrollRef = useRef(onScroll);
+  onScrollRef.current = onScroll;
 
   useEffect(() => {
-    // Detect mobile touch
-    const isTouch = typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+    // Detect mobile touch device
+    const isTouch =
+      typeof window !== "undefined" &&
+      ("ontouchstart" in window || navigator.maxTouchPoints > 0);
 
+    // Premium mobile-first responsive scrollytelling feel
     const lenis = new Lenis({
-      duration: isTouch ? 1.0 : 1.2,
+      duration: isTouch ? 0.75 : 1.1,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: true,
-      wheelMultiplier: 0.9,
-      touchMultiplier: 1.5,
+      wheelMultiplier: 0.95,
+      touchMultiplier: 1.25,
       infinite: false,
     });
 
     lenisRef.current = lenis;
 
-    // Connect Lenis to GSAP ScrollTrigger
+    // Connect Lenis to GSAP ScrollTrigger and forward progress + velocity
     lenis.on("scroll", (e: { progress: number; velocity: number }) => {
       ScrollTrigger.update();
-      if (onScroll) {
-        onScroll(e.progress, e.velocity);
+      if (onScrollRef.current) {
+        onScrollRef.current(e.progress, e.velocity);
       }
     });
 
@@ -55,7 +60,7 @@ export default function SmoothScrollProvider({
       lenis.destroy();
       lenisRef.current = null;
     };
-  }, [onScroll]);
+  }, []);
 
   return <div className="w-full relative">{children}</div>;
 }

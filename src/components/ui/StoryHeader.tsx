@@ -30,7 +30,7 @@ export default function StoryHeader() {
           type="button"
           onClick={toggleAudioMute}
           aria-label={isMuted ? "Unmute audio" : "Mute audio"}
-          className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-full glass-pill border border-white/10 flex items-center justify-center text-neutral-300 hover:text-white hover:border-white/25 active:scale-95 transition-all shadow-sm backdrop-blur-md"
+          className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-full glass-pill border border-white/10 flex items-center justify-center text-neutral-300 hover:text-white hover:border-white/25 interactive-spring shadow-sm backdrop-blur-md"
         >
           {isMuted ? (
             <VolumeX className="w-4 h-4 text-rose-400" />

@@ -296,14 +296,27 @@ function interpolateCamera(
   return THREE.MathUtils.lerp(fov1, fov2, u);
 }
 
+// Pre-allocated static vectors to eliminate GC churn inside 60-120fps useFrame
+const PEN_FOCAL_POINT = new THREE.Vector3(0.1, 1.35, -75.2);
+const CLASS_FOCAL_1 = new THREE.Vector3(0, 1.8, -125);
+const CLASS_FOCAL_2 = new THREE.Vector3(-0.9, 1.25, -114.2);
+const CLASS_FOCAL_3 = new THREE.Vector3(0.8, 1.25, -120.8);
+const CLASS_FOCAL_4 = new THREE.Vector3(0, 1.4, -118);
+const FG_FOCAL_POINT = new THREE.Vector3(0, 1.15, -152);
+const AUG_FOCAL_POINT = new THREE.Vector3(-0.2, 1.25, -345);
+
+const TARGET_POS_SCRATCH = new THREE.Vector3();
+const TARGET_LOOK_SCRATCH = new THREE.Vector3();
+
 export default function CameraRig() {
-  const { scrollProgress, orientation } = useStory();
+  const { scrollProgressRef, orientation } = useStory();
   const { camera } = useThree();
 
   const currentPos = useRef(new THREE.Vector3(0, 4, 18));
   const currentLookAt = useRef(new THREE.Vector3(0, 1.5, 0));
   const tempTargetPos = useRef(new THREE.Vector3());
   const tempTargetLook = useRef(new THREE.Vector3());
+  const currentBankRef = useRef(0);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -317,7 +330,7 @@ export default function CameraRig() {
   }, []);
 
   useFrame((_, delta) => {
-    const t = THREE.MathUtils.clamp(scrollProgress, 0, 1);
+    const t = THREE.MathUtils.clamp(scrollProgressRef.current, 0, 1);
 
     // 1. Evaluate smooth Catmull-Rom spline at normalized scroll progress
     const targetFov = interpolateCamera(
@@ -327,61 +340,76 @@ export default function CameraRig() {
       tempTargetLook.current
     );
 
-    const targetPos = tempTargetPos.current.clone();
-    let targetLook = tempTargetLook.current.clone();
+    TARGET_POS_SCRATCH.copy(tempTargetPos.current);
+    TARGET_LOOK_SCRATCH.copy(tempTargetLook.current);
 
     // 2. EMOTIONAL FOCAL OVERRIDES PRESERVED
     // Pen exchange milestone (t ~ 0.32 to 0.38): lock target onto pen exchange center
     if (t >= 0.32 && t <= 0.38) {
       const penFactor = Math.sin(((t - 0.32) / (0.38 - 0.32)) * Math.PI);
-      const penFocalPoint = new THREE.Vector3(0.1, 1.35, -75.2);
-      targetLook.lerp(penFocalPoint, penFactor * 0.9);
+      TARGET_LOOK_SCRATCH.lerp(PEN_FOCAL_POINT, penFactor * 0.9);
     }
     // Classroom milestone (t ~ 0.38 to 0.45): rack focus between blackboard, boy, and Sivani
     else if (t >= 0.38 && t <= 0.45) {
       const classProgress = (t - 0.38) / (0.45 - 0.38);
-      let classFocalPoint = new THREE.Vector3(0, 1.8, -125);
+      let classFocalPoint = CLASS_FOCAL_1;
 
       if (classProgress < 0.2) {
-        classFocalPoint = new THREE.Vector3(0, 1.8, -125);
+        classFocalPoint = CLASS_FOCAL_1;
       } else if (classProgress < 0.45) {
-        classFocalPoint = new THREE.Vector3(-0.9, 1.25, -114.2);
+        classFocalPoint = CLASS_FOCAL_2;
       } else if (classProgress < 0.75) {
-        classFocalPoint = new THREE.Vector3(0.8, 1.25, -120.8);
+        classFocalPoint = CLASS_FOCAL_3;
       } else {
-        classFocalPoint = new THREE.Vector3(0, 1.4, -118);
+        classFocalPoint = CLASS_FOCAL_4;
       }
 
       const classFactor = Math.sin(classProgress * Math.PI);
-      targetLook.lerp(classFocalPoint, classFactor * 0.85);
+      TARGET_LOOK_SCRATCH.lerp(classFocalPoint, classFactor * 0.85);
     }
     // Friend Group milestone (t ~ 0.45 to 0.53): focus on shared study table
     else if (t >= 0.45 && t <= 0.53) {
       const fgProgress = (t - 0.45) / (0.53 - 0.45);
       const fgFactor = Math.sin(fgProgress * Math.PI);
-      const fgFocalPoint = new THREE.Vector3(0, 1.15, -152);
-      targetLook.lerp(fgFocalPoint, fgFactor * 0.85);
+      TARGET_LOOK_SCRATCH.lerp(FG_FOCAL_POINT, fgFactor * 0.85);
     }
     // August 31 milestone (t ~ 0.75 to 0.80): lock focus on car interior & couple
     else if (t >= 0.75 && t <= 0.80) {
       const augFactor = Math.sin(((t - 0.75) / (0.80 - 0.75)) * Math.PI);
-      const augFocalPoint = new THREE.Vector3(-0.2, 1.25, -345);
-      targetLook.lerp(augFocalPoint, augFactor * 0.85);
+      TARGET_LOOK_SCRATCH.lerp(AUG_FOCAL_POINT, augFactor * 0.85);
+    }
+
+    // 3. Cinematic Camera Banking (gentle roll on lateral turns)
+    if (!reducedMotion) {
+      const lateralVel = TARGET_POS_SCRATCH.x - currentPos.current.x;
+      const targetBank = THREE.MathUtils.clamp(-lateralVel * 0.08, -0.04, 0.04);
+      currentBankRef.current = THREE.MathUtils.lerp(
+        currentBankRef.current,
+        targetBank,
+        Math.min(1, delta * 6.0)
+      );
+    } else {
+      currentBankRef.current = 0;
     }
 
     // Apply gentle gyro parallax if not reduced motion
     if (!reducedMotion) {
-      targetPos.x += orientation.gamma * 0.2;
-      targetPos.y += orientation.beta * 0.15;
+      TARGET_POS_SCRATCH.x += orientation.gamma * 0.2;
+      TARGET_POS_SCRATCH.y += orientation.beta * 0.15;
     }
 
     // Steadycam kinematic damping: responsive yet cinematic (eliminates sluggish lag)
     const damping = reducedMotion ? Math.min(1, delta * 12.0) : Math.min(1, delta * 10.0);
-    currentPos.current.lerp(targetPos, damping);
-    currentLookAt.current.lerp(targetLook, damping);
+    currentPos.current.lerp(TARGET_POS_SCRATCH, damping);
+    currentLookAt.current.lerp(TARGET_LOOK_SCRATCH, damping);
 
     camera.position.copy(currentPos.current);
     camera.lookAt(currentLookAt.current);
+
+    // Subtle cinematic camera roll banking along turns
+    if (!reducedMotion && Math.abs(currentBankRef.current) > 0.0001) {
+      camera.rotation.z += currentBankRef.current;
+    }
 
     // Smooth FOV interpolation
     if (camera instanceof THREE.PerspectiveCamera) {
@@ -393,12 +421,14 @@ export default function CameraRig() {
       }
     }
 
-    // Development diagnostic telemetry
+    // Development diagnostic telemetry without cloning
     if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
-      (window as any).__storyCamera = {
-        pos: currentPos.current.clone(),
-        look: currentLookAt.current.clone(),
-      };
+      const w = window as any;
+      if (!w.__storyCamera) {
+        w.__storyCamera = { pos: new THREE.Vector3(), look: new THREE.Vector3() };
+      }
+      w.__storyCamera.pos.copy(currentPos.current);
+      w.__storyCamera.look.copy(currentLookAt.current);
     }
   });
 

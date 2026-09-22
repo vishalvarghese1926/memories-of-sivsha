@@ -106,7 +106,7 @@ export default function StoryCaption() {
       {/* Top Header Placeholder (Spacing) */}
       <div className="h-12" />
 
-      {/* Main Narrative Caption Overlay */}
+      {/* Main Narrative Caption Overlay with Multiplane Depth */}
       <div
         className={`w-full max-w-2xl mx-auto text-center px-4 transition-all ${
           reducedMotion ? "duration-100" : "duration-500 ease-out"
@@ -115,12 +115,17 @@ export default function StoryCaption() {
           opacity,
           transform: reducedMotion
             ? "none"
-            : `translateY(${(1 - opacity) * 16}px)`,
+            : `translateY(${(1 - opacity) * 14}px) scale(${0.97 + opacity * 0.03})`,
         }}
       >
-        {/* Optional Date / Location Tags */}
+        {/* Layer 1: Optional Date / Location Tags (Slowest Parallax Layer) */}
         {(currentMilestone.date || currentMilestone.location) && (
-          <div className="inline-flex items-center gap-3 px-3.5 py-1 rounded-full glass-pill text-xs tracking-wider uppercase text-rose-300/90 font-medium mb-3 shadow-sm">
+          <div
+            className="inline-flex items-center gap-3 px-3.5 py-1 rounded-full glass-pill text-xs tracking-wider uppercase text-rose-300/90 font-medium mb-3 shadow-sm transition-transform duration-700 ease-out"
+            style={{
+              transform: reducedMotion ? "none" : `translateY(${(1 - opacity) * 6}px)`,
+            }}
+          >
             {currentMilestone.date && (
               <span className="inline-flex items-center gap-1.5">
                 <Calendar className="w-3 h-3 text-rose-400" />
@@ -139,21 +144,36 @@ export default function StoryCaption() {
           </div>
         )}
 
-        {/* Milestone Title */}
-        <h2 className="text-2xl sm:text-4xl md:text-5xl font-serif font-bold text-gradient-rose tracking-wide mb-2 leading-tight drop-shadow-md">
-          {currentMilestone.title}
-        </h2>
+        {/* Layer 2: Masked Milestone Title (Medium Depth Layer) */}
+        <div className="overflow-hidden py-1">
+          <h2
+            key={currentMilestone.id}
+            className={`text-2xl sm:text-4xl md:text-5xl font-serif font-bold text-gradient-rose tracking-wide mb-2 leading-tight drop-shadow-md ${
+              reducedMotion ? "" : "animate-mask-reveal"
+            }`}
+          >
+            {currentMilestone.title}
+          </h2>
+        </div>
 
-        {/* Milestone Subtitle */}
+        {/* Milestone Subtitle with elegant letter tracking */}
         {currentMilestone.subtitle && (
-          <p className="text-xs sm:text-sm md:text-base font-light tracking-widest uppercase text-rose-200/70 mb-4">
+          <p className="text-xs sm:text-sm md:text-base font-light tracking-[0.2em] uppercase text-rose-200/70 mb-4 transition-all duration-500">
             {currentMilestone.subtitle}
           </p>
         )}
 
-        {/* Dynamic Caption Line */}
+        {/* Layer 3: Dynamic Caption Line with Glass Floating Depth Card */}
         {activeCaption && (
-          <div className="mt-4 p-4 sm:p-6 rounded-2xl glass-panel max-w-lg mx-auto border border-white/10 backdrop-blur-md shadow-romantic-glow">
+          <div
+            key={activeCaption}
+            className={`mt-4 p-4 sm:p-6 rounded-2xl glass-panel max-w-lg mx-auto border border-rose-400/15 shadow-romantic-glow ${
+              reducedMotion ? "" : "animate-fade-in-up"
+            }`}
+            style={{
+              transform: reducedMotion ? "none" : `translateY(${(1 - opacity) * 10}px)`,
+            }}
+          >
             <p className="text-sm sm:text-base md:text-lg text-[#f4edea] font-serif italic leading-relaxed">
               &ldquo;{activeCaption}&rdquo;
             </p>

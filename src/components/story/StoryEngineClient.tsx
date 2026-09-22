@@ -20,8 +20,8 @@ export default function StoryEngineClient() {
     }
   }, [setScrollProgress]);
 
-  const handleScroll = (progress: number) => {
-    setScrollProgress(progress);
+  const handleScroll = (progress: number, velocity: number = 0) => {
+    setScrollProgress(progress, velocity);
   };
 
   return (

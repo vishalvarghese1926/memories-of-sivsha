@@ -19,16 +19,13 @@ export default function SceneTransitionWrapper({
 
   useFrame((_, delta) => {
     if (groupRef.current) {
-      // Subtle scale transition when becoming the primary active scene
+      // Subtle scale transition when becoming the primary active scene without Vector3 allocations
       const targetScale = isActive ? 1.0 : 0.99;
-
-      groupRef.current.scale.lerp(
-        new THREE.Vector3(targetScale, targetScale, targetScale),
-        Math.min(1, delta * 6)
-      );
-
-      // Crucial: Any scene in the active window MUST remain visible.
-      // Three.js distance and fog naturally handle fading in and out across the continuous spline.
+      const currentScale = groupRef.current.scale.x;
+      if (Math.abs(currentScale - targetScale) > 0.0002) {
+        const nextScale = THREE.MathUtils.lerp(currentScale, targetScale, Math.min(1, delta * 6));
+        groupRef.current.scale.setScalar(nextScale);
+      }
       groupRef.current.visible = true;
     }
   });

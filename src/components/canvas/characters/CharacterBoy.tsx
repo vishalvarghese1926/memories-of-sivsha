@@ -684,6 +684,104 @@ function ProceduralBoyMesh({
   );
 }
 
+// Local Draco decoder configuration for offline, zero-latency decompression
+if (typeof window !== "undefined") {
+  try {
+    useGLTF.setDecoderPath("/draco/");
+  } catch {}
+}
+
+function ReadyNotifier({ onReady, children }: { onReady: () => void; children: React.ReactNode }) {
+  useEffect(() => {
+    onReady();
+  }, [onReady]);
+  return <>{children}</>;
+}
+
+function CrossfadeBoyWrapper({
+  proceduralMesh,
+  children,
+}: {
+  proceduralMesh: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const [modelReady, setModelReady] = useState(false);
+  const [proceduralDismissed, setProceduralDismissed] = useState(false);
+  const proceduralGroupRef = useRef<THREE.Group>(null);
+  const gltfGroupRef = useRef<THREE.Group>(null);
+  const opacityRef = useRef(0);
+
+  // Buttery-smooth alpha crossfade in useFrame: 400ms transition
+  useFrame((_, delta) => {
+    if (!modelReady) return;
+
+    if (opacityRef.current < 1) {
+      opacityRef.current = Math.min(1, opacityRef.current + delta * 2.5);
+
+      // Fade in GLTF meshes
+      if (gltfGroupRef.current) {
+        const curAlpha = opacityRef.current;
+        gltfGroupRef.current.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            const rawMat = (child as THREE.Mesh).material;
+            if (Array.isArray(rawMat)) {
+              rawMat.forEach((m) => {
+                if (m) {
+                  m.transparent = true;
+                  m.opacity = curAlpha;
+                }
+              });
+            } else if (rawMat) {
+              rawMat.transparent = true;
+              rawMat.opacity = curAlpha;
+            }
+          }
+        });
+      }
+
+      // Fade out procedural mesh
+      if (proceduralGroupRef.current && !proceduralDismissed) {
+        const procOpacity = 1 - opacityRef.current;
+        proceduralGroupRef.current.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            const rawMat = (child as THREE.Mesh).material;
+            if (Array.isArray(rawMat)) {
+              rawMat.forEach((m) => {
+                if (m) {
+                  m.transparent = true;
+                  m.opacity = procOpacity;
+                }
+              });
+            } else if (rawMat) {
+              rawMat.transparent = true;
+              rawMat.opacity = procOpacity;
+            }
+          }
+        });
+
+        if (procOpacity <= 0.02) {
+          setProceduralDismissed(true);
+        }
+      }
+    }
+  });
+
+  return (
+    <>
+      {!proceduralDismissed && (
+        <group ref={proceduralGroupRef}>
+          {proceduralMesh}
+        </group>
+      )}
+      <group ref={gltfGroupRef} visible={modelReady}>
+        <ReadyNotifier onReady={() => setModelReady(true)}>
+          {children}
+        </ReadyNotifier>
+      </group>
+    </>
+  );
+}
+
 /**
  * CharacterBoy Component
  * Supports real rigged GLB models when supplied, with automatic resilient fallback
@@ -694,7 +792,7 @@ export default function CharacterBoy({
   rotation = [0, 0, 0],
   scale = 1,
   pose = "idle",
-  modelUrl = getHeroModelUrl("you"),
+  modelUrl = getHeroModelUrl("you", true),
   isHero = true,
   useFallback = false,
   lookAtTarget,
@@ -731,21 +829,23 @@ export default function CharacterBoy({
       {!forceProcedural ? (
         <GLTFErrorBoundary fallback={proceduralFallback} onError={() => setLoadFailed(true)}>
           <React.Suspense fallback={proceduralFallback}>
-            <RiggedGLTFCharacter
-              modelUrl={modelUrl}
-              pose={pose}
-              lookAtTarget={lookAtTarget}
-              lookAtConfig={lookAtConfig}
-              reachProgress={reachProgress}
-              reachConfig={reachConfig}
-              facialConfig={facialConfig}
-              playbackSpeed={playbackSpeed}
-              scrollVelocity={scrollVelocity}
-              crossfadeDuration={crossfadeDuration}
-              castShadow={castShadow}
-              receiveShadow={receiveShadow}
-              onError={() => setLoadFailed(true)}
-            />
+            <CrossfadeBoyWrapper proceduralMesh={proceduralFallback}>
+              <RiggedGLTFCharacter
+                modelUrl={modelUrl}
+                pose={pose}
+                lookAtTarget={lookAtTarget}
+                lookAtConfig={lookAtConfig}
+                reachProgress={reachProgress}
+                reachConfig={reachConfig}
+                facialConfig={facialConfig}
+                playbackSpeed={playbackSpeed}
+                scrollVelocity={scrollVelocity}
+                crossfadeDuration={crossfadeDuration}
+                castShadow={castShadow}
+                receiveShadow={receiveShadow}
+                onError={() => setLoadFailed(true)}
+              />
+            </CrossfadeBoyWrapper>
           </React.Suspense>
         </GLTFErrorBoundary>
       ) : (
@@ -757,7 +857,7 @@ export default function CharacterBoy({
 
 // Preload the hero model
 try {
-  useGLTF.preload(getHeroModelUrl("you"));
+  useGLTF.preload(getHeroModelUrl("you", true));
 } catch {
   // Graceful no-op in non-browser or test environments
 }

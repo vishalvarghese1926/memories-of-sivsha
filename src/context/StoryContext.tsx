@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { Milestone, BirthdayLetter, MediaAsset } from "@/types";
 import { INITIAL_MILESTONES, INITIAL_LETTER } from "@/lib/storyData";
 import { audioEngine } from "@/lib/audioEngine";
@@ -9,12 +9,16 @@ import { triggerHaptic } from "@/lib/haptics";
 import { requestOrientationPermission } from "@/lib/orientation";
 
 export type UnlockState = "locked" | "unlocking" | "unlocked";
+export type ScrollListener = (progress: number, velocity: number) => void;
 
 interface StoryContextType {
   milestones: Milestone[];
   letter: BirthdayLetter;
   activeMilestoneIndex: number;
   scrollProgress: number;
+  scrollProgressRef: React.MutableRefObject<number>;
+  scrollVelocityRef: React.MutableRefObject<number>;
+  subscribeToScroll: (listener: ScrollListener) => () => void;
   isMuted: boolean;
   isUnlocked: boolean;
   setIsUnlocked: (unlocked: boolean) => void;
@@ -24,7 +28,7 @@ interface StoryContextType {
   isLetterModalOpen: boolean;
   setIsLetterModalOpen: (open: boolean) => void;
   orientation: { beta: number; gamma: number };
-  setScrollProgress: (progress: number) => void;
+  setScrollProgress: (progress: number, velocity?: number) => void;
   toggleAudioMute: () => void;
   setLetter: React.Dispatch<React.SetStateAction<BirthdayLetter>>;
   updateMilestone: (updated: Milestone) => void;
@@ -38,6 +42,11 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
   const [milestones, setMilestones] = useState<Milestone[]>(INITIAL_MILESTONES);
   const [letter, setLetter] = useState<BirthdayLetter>(INITIAL_LETTER);
   const [scrollProgress, setScrollProgressState] = useState<number>(0);
+  const scrollProgressRef = useRef<number>(0);
+  const scrollVelocityRef = useRef<number>(0);
+  const scrollListenersRef = useRef<Set<ScrollListener>>(new Set());
+  const activeMilestoneIndexRef = useRef<number>(0);
+  const rafPendingRef = useRef<boolean>(false);
   const [activeMilestoneIndex, setActiveMilestoneIndex] = useState<number>(0);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isUnlocked, setIsUnlocked] = useState<boolean>(false);
@@ -116,11 +125,25 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
     };
   }, [refreshFromSupabase]);
 
-  const setScrollProgress = useCallback((progress: number) => {
+  const subscribeToScroll = useCallback((listener: ScrollListener) => {
+    scrollListenersRef.current.add(listener);
+    return () => {
+      scrollListenersRef.current.delete(listener);
+    };
+  }, []);
+
+  const setScrollProgress = useCallback((progress: number, velocity: number = 0) => {
     const clamped = Math.max(0, Math.min(1, progress));
-    setScrollProgressState((prev) => {
-      if (Math.abs(prev - clamped) < 0.00005) return prev;
-      return clamped;
+    scrollProgressRef.current = clamped;
+    scrollVelocityRef.current = velocity;
+
+    // Immediately notify high-frequency subscribers without React state overhead
+    scrollListenersRef.current.forEach((fn: ScrollListener) => {
+      try {
+        fn(clamped, velocity);
+      } catch {
+        // Safe listener error suppression
+      }
     });
 
     // Determine active milestone based on progress boundaries
@@ -136,7 +159,21 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
         break;
       }
     }
-    setActiveMilestoneIndex((prev) => (prev === foundIndex ? prev : foundIndex));
+
+    // Only update React state when crossing milestone boundaries
+    if (activeMilestoneIndexRef.current !== foundIndex) {
+      activeMilestoneIndexRef.current = foundIndex;
+      setActiveMilestoneIndex(foundIndex);
+    }
+
+    // Throttle React state updates via RAF to eliminate render storms
+    if (!rafPendingRef.current) {
+      rafPendingRef.current = true;
+      requestAnimationFrame(() => {
+        rafPendingRef.current = false;
+        setScrollProgressState(scrollProgressRef.current);
+      });
+    }
   }, [milestones]);
 
   const toggleAudioMute = useCallback(() => {
@@ -204,6 +241,9 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
         letter,
         activeMilestoneIndex,
         scrollProgress,
+        scrollProgressRef,
+        scrollVelocityRef,
+        subscribeToScroll,
         isMuted,
         isUnlocked,
         setIsUnlocked,

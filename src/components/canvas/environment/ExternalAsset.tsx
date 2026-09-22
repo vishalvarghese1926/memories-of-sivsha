@@ -7,8 +7,15 @@ import { SkeletonUtils } from "three-stdlib";
 import {
   EnvironmentAssetKey,
   getEnvironmentAsset,
+  getEnvironmentModelUrl,
   ENVIRONMENT_ASSET_REGISTRY,
 } from "@/config/assets";
+
+if (typeof window !== "undefined") {
+  try {
+    useGLTF.setDecoderPath("/draco/");
+  } catch {}
+}
 
 interface ErrorBoundaryProps {
   fallback: React.ReactNode;
@@ -126,7 +133,7 @@ export default function ExternalAsset({
   const [loadFailed, setLoadFailed] = useState(false);
 
   const assetItem = getEnvironmentAsset(assetKey);
-  const targetUrl = modelUrlOverride || assetItem?.modelUrl;
+  const targetUrl = modelUrlOverride || getEnvironmentModelUrl(assetKey, true);
 
   if (!visible) return null;
 

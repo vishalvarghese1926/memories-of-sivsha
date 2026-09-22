@@ -15,13 +15,22 @@ interface EnvStage {
   fogDensity: number;
 }
 
+// Static reusable color scratch objects to eliminate allocations inside useFrame
+const TARGET_FOG_COLOR = new THREE.Color();
+const TARGET_AMBIENT_COLOR = new THREE.Color();
+const PREV_COLOR_SCRATCH = new THREE.Color();
+const NEXT_COLOR_SCRATCH = new THREE.Color();
+const RIM_TARGET_WARM = new THREE.Color("#fde047");
+const RIM_TARGET_ROSE = new THREE.Color("#fda4af");
+
 export default function SceneEnvironment() {
-  const { scrollProgress, milestones } = useStory();
+  const { scrollProgressRef, milestones } = useStory();
   const fogRef = useRef<THREE.FogExp2>(null);
   const ambientLightRef = useRef<THREE.AmbientLight>(null);
   const dirLightRef = useRef<THREE.DirectionalLight>(null);
   const rimLightRef = useRef<THREE.DirectionalLight>(null);
   const goldFillRef = useRef<THREE.PointLight>(null);
+  const sparklesGroupRef = useRef<THREE.Group>(null);
 
   // Derive environment stages dynamically from milestones in storyData (source of truth)
   const environmentStages: EnvStage[] = useMemo(() => {
@@ -56,7 +65,7 @@ export default function SceneEnvironment() {
   }, [milestones]);
 
   useFrame((_, delta) => {
-    const t = THREE.MathUtils.clamp(scrollProgress, 0, 1);
+    const t = THREE.MathUtils.clamp(scrollProgressRef.current, 0, 1);
 
     // Find bounding stages for color and density lerp
     let prev = environmentStages[0];
@@ -73,31 +82,40 @@ export default function SceneEnvironment() {
     const span = Math.max(0.0001, next.t - prev.t);
     const factor = (t - prev.t) / span;
 
-    const targetFogColor = new THREE.Color(prev.fog).lerp(new THREE.Color(next.fog), factor);
-    const targetAmbientColor = new THREE.Color(prev.ambient).lerp(new THREE.Color(next.ambient), factor);
+    PREV_COLOR_SCRATCH.set(prev.fog);
+    NEXT_COLOR_SCRATCH.set(next.fog);
+    TARGET_FOG_COLOR.lerpColors(PREV_COLOR_SCRATCH, NEXT_COLOR_SCRATCH, factor);
+
+    PREV_COLOR_SCRATCH.set(prev.ambient);
+    NEXT_COLOR_SCRATCH.set(next.ambient);
+    TARGET_AMBIENT_COLOR.lerpColors(PREV_COLOR_SCRATCH, NEXT_COLOR_SCRATCH, factor);
+
     const targetIntensity = THREE.MathUtils.lerp(prev.intensity, next.intensity, factor);
     const targetFogDensity = THREE.MathUtils.lerp(prev.fogDensity, next.fogDensity, factor);
 
     const lerpRate = Math.min(1, delta * 3.5);
 
     if (fogRef.current) {
-      fogRef.current.color.lerp(targetFogColor, lerpRate);
+      fogRef.current.color.lerp(TARGET_FOG_COLOR, lerpRate);
       fogRef.current.density = THREE.MathUtils.lerp(fogRef.current.density, targetFogDensity, lerpRate);
     }
 
     if (ambientLightRef.current) {
-      ambientLightRef.current.color.lerp(targetAmbientColor, lerpRate);
+      ambientLightRef.current.color.lerp(TARGET_AMBIENT_COLOR, lerpRate);
       ambientLightRef.current.intensity = THREE.MathUtils.lerp(ambientLightRef.current.intensity, targetIntensity, lerpRate);
     }
 
     if (rimLightRef.current) {
-      const rimTarget = new THREE.Color(t > 0.5 ? "#fde047" : "#fda4af");
+      const rimTarget = t > 0.5 ? RIM_TARGET_WARM : RIM_TARGET_ROSE;
       rimLightRef.current.color.lerp(rimTarget, lerpRate);
     }
 
+    const zPos = THREE.MathUtils.lerp(18, -690, t);
     if (goldFillRef.current) {
-      const zPos = THREE.MathUtils.lerp(18, -690, t);
       goldFillRef.current.position.z = zPos;
+    }
+    if (sparklesGroupRef.current) {
+      sparklesGroupRef.current.position.z = zPos;
     }
   });
 
@@ -134,15 +152,17 @@ export default function SceneEnvironment() {
         distance={25}
       />
 
-      {/* Ambient floating dust / romantic embers */}
-      <Sparkles
-        count={90}
-        scale={24}
-        size={2.8}
-        speed={0.4}
-        opacity={0.65}
-        color="#ffd1dc"
-      />
+      {/* Ambient floating dust / romantic embers travelling along story spline */}
+      <group ref={sparklesGroupRef}>
+        <Sparkles
+          count={75}
+          scale={[22, 14, 22]}
+          size={2.6}
+          speed={0.4}
+          opacity={0.65}
+          color="#ffd1dc"
+        />
+      </group>
     </>
   );
 }

@@ -304,19 +304,17 @@ export default function Act1Before({ localProgress = 0 }: Act1BeforeProps) {
         </mesh>
       ))}
 
-      {/* Pathway Guide Lanterns */}
+      {/* Pathway Guide Markers (High-efficiency emissive rendering without real-time light limits) */}
       {[-40, -35, -30, -25, -20].map((z, idx) => (
         <group key={`glow-pair-${idx}`}>
-          <pointLight position={[-2.4, 0.35, z]} color="#f472b6" intensity={0.7} distance={4.5} />
-          <pointLight position={[2.4, 0.35, z]} color="#c084fc" intensity={0.7} distance={4.5} />
-          {/* Subtle glowing floor markers */}
+          {/* Subtle glowing floor markers with romantic bloom appearance */}
           <mesh position={[-2.4, 0.05, z]} rotation={[-Math.PI / 2, 0, 0]}>
-            <circleGeometry args={[0.15, 16]} />
-            <meshBasicMaterial color="#f472b6" transparent opacity={0.6} />
+            <circleGeometry args={[0.22, 16]} />
+            <meshBasicMaterial color="#f472b6" transparent opacity={0.75} />
           </mesh>
           <mesh position={[2.4, 0.05, z]} rotation={[-Math.PI / 2, 0, 0]}>
-            <circleGeometry args={[0.15, 16]} />
-            <meshBasicMaterial color="#c084fc" transparent opacity={0.6} />
+            <circleGeometry args={[0.22, 16]} />
+            <meshBasicMaterial color="#c084fc" transparent opacity={0.75} />
           </mesh>
         </group>
       ))}

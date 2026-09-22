@@ -14,8 +14,8 @@ export default function StoryCanvas() {
       <CanvasErrorBoundary>
         <Canvas
           camera={{ position: [0, 4, 18], fov: 50, near: 0.1, far: 1000 }}
-          dpr={[1, typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1]}
-          shadows
+          dpr={[1, typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 1.75) : 1]}
+          shadows={{ type: THREE.PCFSoftShadowMap }}
           gl={{
             antialias: true,
             alpha: false,
@@ -27,9 +27,12 @@ export default function StoryCanvas() {
           }}
           flat={false}
         >
+          {/* Camera and Environment render unconditionally without suspending */}
+          <CameraRig />
+          <SceneEnvironment />
+
+          {/* StorySceneManager has its own suspense boundary */}
           <Suspense fallback={null}>
-            <CameraRig />
-            <SceneEnvironment />
             <StorySceneManager />
           </Suspense>
         </Canvas>
