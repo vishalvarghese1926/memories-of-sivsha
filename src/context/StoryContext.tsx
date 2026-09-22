@@ -164,15 +164,18 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
     if (activeMilestoneIndexRef.current !== foundIndex) {
       activeMilestoneIndexRef.current = foundIndex;
       setActiveMilestoneIndex(foundIndex);
+      setScrollProgressState(clamped);
     }
 
-    // Throttle React state updates via RAF to eliminate render storms
+    // Low-frequency throttle for any residual DOM state consumers (~150ms)
     if (!rafPendingRef.current) {
       rafPendingRef.current = true;
-      requestAnimationFrame(() => {
+      setTimeout(() => {
         rafPendingRef.current = false;
-        setScrollProgressState(scrollProgressRef.current);
-      });
+        if (Math.abs(scrollProgressRef.current - clamped) < 0.05) {
+          setScrollProgressState(scrollProgressRef.current);
+        }
+      }, 150);
     }
   }, [milestones]);
 

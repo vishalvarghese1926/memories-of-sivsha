@@ -7,22 +7,25 @@ import { ContactShadows } from "@react-three/drei";
 import CharacterBoy from "../characters/CharacterBoy";
 import CharacterGirl from "../characters/CharacterGirl";
 import FloatingMediaFrame from "../media/FloatingMediaFrame";
+import { useSceneProgress } from "@/lib/useSceneProgress";
 
 interface Act3TrainProps {
   localProgress: number;
 }
 
 export default function Act3Train({ localProgress }: Act3TrainProps) {
+  const { getProgress } = useSceneProgress("m-6", localProgress);
   const trainRef = useRef<THREE.Group>(null);
   const tracksRef = useRef<THREE.Group>(null);
   const passingSceneryRef = useRef<THREE.Group>(null);
   const platformRef = useRef<THREE.Group>(null);
 
-  // Speed factor: starts slower during platform/boarding (localProgress < 0.25), then full journey speed
-  const speedMultiplier = localProgress < 0.25 ? 0.3 + localProgress * 2.8 : 1.0;
-
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
+    const currentLocal = getProgress();
+
+    // Speed factor: starts slower during platform/boarding (currentLocal < 0.25), then full journey speed
+    const speedMultiplier = currentLocal < 0.25 ? 0.3 + currentLocal * 2.8 : 1.0;
 
     // Carriage gentle rhythmic sway & track vibration
     if (trainRef.current) {
@@ -44,8 +47,8 @@ export default function Act3Train({ localProgress }: Act3TrainProps) {
 
     // Platform fade/slide out as journey gets underway
     if (platformRef.current) {
-      // Platform shifts back smoothly with scroll progress
-      platformRef.current.position.z = localProgress * 18;
+      // Platform shifts back smoothly with real-time scroll progress
+      platformRef.current.position.z = currentLocal * 18;
     }
   });
 

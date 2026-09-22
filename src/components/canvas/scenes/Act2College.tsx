@@ -9,6 +9,7 @@ import CharacterBoy from "../characters/CharacterBoy";
 import CharacterGirl from "../characters/CharacterGirl";
 import Act2Classroom from "./Act2Classroom";
 import Act2FriendGroup from "./Act2FriendGroup";
+import { useSceneProgress } from "@/lib/useSceneProgress";
 
 interface Act2CollegeProps {
   localProgress?: number;
@@ -124,6 +125,7 @@ export default function Act2College({
   classroomProgress,
   friendGroupProgress,
 }: Act2CollegeProps) {
+  const { getProgress: getPenProgress } = useSceneProgress("m-3", penProgress);
   // Local progress for Classroom (0.38 - 0.45) and Friend Group (0.45 - 0.53)
   const cProgress =
     classroomProgress ??
@@ -288,9 +290,10 @@ export default function Act2College({
     }
 
     // =========================================================================
-    // 3. PHASE 5C: THE PEN MOMENT KINEMATICS (Driven by penProgress: 0.0 -> 1.0)
+    // 3. PHASE 5C: THE PEN MOMENT KINEMATICS (Driven by real-time pen progress: 0.0 -> 1.0)
     // =========================================================================
-    const rawP = THREE.MathUtils.clamp(penProgress, 0, 1);
+    const activePenProgress = getPenProgress();
+    const rawP = THREE.MathUtils.clamp(activePenProgress, 0, 1);
     const lerpRate = reducedMotion ? 1 : Math.min(1, delta * 6);
 
     // Track 2.5-second scene-local elapsed cinematic hold at p >= 0.88

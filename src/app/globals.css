@@ -140,6 +140,24 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
+.text-gradient-cyan-rose {
+  background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 35%, #22d3ee 70%, #fb7185 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-glow-cyan {
+  text-shadow: 0 0 24px rgba(34, 211, 238, 0.6), 0 0 50px rgba(34, 211, 238, 0.2);
+}
+
+.shadow-cyan-glow {
+  box-shadow: 0 10px 40px -10px rgba(34, 211, 238, 0.25), 0 0 20px -5px rgba(34, 211, 238, 0.15);
+}
+
+.border-cyan-subtle {
+  border-color: rgba(34, 211, 238, 0.2);
+}
+
 .text-gradient-gold {
   background: linear-gradient(135deg, #ffffff 0%, #fef08a 40%, #eab308 100%);
   -webkit-background-clip: text;

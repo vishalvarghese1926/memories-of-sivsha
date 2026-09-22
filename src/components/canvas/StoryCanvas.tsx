@@ -8,16 +8,20 @@ import SceneEnvironment from "./SceneEnvironment";
 import StorySceneManager from "./StorySceneManager";
 import CanvasErrorBoundary from "@/components/ui/CanvasErrorBoundary";
 
+import { useAdaptiveQuality } from "@/lib/adaptiveQuality";
+
 export default function StoryCanvas() {
+  const quality = useAdaptiveQuality();
+
   return (
     <div className="absolute inset-0 w-full h-full pointer-events-none">
       <CanvasErrorBoundary>
         <Canvas
           camera={{ position: [0, 4, 18], fov: 50, near: 0.1, far: 1000 }}
-          dpr={[1, typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 1.75) : 1]}
-          shadows={{ type: THREE.PCFSoftShadowMap }}
+          dpr={[1, quality.dpr]}
+          shadows={quality.enableContactShadows ? { type: THREE.PCFSoftShadowMap } : false}
           gl={{
-            antialias: true,
+            antialias: quality.tier !== "low",
             alpha: false,
             powerPreference: "high-performance",
             stencil: false,

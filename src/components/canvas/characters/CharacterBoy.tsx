@@ -9,9 +9,9 @@ import { CharacterControllerProps } from "@/types/character";
 import { useCharacterAnimationController } from "./animationController";
 import { applySkeletalLookAt } from "./lookAtController";
 import { updateFacialBlendshapes, FacialControllerState } from "./facialController";
-import { applyHandReach } from "./reachController";
 import { getHeroModelUrl } from "@/config/assets";
 import { inspectGLTFModel, checkAndWarnAssetPerformance } from "@/lib/gltfDiagnostics";
+import { computeCharacterKinematics, CharacterMotionState, KinematicsOutput } from "@/lib/characterMotion";
 
 interface ErrorBoundaryProps {
   fallback: React.ReactNode;
@@ -47,6 +47,8 @@ class GLTFErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundar
 function RiggedGLTFCharacter({
   modelUrl,
   pose = "idle",
+  position = [0, 0, 0],
+  windIntensity = 0,
   lookAtTarget,
   lookAtConfig,
   reachProgress = 0,
@@ -150,15 +152,49 @@ function RiggedGLTFCharacter({
   });
 
   const innerRef = useRef<THREE.Group>(null);
+  const kinematicsScratch = useRef<KinematicsOutput>({
+    rootY: 0, rootX: 0, spineRotX: 0, spineRotY: 0, spineRotZ: 0,
+    headRotX: 0, headRotY: 0, headRotZ: 0,
+    leftArmRotX: 0, leftArmRotZ: 0, rightArmRotX: 0, rightArmRotZ: 0,
+    leftLegRotX: 0, rightLegRotX: 0,
+  });
 
   // Frame kinematics
   useFrame((state, delta) => {
     if (!clonedScene) return;
 
-    // Organic idle breathing when no skeletal animations are present
+    const rawTarget = lookAtTarget || lookAtConfig?.target || null;
+    const targetTuple: [number, number, number] | null = rawTarget
+      ? (Array.isArray(rawTarget)
+          ? (rawTarget as [number, number, number])
+          : [rawTarget.x, rawTarget.y, rawTarget.z])
+      : null;
+    const posTuple: [number, number, number] = Array.isArray(position)
+      ? (position as [number, number, number])
+      : [0, 0, 0];
+
+    const t = state.clock.getElapsedTime();
+    computeCharacterKinematics(
+      t,
+      delta,
+      (pose as CharacterMotionState) || "idle",
+      {
+        lookAtTarget: targetTuple,
+        characterPos: posTuple,
+        windIntensity,
+        isBoy: true,
+        reachProgress: reachProgress || 0,
+      },
+      kinematicsScratch.current
+    );
+
+    // Humanoid posture kinematics: breathing, weight shift, and upper torso tilt
     if (innerRef.current && (!actions || Object.keys(actions).length === 0)) {
-      const t = state.clock.getElapsedTime();
-      innerRef.current.position.y = groundOffset + Math.sin(t * 1.8) * 0.005;
+      innerRef.current.position.y = groundOffset + kinematicsScratch.current.rootY;
+      innerRef.current.position.x = kinematicsScratch.current.rootX;
+      innerRef.current.rotation.x = kinematicsScratch.current.spineRotX;
+      innerRef.current.rotation.y = kinematicsScratch.current.spineRotY;
+      innerRef.current.rotation.z = kinematicsScratch.current.spineRotZ;
     }
 
     // 1. Skeletal Head Tracking
@@ -173,20 +209,7 @@ function RiggedGLTFCharacter({
       });
     }
 
-    // 2. Hand / Arm Reach
-    const activeReach = reachConfig?.progress ?? reachProgress;
-    if (activeReach > 0 && bones.rightArm) {
-      applyHandReach({
-        upperArmBone: bones.rightArm,
-        forearmBone: bones.rightForearm,
-        handBone: bones.rightHand,
-        reachProgress: activeReach,
-        config: reachConfig,
-        delta,
-      });
-    }
-
-    // 3. Facial Blendshapes (Natural blinks & smiles)
+    // 2. Facial Blendshapes (Natural blinks & smiles)
     if (facialMesh) {
       updateFacialBlendshapes({
         mesh: facialMesh,

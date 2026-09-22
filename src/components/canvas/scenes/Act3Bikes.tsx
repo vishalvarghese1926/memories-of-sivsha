@@ -8,6 +8,7 @@ import CharacterBoy from "../characters/CharacterBoy";
 import CharacterGirl from "../characters/CharacterGirl";
 import FloatingMediaFrame from "../media/FloatingMediaFrame";
 import ExternalAsset from "../environment/ExternalAsset";
+import { useSceneProgress } from "@/lib/useSceneProgress";
 
 interface Act3BikesProps {
   milestoneId: string; // "m-10" (Classic 350) or "m-11" (Himalayan 450)
@@ -15,6 +16,7 @@ interface Act3BikesProps {
 }
 
 export default function Act3Bikes({ milestoneId, localProgress }: Act3BikesProps) {
+  const { getProgress } = useSceneProgress(milestoneId, localProgress);
   const wheelsRef = useRef<THREE.Group>(null);
   const roadRef = useRef<THREE.Group>(null);
   const bikeGroupRef = useRef<THREE.Group>(null);
@@ -62,16 +64,17 @@ export default function Act3Bikes({ milestoneId, localProgress }: Act3BikesProps
           bikeGroupRef.current.rotation.x = 0;
         }
       } else {
+        const currentLocal = getProgress();
         // Himalayan 450 Fall Dynamics:
-        if (localProgress < 0.32) {
+        if (currentLocal < 0.32) {
           // Normal mountain ride
           bikeGroupRef.current.position.y = 0.06 + Math.sin(t * 18) * 0.006;
           bikeGroupRef.current.position.x = 0;
           bikeGroupRef.current.rotation.z = Math.sin(t * 2.0) * 0.03;
           bikeGroupRef.current.rotation.x = 0;
-        } else if (isFalling) {
+        } else if (currentLocal >= 0.32 && currentLocal < 0.55) {
           // Controlled low-side slide: smoothly tilt bike onto crash guard
-          const fallAlpha = (localProgress - 0.32) / (0.55 - 0.32);
+          const fallAlpha = (currentLocal - 0.32) / (0.55 - 0.32);
           bikeGroupRef.current.position.y = THREE.MathUtils.lerp(0.06, 0.28, fallAlpha);
           bikeGroupRef.current.position.x = THREE.MathUtils.lerp(0, 0.6, fallAlpha);
           bikeGroupRef.current.rotation.z = THREE.MathUtils.lerp(0, 1.15, fallAlpha); // tilts onto right crash bar
@@ -160,16 +163,53 @@ export default function Act3Bikes({ milestoneId, localProgress }: Act3BikesProps
         ))}
       </group>
 
-      {/* Mountain Mist & Slate Pine Hills (for Himalayan 450) */}
+      {/* Cinematic Mountain Mist & Layered Ghats Ridgeline (Himalayan 450) */}
       {!isClassic && (
-        <group position={[0, 0, -20]}>
-          <mesh position={[-9, 5, 0]}>
-            <coneGeometry args={[11, 14, 6]} />
-            <meshStandardMaterial color="#1c1917" roughness={0.9} />
+        <group position={[0, 0, -18]}>
+          {/* Far Distant Mist Ridgeline */}
+          <mesh position={[0, 7, -16]}>
+            <planeGeometry args={[48, 18]} />
+            <meshStandardMaterial
+              color="#0f172a"
+              roughness={0.95}
+              metalness={0.05}
+            />
           </mesh>
-          <mesh position={[8, 6, -6]}>
-            <coneGeometry args={[13, 16, 6]} />
-            <meshStandardMaterial color="#0c0a09" roughness={0.9} />
+
+          {/* Mid-ground Mountain Ghat Silhouette (Left Ridge) */}
+          <group position={[-11, 4.5, -6]} rotation={[0, 0.2, 0]}>
+            <mesh position={[0, 0, 0]}>
+              <cylinderGeometry args={[2.5, 9.5, 12, 5]} />
+              <meshStandardMaterial color="#172033" roughness={0.9} />
+            </mesh>
+            {/* Subtle cyan moonlight crest accent */}
+            <mesh position={[0.2, 5.8, 0]}>
+              <cylinderGeometry args={[0.4, 2.2, 2.4, 5]} />
+              <meshStandardMaterial
+                color="#22d3ee"
+                emissive="#0e3a47"
+                emissiveIntensity={0.3}
+                roughness={0.8}
+              />
+            </mesh>
+          </group>
+
+          {/* Mid-ground Mountain Ghat Silhouette (Right Crag) */}
+          <group position={[10, 5.2, -10]} rotation={[0, -0.3, 0]}>
+            <mesh position={[0, 0, 0]}>
+              <cylinderGeometry args={[3.0, 11.0, 14, 5]} />
+              <meshStandardMaterial color="#0c1322" roughness={0.9} />
+            </mesh>
+          </group>
+
+          {/* Atmospheric Ghats Mist Layer */}
+          <mesh position={[0, 1.8, -4]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[32, 14]} />
+            <meshBasicMaterial
+              color="#1e293b"
+              transparent
+              opacity={0.35}
+            />
           </mesh>
         </group>
       )}

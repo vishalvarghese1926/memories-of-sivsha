@@ -8,12 +8,14 @@ import CharacterBoy from "../characters/CharacterBoy";
 import CharacterGirl from "../characters/CharacterGirl";
 import FloatingMediaFrame from "../media/FloatingMediaFrame";
 import ExternalAsset from "../environment/ExternalAsset";
+import { useSceneProgress } from "@/lib/useSceneProgress";
 
 interface Act3BeachProps {
   localProgress: number;
 }
 
 export default function Act3Beach({ localProgress }: Act3BeachProps) {
+  const { getProgress } = useSceneProgress("m-7", localProgress);
   const waterRef = useRef<THREE.Mesh>(null);
   const foamRef = useRef<THREE.Mesh>(null);
   const sunRef = useRef<THREE.Mesh>(null);
@@ -51,17 +53,19 @@ export default function Act3Beach({ localProgress }: Act3BeachProps) {
       foamRef.current.scale.x = 1.0 + Math.sin(t * 1.4) * 0.1;
     }
 
+    const currentLocal = getProgress();
+
     // Gentle sun dip matching evening progression
     if (sunRef.current) {
-      sunRef.current.position.y = 3.6 - localProgress * 1.2 + Math.sin(t * 0.4) * 0.05;
+      sunRef.current.position.y = 3.6 - currentLocal * 1.2 + Math.sin(t * 0.4) * 0.05;
     }
 
     // Synchronized natural shoreline walk movement
     if (charactersRef.current) {
       // Subtle bobbing stride
       charactersRef.current.position.y = Math.abs(Math.sin(t * 3.2)) * 0.025;
-      // Stride position along the beach path based on localProgress
-      charactersRef.current.position.z = (localProgress - 0.5) * 6;
+      // Stride position along the beach path based on real-time progress
+      charactersRef.current.position.z = (currentLocal - 0.5) * 6;
     }
   });
 

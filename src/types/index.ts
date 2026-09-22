@@ -42,6 +42,7 @@ export interface Milestone {
   location?: string;
   media: MediaAsset[];
   audioNoteUrl?: string;
+  captionPosition?: "bottom-left" | "bottom-right" | "lower-third" | "top-left" | "top-right";
   custom3DConfig?: {
     splineProgressStart: number;
     splineProgressEnd: number;

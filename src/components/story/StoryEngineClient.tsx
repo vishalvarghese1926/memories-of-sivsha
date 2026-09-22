@@ -7,6 +7,7 @@ import StoryCaption from "@/components/ui/StoryCaption";
 import StoryHeader from "@/components/ui/StoryHeader";
 import LetterModal from "@/components/ui/LetterModal";
 import StoryDebugOverlay from "@/components/ui/StoryDebugOverlay";
+import StoryPreparationOverlay from "@/components/ui/StoryPreparationOverlay";
 import { useStory } from "@/context/StoryContext";
 
 export default function StoryEngineClient() {
@@ -39,6 +40,9 @@ export default function StoryEngineClient() {
 
         {/* Interactive Birthday Letter Parchment Modal */}
         <LetterModal />
+
+        {/* Minimal Cinematic Story Preparation Phase */}
+        <StoryPreparationOverlay />
 
         {/* Development Diagnostic Overlay */}
         {process.env.NODE_ENV === "development" && <StoryDebugOverlay />}

@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { ContactShadows } from "@react-three/drei";
 import { useStory } from "@/context/StoryContext";
 import CharacterGirl from "../characters/CharacterGirl";
+import { useSceneProgress } from "@/lib/useSceneProgress";
 
 interface Act1BeforeProps {
   localProgress?: number;
@@ -100,6 +101,7 @@ function createAbstractMemoryTexture(theme: "childhood" | "school" | "family" | 
 
 export default function Act1Before({ localProgress = 0 }: Act1BeforeProps) {
   const { milestones } = useStory();
+  const { getProgress } = useSceneProgress("m-1", localProgress);
   const actMilestone = milestones.find((m) => m.sceneType === "act-1-before");
   const mediaItems = actMilestone?.media || [];
 
@@ -206,11 +208,12 @@ export default function Act1Before({ localProgress = 0 }: Act1BeforeProps) {
   useFrame((state, delta) => {
     const time = state.clock.getElapsedTime();
 
-    // A. Character walking progression driven by localProgress
+    // A. Character walking progression driven by real-time scroll progress
     if (girlAvatarRef.current) {
+      const currentLocal = getProgress();
       // Progress 0: z = -22.5 (entering dreamworld)
       // Progress 1: z = -39.0 (approaching college transition)
-      const targetZ = THREE.MathUtils.lerp(-22.5, -39.0, localProgress);
+      const targetZ = THREE.MathUtils.lerp(-22.5, -39.0, currentLocal);
       girlAvatarRef.current.position.z = THREE.MathUtils.lerp(
         girlAvatarRef.current.position.z,
         targetZ,

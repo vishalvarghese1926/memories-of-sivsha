@@ -6,12 +6,14 @@ import * as THREE from "three";
 import { Sparkles, Text, ContactShadows } from "@react-three/drei";
 import CharacterBoy from "../characters/CharacterBoy";
 import CharacterGirl from "../characters/CharacterGirl";
+import { useSceneProgress } from "@/lib/useSceneProgress";
 
 interface Act3LateTalksProps {
   localProgress: number;
 }
 
 export default function Act3LateTalks({ localProgress }: Act3LateTalksProps) {
+  const { getProgress } = useSceneProgress("m-8", localProgress);
   const phoneGlowRef = useRef<THREE.PointLight>(null);
   const card1Ref = useRef<THREE.Group>(null);
   const card2Ref = useRef<THREE.Group>(null);
@@ -19,6 +21,7 @@ export default function Act3LateTalks({ localProgress }: Act3LateTalksProps) {
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
+    const currentLocal = getProgress();
 
     // Subtle breathing pulse of smartphone screen glow
     if (phoneGlowRef.current) {
@@ -28,21 +31,21 @@ export default function Act3LateTalks({ localProgress }: Act3LateTalksProps) {
     // Smooth scroll-driven floating message card animation
     // Card 1: 0.10 -> 0.40
     if (card1Ref.current) {
-      const alpha1 = THREE.MathUtils.clamp((localProgress - 0.1) / 0.25, 0, 1);
+      const alpha1 = THREE.MathUtils.clamp((currentLocal - 0.1) / 0.25, 0, 1);
       card1Ref.current.position.y = 1.9 + Math.sin(t * 1.2) * 0.03 + (1 - alpha1) * -0.2;
       card1Ref.current.scale.setScalar(alpha1);
     }
 
     // Card 2: 0.40 -> 0.70
     if (card2Ref.current) {
-      const alpha2 = THREE.MathUtils.clamp((localProgress - 0.4) / 0.25, 0, 1);
+      const alpha2 = THREE.MathUtils.clamp((currentLocal - 0.4) / 0.25, 0, 1);
       card2Ref.current.position.y = 1.35 + Math.sin(t * 1.4 + 1) * 0.03 + (1 - alpha2) * -0.2;
       card2Ref.current.scale.setScalar(alpha2);
     }
 
     // Card 3: 0.70 -> 0.95
     if (card3Ref.current) {
-      const alpha3 = THREE.MathUtils.clamp((localProgress - 0.7) / 0.22, 0, 1);
+      const alpha3 = THREE.MathUtils.clamp((currentLocal - 0.7) / 0.22, 0, 1);
       card3Ref.current.position.y = 0.8 + Math.sin(t * 1.6 + 2) * 0.03 + (1 - alpha3) * -0.2;
       card3Ref.current.scale.setScalar(alpha3);
     }

@@ -39,7 +39,7 @@ export function calculateLocalProgress(
 }
 
 export default function StorySceneManager() {
-  const { scrollProgress, milestones, activeMilestoneIndex } = useStory();
+  const { milestones, activeMilestoneIndex, scrollProgressRef } = useStory();
 
   // Active scene window: previous, current, next
   const activeWindowIndices = useMemo(() => {
@@ -61,40 +61,41 @@ export default function StorySceneManager() {
     activeWindowIndices.has(4) ||
     activeWindowIndices.has(5);
 
-  // Local progress for core milestones
+  // Local progress calculated when milestone boundaries change
+  const currentProgress = scrollProgressRef.current;
   const m0 = milestones[0];
   const m0Start = m0?.custom3DConfig?.splineProgressStart ?? 0.0;
   const m0End = m0?.custom3DConfig?.splineProgressEnd ?? 0.08;
-  const m0Local = calculateLocalProgress(scrollProgress, m0Start, m0End);
+  const m0Local = calculateLocalProgress(currentProgress, m0Start, m0End);
 
   const m1 = milestones[1];
   const m1Start = m1?.custom3DConfig?.splineProgressStart ?? 0.08;
   const m1End = m1?.custom3DConfig?.splineProgressEnd ?? 0.18;
-  const m1Local = calculateLocalProgress(scrollProgress, m1Start, m1End);
+  const m1Local = calculateLocalProgress(currentProgress, m1Start, m1End);
 
   const m2 = milestones[2];
   const m2Start = m2?.custom3DConfig?.splineProgressStart ?? 0.18;
   const m2End = m2?.custom3DConfig?.splineProgressEnd ?? 0.32;
-  const m2Local = calculateLocalProgress(scrollProgress, m2Start, m2End);
+  const m2Local = calculateLocalProgress(currentProgress, m2Start, m2End);
 
   const m3 = milestones[3];
   const m3Start = m3?.custom3DConfig?.splineProgressStart ?? 0.32;
   const m3End = m3?.custom3DConfig?.splineProgressEnd ?? 0.38;
-  const m3Local = calculateLocalProgress(scrollProgress, m3Start, m3End);
+  const m3Local = calculateLocalProgress(currentProgress, m3Start, m3End);
 
   const m4 = milestones[4];
   const m4Start = m4?.custom3DConfig?.splineProgressStart ?? 0.38;
   const m4End = m4?.custom3DConfig?.splineProgressEnd ?? 0.45;
-  const m4Local = calculateLocalProgress(scrollProgress, m4Start, m4End);
+  const m4Local = calculateLocalProgress(currentProgress, m4Start, m4End);
 
   const m5 = milestones[5];
   const m5Start = m5?.custom3DConfig?.splineProgressStart ?? 0.45;
   const m5End = m5?.custom3DConfig?.splineProgressEnd ?? 0.53;
-  const m5Local = calculateLocalProgress(scrollProgress, m5Start, m5End);
+  const m5Local = calculateLocalProgress(currentProgress, m5Start, m5End);
 
   const collegeStart = 0.18;
   const collegeEnd = 0.53;
-  const collegeLocal = calculateLocalProgress(scrollProgress, collegeStart, collegeEnd);
+  const collegeLocal = calculateLocalProgress(currentProgress, collegeStart, collegeEnd);
 
   return (
     <group name="story-scene-manager">
@@ -137,7 +138,7 @@ export default function StorySceneManager() {
               penProgress={m3Local}
               classroomProgress={m4Local}
               friendGroupProgress={m5Local}
-              globalProgress={scrollProgress}
+              globalProgress={currentProgress}
             />
           </Suspense>
         </SceneTransitionWrapper>
@@ -153,7 +154,7 @@ export default function StorySceneManager() {
 
         const start = m.custom3DConfig?.splineProgressStart ?? 0.53;
         const end = m.custom3DConfig?.splineProgressEnd ?? 1.0;
-        const local = calculateLocalProgress(scrollProgress, start, end);
+        const local = calculateLocalProgress(currentProgress, start, end);
         const posZ = MILESTONE_Z_POSITIONS[m.id] ?? -200;
 
         // Custom scene dispatch
