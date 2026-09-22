@@ -62,10 +62,10 @@ export default function Act3Beach({ localProgress }: Act3BeachProps) {
 
     // Synchronized natural shoreline walk movement
     if (charactersRef.current) {
-      // Subtle bobbing stride
-      charactersRef.current.position.y = Math.abs(Math.sin(t * 3.2)) * 0.025;
+      // Gentle stride glide across the wet sand without rubbery bobbing
+      charactersRef.current.position.y = Math.abs(Math.sin(t * 2.0)) * 0.004;
       // Stride position along the beach path based on real-time progress
-      charactersRef.current.position.z = (currentLocal - 0.5) * 6;
+      charactersRef.current.position.z = (currentLocal - 0.5) * 5;
     }
   });
 

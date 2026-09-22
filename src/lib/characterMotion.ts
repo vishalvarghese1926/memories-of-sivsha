@@ -59,13 +59,14 @@ export function computeCharacterKinematics(
   const wind = options.windIntensity ?? 0;
   const reach = options.reachProgress ?? 0;
 
-  // Varied organic frequencies so motions never appear mechanical or looping
-  const breathFreq = isBoy ? 1.7 : 1.9;
+  // Low-frequency natural respiration (~0.2 Hz, ~5 second period)
+  // Amplitudes are kept extremely subtle (<0.004) to eliminate any trembling/wobble
+  const breathFreq = isBoy ? 1.25 : 1.35; // ~0.2 Hz
   const breathCycle = Math.sin(t * breathFreq);
   const breathCos = Math.cos(t * breathFreq);
 
-  // Slow weight shift cycle (shifts weight between left and right foot every ~7 seconds)
-  const shiftFreq = isBoy ? 0.45 : 0.52;
+  // Slow, smooth weight shift cycle (shifts weight gently every ~8 seconds)
+  const shiftFreq = isBoy ? 0.38 : 0.42;
   const weightShift = Math.sin(t * shiftFreq);
 
   // Default neutral rest values
@@ -86,70 +87,65 @@ export function computeCharacterKinematics(
 
   switch (state) {
     case "walking": {
-      // Natural locomotion cycle with leg alternating stride and arm counter-swing
-      const walkSpeed = 3.6;
+      // Natural walking stride for articulated limbs; root stays grounded and steady without shaking
+      const walkSpeed = 2.4;
       const stride = Math.sin(t * walkSpeed);
-      const strideCos = Math.cos(t * walkSpeed);
 
-      out.rootY = Math.abs(strideCos) * 0.024;
-      out.rootX = stride * 0.008;
+      // Limbs swing for procedural models
+      out.leftLegRotX = stride * 0.38;
+      out.rightLegRotX = -stride * 0.38;
+      out.leftArmRotX = -stride * 0.28;
+      out.rightArmRotX = stride * 0.28;
 
-      out.leftLegRotX = stride * 0.42;
-      out.rightLegRotX = -stride * 0.42;
-
-      // Arms swing opposite to legs
-      out.leftArmRotX = -stride * 0.35;
-      out.rightArmRotX = stride * 0.35;
-
-      // Slight torso counter-rotation
-      out.spineRotY = -stride * 0.06;
-      out.spineRotX = 0.04;
+      // Extremely calm root motion (no violent vertical wobble)
+      out.rootY = Math.abs(Math.cos(t * walkSpeed)) * 0.005;
+      out.spineRotX = 0.02;
       break;
     }
 
     case "sitting": {
-      // Calm, grounded posture with relaxed upper body and subtle breathing
-      out.rootY = -0.38;
-      out.spineRotX = -0.08 + breathCycle * 0.008;
+      // Calm, grounded posture with relaxed upper body and serene low-frequency respiration
+      out.rootY = -0.36;
+      out.spineRotX = -0.05 + breathCycle * 0.003;
       out.leftLegRotX = 1.45;
       out.rightLegRotX = 1.45;
-      out.leftArmRotX = 0.55;
-      out.rightArmRotX = 0.55;
-      out.leftArmRotZ = -0.22;
-      out.rightArmRotZ = 0.22;
+      out.leftArmRotX = 0.45;
+      out.rightArmRotX = 0.45;
+      out.leftArmRotZ = -0.18;
+      out.rightArmRotZ = 0.18;
       break;
     }
 
     case "biker": {
-      // Riding motorcycle: hands forward on handlebars, body leaning into wind
-      out.rootY = 0.04;
-      out.spineRotX = 0.28 + Math.sin(t * 12) * 0.004; // subtle road vibration
-      out.leftArmRotX = 0.95;
-      out.rightArmRotX = 0.95;
-      out.leftArmRotZ = -0.28;
-      out.rightArmRotZ = 0.28;
-      out.headRotX = -0.12; // Looking ahead at the horizon
+      // Riding motorcycle: hands forward on handlebars, steady forward lean, zero artificial shaking
+      out.rootY = 0.02;
+      out.spineRotX = 0.24 + breathCycle * 0.002;
+      out.leftArmRotX = 0.92;
+      out.rightArmRotX = 0.92;
+      out.leftArmRotZ = -0.25;
+      out.rightArmRotZ = 0.25;
+      out.headRotX = -0.10; // Eyes focused on the road ahead
       break;
     }
 
     case "bikerPillion": {
-      // Riding pillion: leaning forward holding waist, gentle road vibration
-      out.rootY = 0.06;
-      out.spineRotX = 0.38 + Math.sin(t * 12 + 0.5) * 0.005;
-      out.leftArmRotX = 0.85;
-      out.rightArmRotX = 0.85;
-      out.leftArmRotZ = -0.15;
-      out.rightArmRotZ = 0.15;
-      out.headRotX = -0.18;
+      // Riding pillion: leaning forward holding waist, steady and calm
+      out.rootY = 0.04;
+      out.spineRotX = 0.32 + breathCycle * 0.002;
+      out.leftArmRotX = 0.82;
+      out.rightArmRotX = 0.82;
+      out.leftArmRotZ = -0.14;
+      out.rightArmRotZ = 0.14;
+      out.headRotX = -0.12;
       break;
     }
 
     case "emotional": {
-      // Emotional moments: Stillness and slow, intimate micro-presence
-      const slowBreath = Math.sin(t * 1.2);
-      out.rootY = slowBreath * 0.004;
-      out.spineRotX = slowBreath * 0.006;
-      out.spineRotZ = weightShift * 0.008;
+      // Emotional moments: profound stillness and gentle, slow micro-presence
+      const slowBreath = Math.sin(t * 0.9);
+      out.rootY = slowBreath * 0.002;
+      out.spineRotX = slowBreath * 0.003;
+      out.spineRotZ = weightShift * 0.003;
       break;
     }
 
@@ -157,17 +153,17 @@ export function computeCharacterKinematics(
     case "breathing":
     case "talking":
     default: {
-      // Gentle organic standing posture with contrapposto balance
-      out.rootY = breathCycle * 0.006;
-      out.rootX = weightShift * 0.01;
+      // Gentle organic standing posture: subtle 0.2Hz vertical respiration and slight balance shift
+      out.rootY = breathCycle * 0.003;
+      out.rootX = weightShift * 0.003;
 
-      // Spine contrapposto: pelvis tilts slightly with weight, torso compensates
-      out.spineRotZ = -weightShift * 0.012;
-      out.spineRotX = breathCos * 0.008;
+      // Torso counterbalance (very subtle, no trembling)
+      out.spineRotZ = -weightShift * 0.004;
+      out.spineRotX = breathCos * 0.003;
 
-      // Gentle arm micro-sway
-      out.leftArmRotX = Math.sin(t * 0.8) * 0.03;
-      out.rightArmRotX = Math.cos(t * 0.75) * 0.03;
+      // Subtle resting arm drape
+      out.leftArmRotX = Math.sin(t * 0.6) * 0.015;
+      out.rightArmRotX = Math.cos(t * 0.55) * 0.015;
       break;
     }
   }
@@ -179,7 +175,7 @@ export function computeCharacterKinematics(
     out.rightArmRotZ = THREE.MathUtils.lerp(out.rightArmRotZ, -0.18, r);
   }
 
-  // Gaze / Look-At Tracking toward the other character
+  // Smooth Gaze / Look-At Tracking toward the other character
   if (options.lookAtTarget && options.characterPos) {
     CHAR_POS_SCRATCH.set(
       options.characterPos[0],
@@ -196,14 +192,14 @@ export function computeCharacterKinematics(
       // Calculate horizontal yaw angle
       const targetYaw = Math.atan2(LOOK_DIR_SCRATCH.x, LOOK_DIR_SCRATCH.z);
       // Clamp gaze to natural humanoid range (-45 to +45 deg)
-      const clampedYaw = THREE.MathUtils.clamp(targetYaw, -0.75, 0.75);
+      const clampedYaw = THREE.MathUtils.clamp(targetYaw, -0.70, 0.70);
 
       // Pitch (vertical angle)
       const dist = Math.sqrt(
         LOOK_DIR_SCRATCH.x * LOOK_DIR_SCRATCH.x + LOOK_DIR_SCRATCH.z * LOOK_DIR_SCRATCH.z
       );
       const targetPitch = -Math.atan2(LOOK_DIR_SCRATCH.y - 1.4, dist);
-      const clampedPitch = THREE.MathUtils.clamp(targetPitch, -0.35, 0.35);
+      const clampedPitch = THREE.MathUtils.clamp(targetPitch, -0.30, 0.30);
 
       // Head takes 65% of gaze angle, spine takes 35% follow-through
       out.headRotY += clampedYaw * 0.65;

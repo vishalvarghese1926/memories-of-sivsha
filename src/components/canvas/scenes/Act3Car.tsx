@@ -31,19 +31,28 @@ export default function Act3Car({ localProgress }: Act3CarProps) {
       streetlampsRef.current.position.z = (t * 18) % 20;
     }
 
-    // Subtle car cabin vibration
+    // Smooth, cinematic highway cruising motion
     if (carGroupRef.current) {
-      carGroupRef.current.position.y = Math.sin(t * 18) * 0.008;
-      carGroupRef.current.rotation.z = Math.sin(t * 4) * 0.005;
+      carGroupRef.current.position.y = Math.sin(t * 6) * 0.003;
+      carGroupRef.current.rotation.z = Math.sin(t * 2) * 0.002;
     }
   });
 
   return (
     <group position={[0, 0, -345]}>
-      {/* Night Highway / Road */}
+      {/* Night Highway / Road with softened outer borders */}
       <mesh position={[0, -0.05, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[14, 32]} />
+        <planeGeometry args={[16, 36]} />
         <meshStandardMaterial color="#09090b" roughness={0.85} />
+      </mesh>
+      {/* Soft Highway Edge Curbs */}
+      <mesh position={[-6.8, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[0.3, 36]} />
+        <meshBasicMaterial color="#38bdf8" transparent opacity={0.3} />
+      </mesh>
+      <mesh position={[6.8, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[0.3, 36]} />
+        <meshBasicMaterial color="#38bdf8" transparent opacity={0.3} />
       </mesh>
 
       {/* Realistic Car Ground Contact Shadow */}

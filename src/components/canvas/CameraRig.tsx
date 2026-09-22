@@ -68,7 +68,7 @@ const CAMERA_KEYFRAMES: CameraWaypoint[] = [
   // 3. Act II: The Pen Moment (0.32 - 0.38) - Exchange Desk at z = -75.2
   {
     progress: 0.35,
-    position: new THREE.Vector3(0.35, 1.55, -71.5),
+    position: new THREE.Vector3(0.30, 1.50, -72.2),
     lookAt: new THREE.Vector3(0.1, 1.35, -75.2),
     fov: 39,
   },
@@ -194,9 +194,9 @@ const CAMERA_KEYFRAMES: CameraWaypoint[] = [
   // 12. Act III: Home / Everyday Life (0.92 - 0.96) - Living room z = -625
   {
     progress: 0.94,
-    position: new THREE.Vector3(1.1, 1.7, -621),
+    position: new THREE.Vector3(0.85, 1.55, -621.8),
     lookAt: new THREE.Vector3(0, 1.25, -625),
-    fov: 44,
+    fov: 43,
   },
   {
     progress: 0.96,

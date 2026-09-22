@@ -8,6 +8,7 @@ import SceneEnvironment from "./SceneEnvironment";
 import StorySceneManager from "./StorySceneManager";
 import CanvasErrorBoundary from "@/components/ui/CanvasErrorBoundary";
 
+import { Preload } from "@react-three/drei";
 import { useAdaptiveQuality } from "@/lib/adaptiveQuality";
 
 export default function StoryCanvas() {
@@ -35,9 +36,10 @@ export default function StoryCanvas() {
           <CameraRig />
           <SceneEnvironment />
 
-          {/* StorySceneManager has its own suspense boundary */}
+          {/* StorySceneManager has its own suspense boundary with preloader */}
           <Suspense fallback={null}>
             <StorySceneManager />
+            <Preload all />
           </Suspense>
         </Canvas>
       </CanvasErrorBoundary>

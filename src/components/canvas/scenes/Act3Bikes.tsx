@@ -163,6 +163,20 @@ export default function Act3Bikes({ milestoneId, localProgress }: Act3BikesProps
         ))}
       </group>
 
+      {/* Roadside Milestone Marker Stone (Classic Indian Ghats White & Yellow/Green) */}
+      <group position={[2.6, 0, 0]}>
+        {/* Base stone pillar */}
+        <mesh position={[0, 0.35, 0]} castShadow>
+          <cylinderGeometry args={[0.22, 0.22, 0.7, 16]} />
+          <meshStandardMaterial color="#f8fafc" roughness={0.8} />
+        </mesh>
+        {/* Rounded top painted dome */}
+        <mesh position={[0, 0.7, 0]} castShadow>
+          <sphereGeometry args={[0.22, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2]} />
+          <meshStandardMaterial color={isClassic ? "#059669" : "#eab308"} roughness={0.6} />
+        </mesh>
+      </group>
+
       {/* Cinematic Mountain Mist & Layered Ghats Ridgeline (Himalayan 450) */}
       {!isClassic && (
         <group position={[0, 0, -18]}>
@@ -248,66 +262,130 @@ export default function Act3Bikes({ milestoneId, localProgress }: Act3BikesProps
       {/* THE MOTORCYCLE RIG (Classic 350 / Himalayan 450)                           */}
       {/* ========================================================================= */}
       <group ref={bikeGroupRef} position={[0, 0.45, 0]}>
-        {/* Wheels */}
+        {/* Wheels with Spoke Detailing */}
         <group ref={wheelsRef}>
           {/* Front Wheel */}
           <group position={[0, 0.1, -1.2]}>
-            <mesh rotation={[0, 0, Math.PI / 2]}>
+            <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
               <torusGeometry args={[0.42, 0.08, 16, 32]} />
               <meshStandardMaterial color="#111827" roughness={0.9} />
             </mesh>
             <mesh rotation={[0, 0, Math.PI / 2]}>
               <cylinderGeometry args={[0.34, 0.34, 0.06, 16]} />
-              <meshStandardMaterial color="#94a3b8" metalness={0.8} roughness={0.3} />
+              <meshStandardMaterial color="#94a3b8" metalness={0.85} roughness={0.25} />
             </mesh>
+            {/* Radial Wire Spokes */}
+            {[0, 30, 60, 90, 120, 150].map((deg) => (
+              <mesh key={deg} rotation={[0, 0, (deg * Math.PI) / 180]}>
+                <cylinderGeometry args={[0.008, 0.008, 0.72, 6]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.9} roughness={0.2} />
+              </mesh>
+            ))}
           </group>
 
           {/* Rear Wheel */}
           <group position={[0, 0.1, 1.2]}>
-            <mesh rotation={[0, 0, Math.PI / 2]}>
+            <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
               <torusGeometry args={[0.42, 0.09, 16, 32]} />
               <meshStandardMaterial color="#111827" roughness={0.9} />
             </mesh>
             <mesh rotation={[0, 0, Math.PI / 2]}>
               <cylinderGeometry args={[0.34, 0.34, 0.08, 16]} />
-              <meshStandardMaterial color="#94a3b8" metalness={0.8} roughness={0.3} />
+              <meshStandardMaterial color="#94a3b8" metalness={0.85} roughness={0.25} />
             </mesh>
+            {/* Radial Wire Spokes */}
+            {[0, 30, 60, 90, 120, 150].map((deg) => (
+              <mesh key={deg} rotation={[0, 0, (deg * Math.PI) / 180]}>
+                <cylinderGeometry args={[0.008, 0.008, 0.72, 6]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.9} roughness={0.2} />
+              </mesh>
+            ))}
           </group>
         </group>
 
-        {/* Engine Block */}
-        <mesh position={[0, 0.35, 0]}>
-          <boxGeometry args={[0.38, 0.45, 1.1]} />
-          <meshStandardMaterial color="#1e293b" metalness={0.8} roughness={0.4} />
-        </mesh>
+        {/* Front Suspension Forks */}
+        <group position={[0, 0.5, -1.0]}>
+          <mesh position={[-0.14, 0, 0]} rotation={[0.35, 0, 0]}>
+            <cylinderGeometry args={[0.03, 0.03, 0.95, 12]} />
+            <meshStandardMaterial
+              color={isClassic ? "#cbd5e1" : "#0284c7"}
+              metalness={isClassic ? 0.9 : 0.6}
+              roughness={0.2}
+            />
+          </mesh>
+          <mesh position={[0.14, 0, 0]} rotation={[0.35, 0, 0]}>
+            <cylinderGeometry args={[0.03, 0.03, 0.95, 12]} />
+            <meshStandardMaterial
+              color={isClassic ? "#cbd5e1" : "#0284c7"}
+              metalness={isClassic ? 0.9 : 0.6}
+              roughness={0.2}
+            />
+          </mesh>
+        </group>
 
-        {/* Exhaust Pipe */}
+        {/* Engine Block with Cooling Fins */}
+        <group position={[0, 0.35, 0]}>
+          <mesh castShadow>
+            <boxGeometry args={[0.38, 0.45, 0.85]} />
+            <meshStandardMaterial color="#1e293b" metalness={0.85} roughness={0.35} />
+          </mesh>
+          {/* Cooling Fin Ridges */}
+          {[-0.12, -0.04, 0.04, 0.12].map((fy, fi) => (
+            <mesh key={fi} position={[0, fy, 0]}>
+              <boxGeometry args={[0.42, 0.015, 0.88]} />
+              <meshStandardMaterial color="#334155" metalness={0.9} roughness={0.3} />
+            </mesh>
+          ))}
+        </group>
+
+        {/* Exhaust System */}
         <mesh position={[0.22, 0.18, 0.3]} rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry args={[0.045, 0.05, 1.4, 16]} />
           <meshStandardMaterial
-            color={isClassic ? "#e2e8f0" : "#334155"}
-            metalness={isClassic ? 0.95 : 0.6}
-            roughness={0.2}
+            color={isClassic ? "#f1f5f9" : "#334155"}
+            metalness={isClassic ? 0.95 : 0.65}
+            roughness={isClassic ? 0.15 : 0.4}
           />
         </mesh>
 
         {/* Fuel Tank & Bodywork */}
         {isClassic ? (
-          // Royal Enfield Classic 350: Signals Storm Green Teardrop Tank
-          <mesh position={[0, 0.68, -0.35]} rotation={[0.2, 0, 0]}>
-            <sphereGeometry args={[0.26, 24, 24]} />
-            <meshPhysicalMaterial
-              color="#2d3a24"
-              roughness={0.4}
-              metalness={0.2}
-              clearcoat={0.35}
-              clearcoatRoughness={0.3}
-            />
-          </mesh>
+          // Royal Enfield Classic 350: Signals Storm Green Teardrop Tank with Rubber Thigh Grips
+          <group position={[0, 0.68, -0.35]}>
+            {/* Teardrop Tank */}
+            <mesh rotation={[0.2, 0, 0]} castShadow>
+              <sphereGeometry args={[0.26, 24, 24]} />
+              <meshPhysicalMaterial
+                color="#2d3a24"
+                roughness={0.4}
+                metalness={0.2}
+                clearcoat={0.4}
+                clearcoatRoughness={0.25}
+              />
+            </mesh>
+            {/* Black Rubber Knee/Thigh Grips */}
+            <mesh position={[-0.22, -0.02, 0]} rotation={[0.2, 0, 0]}>
+              <boxGeometry args={[0.02, 0.16, 0.22]} />
+              <meshStandardMaterial color="#09090b" roughness={0.9} />
+            </mesh>
+            <mesh position={[0.22, -0.02, 0]} rotation={[0.2, 0, 0]}>
+              <boxGeometry args={[0.02, 0.16, 0.22]} />
+              <meshStandardMaterial color="#09090b" roughness={0.9} />
+            </mesh>
+            {/* Front & Rear Classic Metal Fenders */}
+            <mesh position={[0, -0.22, -0.85]} rotation={[0.3, 0, 0]}>
+              <cylinderGeometry args={[0.45, 0.45, 0.16, 16, 1, true, 0, Math.PI * 0.7]} />
+              <meshStandardMaterial color="#2d3a24" roughness={0.4} />
+            </mesh>
+            <mesh position={[0, -0.22, 1.35]} rotation={[-0.3, 0, 0]}>
+              <cylinderGeometry args={[0.45, 0.45, 0.16, 16, 1, true, 0, Math.PI * 0.7]} />
+              <meshStandardMaterial color="#2d3a24" roughness={0.4} />
+            </mesh>
+          </group>
         ) : (
-          // Royal Enfield Himalayan 450: Adventure Sculpted Kaza Brown Tank + Crash Guard
+          // Royal Enfield Himalayan 450: Adventure Sculpted Kaza Brown Tank + Beak + Windscreen + Crash Guard
           <group position={[0, 0.72, -0.35]}>
-            <mesh>
+            <mesh castShadow>
               <boxGeometry args={[0.42, 0.34, 0.68]} />
               <meshPhysicalMaterial
                 color="#8c6239"
@@ -317,14 +395,31 @@ export default function Act3Bikes({ milestoneId, localProgress }: Act3BikesProps
                 clearcoatRoughness={0.15}
               />
             </mesh>
-            {/* Protective Crash Guard Bars (holds bike safely when slipped) */}
+            {/* Front Raised Beak Fender */}
+            <mesh position={[0, -0.15, -0.55]} rotation={[0.2, 0, 0]}>
+              <boxGeometry args={[0.24, 0.05, 0.45]} />
+              <meshStandardMaterial color="#1e293b" roughness={0.5} />
+            </mesh>
+            {/* Upright Adventure Smoked Windscreen */}
+            <mesh position={[0, 0.35, -0.45]} rotation={[-0.25, 0, 0]}>
+              <planeGeometry args={[0.28, 0.35]} />
+              <meshPhysicalMaterial
+                color="#0f172a"
+                transmission={0.65}
+                opacity={0.8}
+                transparent
+                roughness={0.1}
+                ior={1.5}
+              />
+            </mesh>
+            {/* High-Tensile Protective Crash Guard Cage */}
             <mesh position={[-0.26, -0.1, 0]}>
-              <boxGeometry args={[0.05, 0.45, 0.75]} />
-              <meshStandardMaterial color="#0f172a" metalness={0.75} roughness={0.25} />
+              <boxGeometry args={[0.06, 0.48, 0.78]} />
+              <meshStandardMaterial color="#0f172a" metalness={0.8} roughness={0.2} />
             </mesh>
             <mesh position={[0.26, -0.1, 0]}>
-              <boxGeometry args={[0.05, 0.45, 0.75]} />
-              <meshStandardMaterial color="#0f172a" metalness={0.75} roughness={0.25} />
+              <boxGeometry args={[0.06, 0.48, 0.78]} />
+              <meshStandardMaterial color="#0f172a" metalness={0.8} roughness={0.2} />
             </mesh>
           </group>
         )}

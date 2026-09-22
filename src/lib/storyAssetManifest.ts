@@ -19,7 +19,7 @@ export interface ManifestAssetItem {
 }
 
 export const STORY_ASSET_MANIFEST: ManifestAssetItem[] = [
-  // --- PRIORITY A: Critical for immediate First-Frame & Sivani entrance ---
+  // --- PRIORITY A: Critical for immediate First-Frame & Hero Characters ---
   {
     id: "draco-wasm",
     name: "Draco WASM Decoder",
@@ -52,16 +52,16 @@ export const STORY_ASSET_MANIFEST: ManifestAssetItem[] = [
     priority: "A",
     estimatedBytes: 1_125_000,
   },
-
-  // --- PRIORITY B: Core Narrative (Act 2 & early Act 3) ---
   {
     id: "you-hero",
     name: "Vishal Hero Model",
     url: "/models/characters/you-optimized.glb",
     type: "model",
-    priority: "B",
+    priority: "A",
     estimatedBytes: 702_000,
   },
+
+  // --- PRIORITY B: Core Environment Assets ---
   {
     id: "car-rain",
     name: "August 31 Car Chassis",
@@ -78,14 +78,12 @@ export const STORY_ASSET_MANIFEST: ManifestAssetItem[] = [
     priority: "B",
     estimatedBytes: 351_000,
   },
-
-  // --- PRIORITY C: Later Milestones & Furniture ---
   {
     id: "mountain-props",
     name: "Himalayan Mountain Boulders",
     url: "/models/environment/mountain_props-opt.glb",
     type: "model",
-    priority: "C",
+    priority: "B",
     estimatedBytes: 1_032_000,
   },
   {
@@ -93,7 +91,7 @@ export const STORY_ASSET_MANIFEST: ManifestAssetItem[] = [
     name: "Home Parquet & Sofa",
     url: "/models/environment/home_furniture-opt.glb",
     type: "model",
-    priority: "C",
+    priority: "B",
     estimatedBytes: 187_000,
   },
 ];
@@ -109,24 +107,20 @@ export function preloadGLTFAsset(url: string) {
   }
 }
 
-// Staged loader that downloads and warms up Priority A assets,
-// calling onProgress with 0..100 percentage.
+// Staged loader that downloads and warms up Priority A & B assets
 export async function runStagedPreloader(
   onProgress?: (progress: number, currentItem: string) => void
 ): Promise<void> {
   if (typeof window === "undefined") return;
 
-  const priorityA = STORY_ASSET_MANIFEST.filter((a) => a.priority === "A");
-  const priorityB = STORY_ASSET_MANIFEST.filter((a) => a.priority === "B");
-  const priorityC = STORY_ASSET_MANIFEST.filter((a) => a.priority === "C");
-
+  const coreAssets = STORY_ASSET_MANIFEST.filter((a) => a.priority === "A" || a.priority === "B");
   let completedBytes = 0;
-  const totalABytes = priorityA.reduce((sum, item) => sum + item.estimatedBytes, 0);
+  const totalBytes = coreAssets.reduce((sum, item) => sum + item.estimatedBytes, 0);
 
-  // 1. Load and cache Priority A items
-  for (const item of priorityA) {
+  // Load and cache all core models and wasm decoders
+  for (const item of coreAssets) {
     if (onProgress) {
-      const pct = Math.min(92, Math.round((completedBytes / totalABytes) * 100));
+      const pct = Math.min(95, Math.round((completedBytes / totalBytes) * 100));
       onProgress(pct, item.name);
     }
 
@@ -134,7 +128,7 @@ export async function runStagedPreloader(
       if (item.type === "model") {
         preloadGLTFAsset(item.url);
       } else {
-        // Fetch WASM / script into browser disk/memory cache
+        // Fetch WASM / script into browser cache
         await fetch(item.url, { cache: "force-cache" });
       }
     } catch {
@@ -147,22 +141,4 @@ export async function runStagedPreloader(
   if (onProgress) {
     onProgress(100, "Ready");
   }
-
-  // 2. Asynchronously warm up Priority B in background without blocking entry
-  setTimeout(() => {
-    priorityB.forEach((item) => {
-      if (item.type === "model") {
-        preloadGLTFAsset(item.url);
-      }
-    });
-  }, 600);
-
-  // 3. Asynchronously warm up Priority C in background
-  setTimeout(() => {
-    priorityC.forEach((item) => {
-      if (item.type === "model") {
-        preloadGLTFAsset(item.url);
-      }
-    });
-  }, 2500);
 }

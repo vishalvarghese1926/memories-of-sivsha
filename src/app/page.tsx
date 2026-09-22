@@ -217,24 +217,25 @@ export default function EntryPage() {
   }, [router]);
 
   return (
-    <main className="relative min-h-[100dvh] w-full flex items-center justify-center p-4 sm:p-6 overflow-hidden bg-[#07070d] text-[#f4edea]">
+    <main className="relative min-h-[100dvh] w-full flex items-center justify-center p-4 sm:p-6 overflow-hidden bg-[#04060d] text-[#f4edea]">
       {/* Cinematic Ambient Background Particles */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-        {/* Soft Ambient Radial Lights */}
+        {/* Soft Ambient Radial Lights (Midnight Rose & Cyan Harmony) */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[550px] h-[550px] bg-rose-900/15 rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-[450px] h-[450px] bg-purple-900/15 rounded-full blur-[100px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-[480px] h-[480px] bg-cyan-900/15 rounded-full blur-[130px]" />
+        <div className="absolute top-1/3 left-1/4 w-[350px] h-[350px] bg-blue-950/20 rounded-full blur-[100px]" />
 
         {/* Ambient Shimmer Grid */}
-        <div className="absolute inset-0 bg-[radial-gradient(#2d1537_1px,transparent_1px)] [background-size:32px_32px] opacity-25" />
+        <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:32px_32px] opacity-30" />
       </div>
 
       {/* Main Glass Card Container */}
       <div className="relative z-10 w-full max-w-lg my-auto pt-safe pb-safe">
-        <div className="glass-panel rounded-3xl p-6 sm:p-10 border border-white/10 shadow-romantic-glow">
+        <div className="glass-panel rounded-3xl p-6 sm:p-10 border border-white/10 shadow-[0_0_50px_rgba(34,211,238,0.06)] hover:border-cyan-500/20 transition-all duration-500">
           {/* Brand Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full glass-pill text-xs tracking-widest uppercase text-rose-300/80 mb-3 font-medium">
-              <Sparkles className="w-3.5 h-3.5 text-rose-400" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full glass-pill text-xs tracking-widest uppercase text-cyan-300/80 mb-3 font-medium border border-cyan-500/20 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
               <span>A PRIVATE STORY</span>
             </div>
 
@@ -472,9 +473,9 @@ export default function EntryPage() {
                   <button
                     type="button"
                     onClick={handleEnterStory}
-                    className="w-full py-4 px-8 rounded-2xl bg-gradient-to-r from-rose-600 via-rose-500 to-rose-600 text-white font-medium tracking-widest uppercase text-sm shadow-romantic-glow hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-3 min-h-[52px]"
+                    className="w-full py-4 px-8 rounded-2xl bg-gradient-to-r from-rose-600 via-rose-500 to-cyan-600 text-white font-medium tracking-widest uppercase text-sm shadow-[0_0_30px_rgba(34,211,238,0.25)] hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-3 min-h-[52px]"
                   >
-                    <Sparkles className="w-4 h-4 text-rose-200" />
+                    <Sparkles className="w-4 h-4 text-cyan-200" />
                     <span>ENTER THE STORY</span>
                   </button>
                 ) : (
@@ -482,7 +483,7 @@ export default function EntryPage() {
                     type="button"
                     onClick={handleUnlockClick}
                     disabled={unlockState === "unlocking"}
-                    className="w-full py-4 px-8 rounded-2xl bg-gradient-to-r from-rose-600 via-rose-500 to-rose-600 text-white font-medium tracking-widest uppercase text-sm shadow-romantic-glow hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-3 min-h-[52px] disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full py-4 px-8 rounded-2xl bg-gradient-to-r from-rose-600 via-rose-500 to-cyan-600 text-white font-medium tracking-widest uppercase text-sm shadow-[0_0_30px_rgba(34,211,238,0.25)] hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-3 min-h-[52px] disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {unlockState === "unlocking" ? (
                       <>

@@ -152,15 +152,45 @@ export default function SceneEnvironment() {
         distance={25}
       />
 
-      {/* Ambient floating dust / romantic embers travelling along story spline */}
+      {/* Continuous Celestial Starlit Floor Ribbon connecting all memories (z: 10 to -700) */}
+      <mesh position={[0, -0.18, -345]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[28, 720]} />
+        <meshBasicMaterial
+          color="#06050b"
+          transparent
+          opacity={0.85}
+        />
+      </mesh>
+
+      {/* Subtle Cyan-Tinged Memory Pathway Edge Accents */}
+      {[-8, 8].map((x, idx) => (
+        <mesh key={`path-edge-${idx}`} position={[x, -0.16, -345]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[0.08, 720]} />
+          <meshBasicMaterial
+            color="#22d3ee"
+            transparent
+            opacity={0.18}
+          />
+        </mesh>
+      ))}
+
+      {/* Ambient floating dust / romantic cyan and rose embers travelling along story spline */}
       <group ref={sparklesGroupRef}>
         <Sparkles
-          count={75}
-          scale={[22, 14, 22]}
-          size={2.6}
-          speed={0.4}
-          opacity={0.65}
+          count={65}
+          scale={[24, 16, 24]}
+          size={2.8}
+          speed={0.35}
+          opacity={0.55}
           color="#ffd1dc"
+        />
+        <Sparkles
+          count={40}
+          scale={[26, 18, 26]}
+          size={3.2}
+          speed={0.25}
+          opacity={0.45}
+          color="#22d3ee"
         />
       </group>
     </>

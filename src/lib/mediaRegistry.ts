@@ -36,7 +36,7 @@ export const PERSONAL_MEDIA_REGISTRY: Record<string, PersonalMediaSlot> = {
   "m-1": {
     milestoneId: "m-1",
     sceneTitle: "Before We Met",
-    personalUrl: "", // Drop file into public/media/photos/ and set e.g., "/media/photos/childhood_memory.jpg"
+    personalUrl: "/media/photos/m1_before.webp",
     type: "image",
     caption: "Early childhood memories & sunlit laughter",
     isHero: false,
@@ -44,7 +44,7 @@ export const PERSONAL_MEDIA_REGISTRY: Record<string, PersonalMediaSlot> = {
   "m-2": {
     milestoneId: "m-2",
     sceneTitle: "Marine Engineering College",
-    personalUrl: "", // e.g. "/media/photos/college_corridor.jpg"
+    personalUrl: "/media/photos/m2_college.webp",
     type: "image",
     caption: "The bustling college corridors where we first stood in the same room",
     location: "Marine Engineering College Administration Hall",
@@ -53,7 +53,7 @@ export const PERSONAL_MEDIA_REGISTRY: Record<string, PersonalMediaSlot> = {
   "m-4": {
     milestoneId: "m-4",
     sceneTitle: "Tribaly / Classroom",
-    personalUrl: "", // e.g. "/media/photos/classroom_days.jpg"
+    personalUrl: "/media/photos/m4_classroom.webp",
     type: "image",
     caption: "Quiet glances across the lecture hall",
     isHero: false,
@@ -61,7 +61,7 @@ export const PERSONAL_MEDIA_REGISTRY: Record<string, PersonalMediaSlot> = {
   "m-5": {
     milestoneId: "m-5",
     sceneTitle: "The Friend Group",
-    personalUrl: "", // e.g. "/media/photos/friend_group.jpg"
+    personalUrl: "/media/photos/m5_friends.webp",
     type: "image",
     caption: "Our college circle — days filled with laughter and shared studies",
     isHero: true,
@@ -69,7 +69,7 @@ export const PERSONAL_MEDIA_REGISTRY: Record<string, PersonalMediaSlot> = {
   "m-6": {
     milestoneId: "m-6",
     sceneTitle: "Kozhikode Train",
-    personalUrl: "", // e.g. "/media/photos/train_sunset.jpg" or "/media/videos/train_journey.mp4"
+    personalUrl: "/media/photos/m6_train.webp",
     type: "image",
     caption: "Golden hour breeze along the railway tracks heading to Kozhikode",
     location: "En route to Kozhikode",
@@ -78,7 +78,7 @@ export const PERSONAL_MEDIA_REGISTRY: Record<string, PersonalMediaSlot> = {
   "m-7": {
     milestoneId: "m-7",
     sceneTitle: "Kozhikode Beach",
-    personalUrl: "", // e.g. "/media/photos/beach_tide.jpg" or "/media/videos/beach_waves.mp4"
+    personalUrl: "/media/photos/m7_beach.webp",
     type: "image",
     caption: "Evening tide and bare feet at Kozhikode Beach",
     location: "Kozhikode Beach",
@@ -87,7 +87,7 @@ export const PERSONAL_MEDIA_REGISTRY: Record<string, PersonalMediaSlot> = {
   "m-8": {
     milestoneId: "m-8",
     sceneTitle: "Late Night Conversations",
-    personalUrl: "", // e.g. "/media/photos/late_night_chat.jpg"
+    personalUrl: "/media/photos/m8_latenight.webp",
     type: "image",
     caption: "Late night conversations that bridged our worlds",
     isHero: false,
@@ -95,7 +95,7 @@ export const PERSONAL_MEDIA_REGISTRY: Record<string, PersonalMediaSlot> = {
   "m-9": {
     milestoneId: "m-9",
     sceneTitle: "31 AUGUST 2025",
-    personalUrl: "", // e.g. "/media/photos/august_31_milestone.jpg"
+    personalUrl: "/media/photos/m9_car.webp",
     type: "image",
     caption: "The day we officially began our journey together",
     date: "2025-08-31",
@@ -104,7 +104,7 @@ export const PERSONAL_MEDIA_REGISTRY: Record<string, PersonalMediaSlot> = {
   "m-10": {
     milestoneId: "m-10",
     sceneTitle: "Classic 350",
-    personalUrl: "", // e.g. "/media/photos/classic_350_ride.jpg"
+    personalUrl: "/media/photos/m10_classic350.webp",
     type: "image",
     caption: "Riding into the sunset on the Classic 350",
     isHero: true,
@@ -112,7 +112,7 @@ export const PERSONAL_MEDIA_REGISTRY: Record<string, PersonalMediaSlot> = {
   "m-11": {
     milestoneId: "m-11",
     sceneTitle: "Himalayan 450 & Mountain Fall",
-    personalUrl: "", // e.g. "/media/photos/himalayan_mountain.jpg"
+    personalUrl: "/media/photos/m11_himalayan.webp",
     type: "image",
     caption: "Conquering mountain curves on the Himalayan",
     isHero: true,
@@ -120,7 +120,7 @@ export const PERSONAL_MEDIA_REGISTRY: Record<string, PersonalMediaSlot> = {
   "m-12": {
     milestoneId: "m-12",
     sceneTitle: "Home / Everyday Life",
-    personalUrl: "", // e.g. "/media/photos/home_tea.jpg"
+    personalUrl: "/media/photos/m12_home.webp",
     type: "image",
     caption: "Visiting home, quiet teas and simple everyday warmth",
     isHero: true,

@@ -228,22 +228,22 @@ export default function Act3Home({ localProgress }: Act3HomeProps) {
       {/* ========================================================================= */}
       <group position={[0, 0.38, 0.25]}>
         {/* Boy (Vishal): Seated comfortably on sofa */}
-        <group position={[-0.45, 0, 0]}>
+        <group position={[-0.30, 0, 0]}>
           <CharacterBoy
             pose="sitting"
             scale={0.92}
-            rotation={[0, 0.2, 0]}
-            lookAtTarget={[0.45, 1.25, 0]}
+            rotation={[0, 0.18, 0]}
+            lookAtTarget={[0.28, 1.25, 0]}
           />
         </group>
 
-        {/* Sivani: Seated beside him enjoying peaceful evening */}
-        <group position={[0.45, 0, 0]}>
+        {/* Sivani: Seated beside him in warm intimate closeness */}
+        <group position={[0.28, 0, 0]}>
           <CharacterGirl
             pose="sitting"
             scale={0.9}
-            rotation={[0, -0.2, 0]}
-            lookAtTarget={[-0.45, 1.25, 0]}
+            rotation={[0, -0.18, 0]}
+            lookAtTarget={[-0.30, 1.25, 0]}
           />
         </group>
 

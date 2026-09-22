@@ -41,10 +41,10 @@ export function calculateLocalProgress(
 export default function StorySceneManager() {
   const { milestones, activeMilestoneIndex, scrollProgressRef } = useStory();
 
-  // Active scene window: previous, current, next
+  // Active scene window: previous, current, next, and predictively pre-warmed upcoming (+2)
   const activeWindowIndices = useMemo(() => {
     const min = Math.max(0, activeMilestoneIndex - 1);
-    const max = Math.min(milestones.length - 1, activeMilestoneIndex + 1);
+    const max = Math.min(milestones.length - 1, activeMilestoneIndex + 2);
     const set = new Set<number>();
     for (let i = min; i <= max; i++) {
       set.add(i);
