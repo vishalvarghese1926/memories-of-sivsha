@@ -80,9 +80,10 @@ export default function Act3Beach({ localProgress }: Act3BeachProps) {
         <meshBasicMaterial color="#f97316" />
       </mesh>
 
-      {/* Radiant Sunset Horizon Lighting */}
+      {/* Radiant Sunset Horizon Lighting with subtle cyan coastal accent */}
       <directionalLight position={[4, 5, -28]} color="#fdba74" intensity={2.6} />
       <pointLight position={[2, 4, -28]} color="#ea580c" intensity={3.5} distance={65} />
+      <pointLight position={[-4, 3, -10]} color="#22d3ee" intensity={0.85} distance={25} />
       <ambientLight color="#2a1420" intensity={0.9} />
 
       {/* Atmospheric Sky Backdrop Plane */}

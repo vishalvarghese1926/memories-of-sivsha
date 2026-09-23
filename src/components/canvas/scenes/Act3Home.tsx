@@ -33,9 +33,10 @@ export default function Act3Home({ localProgress }: Act3HomeProps) {
 
   return (
     <group position={[0, 0, -625]}>
-      {/* Warm Ambient Home Interior Light */}
+      {/* Warm Ambient Home Interior Light with subtle signature cyan accent */}
       <ambientLight color="#2d1e2f" intensity={0.9} />
       <directionalLight position={[4, 6, 2]} color="#fed7aa" intensity={1.2} />
+      <pointLight position={[-2.8, 2.8, -2.2]} color="#22d3ee" intensity={0.35} distance={6} />
 
       {/* ========================================================================= */}
       {/* 1. ROOM ARCHITECTURE (Living Room Floor, Walls, Evening Window)          */}

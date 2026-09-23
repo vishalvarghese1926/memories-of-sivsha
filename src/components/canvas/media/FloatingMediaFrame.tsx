@@ -23,7 +23,7 @@ export default function FloatingMediaFrame({
   width = 2.0,
   height = 1.35,
 }: FloatingMediaFrameProps) {
-  const { milestones, activeMilestoneIndex } = useStory();
+  const { milestones, activeMilestoneIndex, openPhotoLightbox } = useStory();
   const groupRef = useRef<THREE.Group>(null);
 
   const [imageTexture, setImageTexture] = useState<THREE.Texture | null>(null);
@@ -31,6 +31,7 @@ export default function FloatingMediaFrame({
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   // Check prefers-reduced-motion
   useEffect(() => {
@@ -211,13 +212,22 @@ export default function FloatingMediaFrame({
     ? fallbackTexture
     : videoTexture || imageTexture || fallbackTexture;
 
+  // Clean up cursor on unmount
+  useEffect(() => {
+    return () => {
+      if (typeof document !== "undefined") {
+        document.body.style.cursor = "auto";
+      }
+    };
+  }, []);
+
   return (
     <group ref={groupRef} position={position} rotation={rotation} scale={scale}>
       {/* Outer Curved Glass Border Frame */}
       <mesh position={[0, 0, -0.01]}>
         <boxGeometry args={[width + 0.16, height + 0.16, 0.05]} />
         <meshPhysicalMaterial
-          color="#fda4af"
+          color="#082f49"
           transmission={0.88}
           roughness={0.12}
           ior={1.45}
@@ -228,19 +238,35 @@ export default function FloatingMediaFrame({
         />
       </mesh>
 
-      {/* Rim Accent Border Glow */}
+      {/* Rim Accent Border Glow with Sivani's Signature Cyan */}
       <mesh position={[0, 0, 0.01]}>
         <boxGeometry args={[width + 0.04, height + 0.04, 0.01]} />
         <meshStandardMaterial
-          color="#f43f5e"
-          emissive="#e11d48"
-          emissiveIntensity={0.3}
+          color="#22d3ee"
+          emissive="#06b6d4"
+          emissiveIntensity={isHovered ? 0.75 : 0.25}
           roughness={0.2}
         />
       </mesh>
 
-      {/* Main Image / Video Plane */}
-      <mesh position={[0, 0, 0.02]}>
+      {/* Main Image / Video Plane — EXCLUSIVELY CLICKABLE TARGET */}
+      <mesh
+        position={[0, 0, 0.02]}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          setIsHovered(true);
+          if (typeof document !== "undefined") document.body.style.cursor = "pointer";
+        }}
+        onPointerOut={(e) => {
+          e.stopPropagation();
+          setIsHovered(false);
+          if (typeof document !== "undefined") document.body.style.cursor = "auto";
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          openPhotoLightbox(milestoneId);
+        }}
+      >
         <planeGeometry args={[width, height]} />
         <meshBasicMaterial
           map={activeTexture}
@@ -249,11 +275,11 @@ export default function FloatingMediaFrame({
         />
       </mesh>
 
-      {/* Soft Romantic Ambient Backlight for the Frame */}
+      {/* Soft Cyan Ambient Backlight for the Frame */}
       <pointLight
         position={[0, 0, -0.2]}
-        color="#fb7185"
-        intensity={0.8}
+        color="#38bdf8"
+        intensity={isHovered ? 1.5 : 0.8}
         distance={3.5}
       />
     </group>

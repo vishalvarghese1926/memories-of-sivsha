@@ -2,128 +2,221 @@ import { MediaAsset } from "@/types";
 
 /**
  * =========================================================================
- * MEMORIES OF SIVSHA — PRODUCTION MEDIA REGISTRY
+ * MEMORIES OF SIVSHA — PRODUCTION MEDIA REGISTRY (PHASE 3)
  * =========================================================================
  *
- * This registry acts as the single source of truth for personal media.
- * To replace placeholder images with personal photos or videos:
- * 1. Place your personal image or video into:
- *      public/media/photos/  (e.g., train_journey.jpg, beach_sunset.jpg)
- *      public/media/videos/  (e.g., waves.mp4, classic350_ride.mp4)
- * 2. Update the corresponding `personalUrl` field below.
- *
- * When `personalUrl` is empty or null, the system automatically falls back
- * to the verified remote placeholder imagery or procedural textures.
+ * Source of Truth: D:\Site pics\New folder
+ * Every story photo is explicitly mapped with semantic metadata:
+ * - id & milestoneId
+ * - photoUrl (in-canvas WebGL optimized texture)
+ * - highResUrl (fullscreen lightbox source)
+ * - caption & sceneTitle
+ * - aspectRatio (exact computed width/height ratio)
+ * - displayMode (framed, pinned, memory-card, surface, cinematic)
+ * - focalPoint [x, y]
+ * - fullscreenEnabled
  */
 
-export interface PersonalMediaSlot {
+export type PhotoDisplayMode =
+  | "framed"
+  | "pinned"
+  | "memory-card"
+  | "surface"
+  | "cinematic";
+
+export interface SemanticPhotoSlot {
+  id: string;
   milestoneId: string;
   sceneTitle: string;
-  /**
-   * Path relative to public directory (e.g., "/media/photos/train_doorway.jpg" or "/media/videos/beach.mp4").
-   * Set to empty string until real personal media is supplied.
-   */
-  personalUrl?: string;
+  photoUrl: string;
+  highResUrl: string;
   type: "image" | "video";
-  caption?: string;
-  thumbnailUrl?: string;
-  isHero?: boolean;
+  caption: string;
+  aspectRatio: number;
+  displayMode: PhotoDisplayMode;
+  focalPoint: [number, number];
+  fullscreenEnabled: boolean;
   date?: string;
   location?: string;
+  isHero?: boolean;
 }
 
-export const PERSONAL_MEDIA_REGISTRY: Record<string, PersonalMediaSlot> = {
+export const PERSONAL_MEDIA_REGISTRY: Record<string, SemanticPhotoSlot> = {
   "m-1": {
+    id: "photo-m1",
     milestoneId: "m-1",
     sceneTitle: "Before We Met",
-    personalUrl: "/media/photos/m1_before.webp",
+    photoUrl: "/media/photos/m1_before.webp",
+    highResUrl: "/media/photos/m1_before_full.webp",
     type: "image",
-    caption: "Early childhood memories & sunlit laughter",
+    caption: "Early childhood memories & sunlit laughter — two worlds before our paths crossed",
+    aspectRatio: 1.7778,
+    displayMode: "framed",
+    focalPoint: [0.5, 0.5],
+    fullscreenEnabled: true,
     isHero: false,
   },
   "m-2": {
+    id: "photo-m2",
     milestoneId: "m-2",
     sceneTitle: "Marine Engineering College",
-    personalUrl: "/media/photos/m2_college.webp",
+    photoUrl: "/media/photos/m2_college.webp",
+    highResUrl: "/media/photos/m2_college_full.webp",
     type: "image",
-    caption: "The bustling college corridors where we first stood in the same room",
-    location: "Marine Engineering College Administration Hall",
+    caption: "Department of Computer Science & Engineering — college corridors where we first stood together",
+    aspectRatio: 1.7778,
+    displayMode: "memory-card",
+    location: "College Corridors",
+    focalPoint: [0.5, 0.5],
+    fullscreenEnabled: true,
     isHero: true,
   },
   "m-4": {
+    id: "photo-m4",
     milestoneId: "m-4",
     sceneTitle: "Tribaly / Classroom",
-    personalUrl: "/media/photos/m4_classroom.webp",
+    photoUrl: "/media/photos/m4_classroom.webp",
+    highResUrl: "/media/photos/m4_classroom_full.webp",
     type: "image",
-    caption: "Quiet glances across the lecture hall",
+    caption: "Quiet glances across the lecture hall benches and blackboard",
+    aspectRatio: 1.7778,
+    displayMode: "pinned",
+    location: "Lecture Hall 3B",
+    focalPoint: [0.5, 0.5],
+    fullscreenEnabled: true,
     isHero: false,
   },
   "m-5": {
+    id: "photo-m5",
     milestoneId: "m-5",
     sceneTitle: "The Friend Group",
-    personalUrl: "/media/photos/m5_friends.webp",
+    photoUrl: "/media/photos/m5_friends.webp",
+    highResUrl: "/media/photos/m5_friends_full.webp",
     type: "image",
-    caption: "Our college circle — days filled with laughter and shared studies",
+    caption: "Our college circle on the staircase — days filled with laughter, shared tea, and camaraderie",
+    aspectRatio: 1.3333,
+    displayMode: "memory-card",
+    focalPoint: [0.5, 0.5],
+    fullscreenEnabled: true,
     isHero: true,
   },
   "m-6": {
+    id: "photo-m6",
     milestoneId: "m-6",
     sceneTitle: "Kozhikode Train",
-    personalUrl: "/media/photos/m6_train.webp",
+    photoUrl: "/media/photos/m6_train.webp",
+    highResUrl: "/media/photos/m6_train_full.webp",
     type: "image",
-    caption: "Golden hour breeze along the railway tracks heading to Kozhikode",
+    caption: "Wind in our hair by the train doorway on the journey to Kozhikode",
+    aspectRatio: 0.5625,
+    displayMode: "cinematic",
     location: "En route to Kozhikode",
+    focalPoint: [0.5, 0.5],
+    fullscreenEnabled: true,
     isHero: true,
   },
   "m-7": {
+    id: "photo-m7",
     milestoneId: "m-7",
     sceneTitle: "Kozhikode Beach",
-    personalUrl: "/media/photos/m7_beach.webp",
+    photoUrl: "/media/photos/m7_beach.webp",
+    highResUrl: "/media/photos/m7_beach_full.webp",
     type: "image",
-    caption: "Evening tide and bare feet at Kozhikode Beach",
+    caption: "Sunlit shores, sea breeze, and bare feet at Kozhikode Beach",
+    aspectRatio: 1.7778,
+    displayMode: "surface",
     location: "Kozhikode Beach",
+    focalPoint: [0.5, 0.5],
+    fullscreenEnabled: true,
     isHero: true,
   },
   "m-8": {
+    id: "photo-m8",
     milestoneId: "m-8",
     sceneTitle: "Late Night Conversations",
-    personalUrl: "/media/photos/m8_latenight.webp",
+    photoUrl: "/media/photos/m8_latenight.webp",
+    highResUrl: "/media/photos/m8_latenight.webp",
     type: "image",
-    caption: "Late night conversations that bridged our worlds",
+    caption: "Late night conversations that bridged our worlds across the dark",
+    aspectRatio: 1.7778,
+    displayMode: "cinematic",
+    focalPoint: [0.5, 0.5],
+    fullscreenEnabled: true,
     isHero: false,
   },
   "m-9": {
+    id: "photo-m9",
     milestoneId: "m-9",
     sceneTitle: "31 AUGUST 2025",
-    personalUrl: "/media/photos/m9_car.webp",
+    photoUrl: "/media/photos/m9_august31.webp",
+    highResUrl: "/media/photos/m9_august31_full.webp",
     type: "image",
-    caption: "The day we officially began our journey together",
+    caption: "August 31, 2025 — The mountain overlook where our story officially began",
+    aspectRatio: 1.0,
+    displayMode: "cinematic",
     date: "2025-08-31",
+    focalPoint: [0.5, 0.5],
+    fullscreenEnabled: true,
     isHero: true,
   },
   "m-10": {
+    id: "photo-m10",
     milestoneId: "m-10",
     sceneTitle: "Classic 350",
-    personalUrl: "/media/photos/m10_classic350.webp",
+    photoUrl: "/media/photos/m10_classic350.webp",
+    highResUrl: "/media/photos/m10_classic350_full.webp",
     type: "image",
-    caption: "Riding into the sunset on the Classic 350",
+    caption: "Evening ride on the olive green Classic 350 — wind in her hair",
+    aspectRatio: 1.7786,
+    displayMode: "framed",
+    location: "Coastal Highway",
+    focalPoint: [0.5, 0.5],
+    fullscreenEnabled: true,
     isHero: true,
   },
   "m-11": {
+    id: "photo-m11",
     milestoneId: "m-11",
     sceneTitle: "Himalayan 450 & Mountain Fall",
-    personalUrl: "/media/photos/m11_himalayan.webp",
+    photoUrl: "/media/photos/m11_himalayan.webp",
+    highResUrl: "/media/photos/m11_himalayan_full.webp",
     type: "image",
-    caption: "Conquering mountain curves on the Himalayan",
+    caption: "Misty mountain pass on the Himalayan 450 — the curve we navigated together",
+    aspectRatio: 0.75,
+    displayMode: "framed",
+    location: "Mountain Pass",
+    focalPoint: [0.5, 0.5],
+    fullscreenEnabled: true,
     isHero: true,
   },
   "m-12": {
+    id: "photo-m12",
     milestoneId: "m-12",
     sceneTitle: "Home / Everyday Life",
-    personalUrl: "/media/photos/m12_home.webp",
+    photoUrl: "/media/photos/m12_home.webp",
+    highResUrl: "/media/photos/m12_home_full.webp",
     type: "image",
-    caption: "Visiting home, quiet teas and simple everyday warmth",
+    caption: "Visiting home, quiet laughter, and simple everyday warmth",
+    aspectRatio: 0.6709,
+    displayMode: "surface",
+    location: "Home",
+    focalPoint: [0.5, 0.5],
+    fullscreenEnabled: true,
     isHero: true,
+  },
+  "letter-seal": {
+    id: "photo-letter-seal",
+    milestoneId: "m-14",
+    sceneTitle: "Letter Monogram & Seal",
+    photoUrl: "/media/photos/letter_seal.webp",
+    highResUrl: "/media/photos/letter_seal_full.webp",
+    type: "image",
+    caption: "Handwritten memories sealed with an eternal bond",
+    aspectRatio: 0.6095,
+    displayMode: "surface",
+    focalPoint: [0.5, 0.5],
+    fullscreenEnabled: true,
+    isHero: false,
   },
 };
 
@@ -131,7 +224,7 @@ export const PERSONAL_MEDIA_REGISTRY: Record<string, PersonalMediaSlot> = {
  * Resolves the active media asset for a milestone:
  * 1. Checks if a local personal media file has been specified in PERSONAL_MEDIA_REGISTRY.
  * 2. If present, returns the personal media asset.
- * 3. Otherwise, falls back to the default media asset configured on the milestone (e.g. placeholder).
+ * 3. Otherwise, falls back to the default media asset configured on the milestone.
  */
 export function resolveMilestoneMedia(
   milestoneId: string,
@@ -139,25 +232,27 @@ export function resolveMilestoneMedia(
 ): MediaAsset | null {
   const registryEntry = PERSONAL_MEDIA_REGISTRY[milestoneId];
 
-  // If a real personal media URL is configured and non-empty, use it
-  if (registryEntry?.personalUrl && registryEntry.personalUrl.trim().length > 0) {
+  if (registryEntry?.photoUrl && registryEntry.photoUrl.trim().length > 0) {
     return {
-      id: `personal-${milestoneId}`,
+      id: registryEntry.id,
       milestoneId,
-      url: registryEntry.personalUrl.trim(),
+      url: registryEntry.photoUrl.trim(),
       type: registryEntry.type,
       caption: registryEntry.caption || defaultMedia?.[0]?.caption,
-      thumbnailUrl: registryEntry.thumbnailUrl || registryEntry.personalUrl.trim(),
+      thumbnailUrl: registryEntry.photoUrl.trim(),
       date: registryEntry.date || defaultMedia?.[0]?.date,
       location: registryEntry.location || defaultMedia?.[0]?.location,
       isCover: registryEntry.isHero ?? true,
     };
   }
 
-  // Fallback to default milestone media
   if (defaultMedia && defaultMedia.length > 0) {
     return defaultMedia[0];
   }
 
   return null;
+}
+
+export function getSemanticPhoto(milestoneId: string): SemanticPhotoSlot | null {
+  return PERSONAL_MEDIA_REGISTRY[milestoneId] || null;
 }

@@ -8,6 +8,9 @@ import StoryHeader from "@/components/ui/StoryHeader";
 import LetterModal from "@/components/ui/LetterModal";
 import StoryDebugOverlay from "@/components/ui/StoryDebugOverlay";
 import StoryPreparationOverlay from "@/components/ui/StoryPreparationOverlay";
+import PhotoLightboxModal from "@/components/ui/PhotoLightboxModal";
+import StoryModeSelectModal from "@/components/ui/StoryModeSelectModal";
+import AutoModeControls from "@/components/ui/AutoModeControls";
 import { useStory } from "@/context/StoryContext";
 
 export default function StoryEngineClient() {
@@ -43,6 +46,15 @@ export default function StoryEngineClient() {
 
         {/* Minimal Cinematic Story Preparation Phase */}
         <StoryPreparationOverlay />
+
+        {/* First Story Screen: Manual vs Auto Mode Choice */}
+        <StoryModeSelectModal />
+
+        {/* Fullscreen Photo Lightbox for Real Photographs */}
+        <PhotoLightboxModal />
+
+        {/* Subtle Auto Mode Pause / Resume HUD */}
+        <AutoModeControls />
 
         {/* Development Diagnostic Overlay */}
         {process.env.NODE_ENV === "development" && <StoryDebugOverlay />}

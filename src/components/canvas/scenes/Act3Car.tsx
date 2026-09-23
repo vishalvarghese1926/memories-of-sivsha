@@ -213,8 +213,9 @@ export default function Act3Car({ localProgress }: Act3CarProps) {
           </mesh>
         </group>
 
-        {/* Ambient interior cabin twilight */}
-        <pointLight position={[0, 1.4, 0]} color="#fde047" intensity={0.4} distance={4} />
+        {/* Ambient interior cabin twilight with Sivani's signature cyan accent */}
+        <pointLight position={[0, 1.4, 0]} color="#fde047" intensity={0.35} distance={4} />
+        <pointLight position={[-0.3, 1.1, 0.65]} color="#22d3ee" intensity={0.45} distance={2.5} />
 
         {/* Milestone 9: 31 August 2025 Floating Milestone Frame */}
         <FloatingMediaFrame

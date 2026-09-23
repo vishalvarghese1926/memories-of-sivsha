@@ -8,8 +8,11 @@ import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { triggerHaptic } from "@/lib/haptics";
 import { requestOrientationPermission } from "@/lib/orientation";
 
+import { SemanticPhotoSlot, getSemanticPhoto, PERSONAL_MEDIA_REGISTRY } from "@/lib/mediaRegistry";
+
 export type UnlockState = "locked" | "unlocking" | "unlocked";
 export type ScrollListener = (progress: number, velocity: number) => void;
+export type StoryMode = "manual" | "auto";
 
 interface StoryContextType {
   milestones: Milestone[];
@@ -34,6 +37,19 @@ interface StoryContextType {
   updateMilestone: (updated: Milestone) => void;
   addMediaToMilestone: (milestoneId: string, media: MediaAsset) => void;
   refreshFromSupabase: () => Promise<void>;
+
+  // Phase 3: Mode & Lightbox
+  storyMode: StoryMode;
+  setStoryMode: (mode: StoryMode) => void;
+  hasChosenStoryMode: boolean;
+  setHasChosenStoryMode: (chosen: boolean) => void;
+  isAutoPlaying: boolean;
+  pauseAuto: () => void;
+  resumeAuto: () => void;
+  toggleAuto: () => void;
+  activeLightboxPhoto: SemanticPhotoSlot | null;
+  openPhotoLightbox: (target: string | SemanticPhotoSlot) => void;
+  closePhotoLightbox: () => void;
 }
 
 const StoryContext = createContext<StoryContextType | null>(null);
@@ -53,6 +69,86 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
   const [unlockState, setUnlockState] = useState<UnlockState>("locked");
   const [isLetterModalOpen, setIsLetterModalOpen] = useState<boolean>(false);
   const [orientation, setOrientation] = useState<{ beta: number; gamma: number }>({ beta: 0, gamma: 0 });
+
+  // Phase 3 state
+  const [storyMode, setStoryModeState] = useState<StoryMode>("manual");
+  const [hasChosenStoryMode, setHasChosenStoryModeState] = useState<boolean>(false);
+  const [isAutoPlaying, setIsAutoPlaying] = useState<boolean>(false);
+  const wasAutoPlayingBeforePhotoRef = useRef<boolean>(false);
+  const [activeLightboxPhoto, setActiveLightboxPhoto] = useState<SemanticPhotoSlot | null>(null);
+
+  // Initialize story mode from session storage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedMode = sessionStorage.getItem("sivsha_story_mode") as StoryMode | null;
+      if (savedMode) {
+        setStoryModeState(savedMode);
+        setHasChosenStoryModeState(true);
+      }
+    }
+  }, []);
+
+  const setStoryMode = useCallback((mode: StoryMode) => {
+    setStoryModeState(mode);
+    setHasChosenStoryModeState(true);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("sivsha_story_mode", mode);
+    }
+    if (mode === "auto") {
+      setIsAutoPlaying(true);
+    } else {
+      setIsAutoPlaying(false);
+    }
+  }, []);
+
+  const setHasChosenStoryMode = useCallback((chosen: boolean) => {
+    setHasChosenStoryModeState(chosen);
+  }, []);
+
+  const pauseAuto = useCallback(() => {
+    setIsAutoPlaying(false);
+  }, []);
+
+  const resumeAuto = useCallback(() => {
+    setStoryModeState("auto");
+    setIsAutoPlaying(true);
+  }, []);
+
+  const toggleAuto = useCallback(() => {
+    setIsAutoPlaying((prev) => {
+      const next = !prev;
+      if (next) setStoryModeState("auto");
+      return next;
+    });
+  }, []);
+
+  const openPhotoLightbox = useCallback(
+    (target: string | SemanticPhotoSlot) => {
+      // 1. Pause auto mode if currently playing
+      if (isAutoPlaying) {
+        wasAutoPlayingBeforePhotoRef.current = true;
+        setIsAutoPlaying(false);
+      } else {
+        wasAutoPlayingBeforePhotoRef.current = false;
+      }
+
+      // 2. Resolve slot
+      if (typeof target === "string") {
+        const slot = getSemanticPhoto(target) || Object.values(PERSONAL_MEDIA_REGISTRY).find((s) => s.id === target);
+        if (slot) {
+          setActiveLightboxPhoto(slot);
+        }
+      } else {
+        setActiveLightboxPhoto(target);
+      }
+    },
+    [isAutoPlaying]
+  );
+
+  const closePhotoLightbox = useCallback(() => {
+    setActiveLightboxPhoto(null);
+    // Note: Auto mode REMAINS PAUSED per requirements until user explicitly taps "RESUME AUTO"
+  }, []);
 
   // Load any local overrides or Supabase data
   const refreshFromSupabase = useCallback(async () => {
@@ -262,6 +358,17 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
         updateMilestone,
         addMediaToMilestone,
         refreshFromSupabase,
+        storyMode,
+        setStoryMode,
+        hasChosenStoryMode,
+        setHasChosenStoryMode,
+        isAutoPlaying,
+        pauseAuto,
+        resumeAuto,
+        toggleAuto,
+        activeLightboxPhoto,
+        openPhotoLightbox,
+        closePhotoLightbox,
       }}
     >
       {children}

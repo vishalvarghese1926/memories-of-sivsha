@@ -12,6 +12,11 @@ import { updateFacialBlendshapes, FacialControllerState } from "./facialControll
 import { getHeroModelUrl } from "@/config/assets";
 import { inspectGLTFModel, checkAndWarnAssetPerformance } from "@/lib/gltfDiagnostics";
 import { computeCharacterKinematics, CharacterMotionState, KinematicsOutput } from "@/lib/characterMotion";
+import {
+  createGroundedSkeletalRig,
+  updateHumanoidSkeletalPose,
+  RiggedCharacterInstance,
+} from "@/lib/skeletalDeformation";
 
 interface ErrorBoundaryProps {
   fallback: React.ReactNode;
@@ -117,6 +122,12 @@ function RiggedGLTFCharacter({
     }
   }, [clonedScene, gltf, modelUrl]);
 
+  // Adapt to grounded SkinnedMesh with anatomical skeleton
+  const rigInstance = useMemo<RiggedCharacterInstance | null>(() => {
+    if (!clonedScene) return null;
+    return createGroundedSkeletalRig(clonedScene, 1.75);
+  }, [clonedScene]);
+
   // Extract key humanoid bones & facial morph meshes (supports Mixamo, Blender, Rigify)
   const bones = useMemo(() => {
     if (!clonedScene) return {};
@@ -174,30 +185,42 @@ function RiggedGLTFCharacter({
       : [0, 0, 0];
 
     const t = state.clock.getElapsedTime();
-    computeCharacterKinematics(
-      t,
-      delta,
-      (pose as CharacterMotionState) || "idle",
-      {
-        lookAtTarget: targetTuple,
-        characterPos: posTuple,
-        windIntensity,
-        isBoy: true,
-        reachProgress: reachProgress || 0,
-      },
-      kinematicsScratch.current
-    );
 
-    // Humanoid posture kinematics: breathing, weight shift, and upper torso tilt
-    if (innerRef.current && (!actions || Object.keys(actions).length === 0)) {
-      innerRef.current.position.y = groundOffset + kinematicsScratch.current.rootY;
-      innerRef.current.position.x = kinematicsScratch.current.rootX;
-      innerRef.current.rotation.x = kinematicsScratch.current.spineRotX;
-      innerRef.current.rotation.y = kinematicsScratch.current.spineRotY;
-      innerRef.current.rotation.z = kinematicsScratch.current.spineRotZ;
+    // 1. Skeletal Bone Articulation (GPU skinning with grounded root)
+    if (rigInstance) {
+      updateHumanoidSkeletalPose(
+        rigInstance,
+        t,
+        delta,
+        pose || "idle",
+        targetTuple,
+        posTuple,
+        true
+      );
+    } else {
+      computeCharacterKinematics(
+        t,
+        delta,
+        (pose as CharacterMotionState) || "idle",
+        {
+          lookAtTarget: targetTuple,
+          characterPos: posTuple,
+          windIntensity,
+          isBoy: true,
+          reachProgress: reachProgress || 0,
+        },
+        kinematicsScratch.current
+      );
+
+      // Keep root Y anchored to groundOffset without whole-body bobbing
+      if (innerRef.current && (!actions || Object.keys(actions).length === 0)) {
+        innerRef.current.position.y = groundOffset;
+        innerRef.current.rotation.x = kinematicsScratch.current.spineRotX * 0.4;
+        innerRef.current.rotation.y = kinematicsScratch.current.spineRotY * 0.4;
+      }
     }
 
-    // 1. Skeletal Head Tracking
+    // 2. Skeletal Head Tracking (if armature is present)
     const activeLookTarget = lookAtTarget || lookAtConfig?.target;
     if (activeLookTarget && bones.head) {
       applySkeletalLookAt({
@@ -209,7 +232,7 @@ function RiggedGLTFCharacter({
       });
     }
 
-    // 2. Facial Blendshapes (Natural blinks & smiles)
+    // 3. Facial Blendshapes (Natural blinks & smiles)
     if (facialMesh) {
       updateFacialBlendshapes({
         mesh: facialMesh,
@@ -225,9 +248,12 @@ function RiggedGLTFCharacter({
     return null;
   }
 
+  const activeScale = rigInstance?.normalizedScale ?? normalizedScale;
+  const activeOffset = rigInstance?.groundOffset ?? groundOffset;
+
   return (
-    <group ref={innerRef} position={[0, groundOffset, 0]} scale={normalizedScale}>
-      <primitive object={clonedScene} />
+    <group ref={innerRef} position={[0, activeOffset, 0]} scale={activeScale}>
+      <primitive object={rigInstance?.skinnedMesh ?? clonedScene} />
     </group>
   );
 }

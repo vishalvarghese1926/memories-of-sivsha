@@ -51,16 +51,16 @@ export default function Act3Bikes({ milestoneId, localProgress }: Act3BikesProps
       }
     }
 
-    // Engine thump vibration & motorcycle dynamics
+    // Engine thump vibration & motorcycle dynamics (grounded to road surface Y = 0)
     if (bikeGroupRef.current) {
       if (isClassic) {
         if (isClassicRiding) {
-          bikeGroupRef.current.position.y = 0.05 + Math.sin(t * 14) * 0.006;
-          bikeGroupRef.current.rotation.z = Math.sin(t * 2.5) * 0.02;
+          bikeGroupRef.current.position.y = 0.0 + Math.sin(t * 14) * 0.003;
+          bikeGroupRef.current.rotation.z = Math.sin(t * 2.5) * 0.015;
           bikeGroupRef.current.rotation.x = 0;
         } else {
-          bikeGroupRef.current.position.y = 0.04;
-          bikeGroupRef.current.rotation.z = -0.06; // kickstand lean
+          bikeGroupRef.current.position.y = 0.0;
+          bikeGroupRef.current.rotation.z = -0.05; // kickstand lean
           bikeGroupRef.current.rotation.x = 0;
         }
       } else {
@@ -68,20 +68,20 @@ export default function Act3Bikes({ milestoneId, localProgress }: Act3BikesProps
         // Himalayan 450 Fall Dynamics:
         if (currentLocal < 0.32) {
           // Normal mountain ride
-          bikeGroupRef.current.position.y = 0.06 + Math.sin(t * 18) * 0.006;
+          bikeGroupRef.current.position.y = 0.0 + Math.sin(t * 18) * 0.003;
           bikeGroupRef.current.position.x = 0;
-          bikeGroupRef.current.rotation.z = Math.sin(t * 2.0) * 0.03;
+          bikeGroupRef.current.rotation.z = Math.sin(t * 2.0) * 0.02;
           bikeGroupRef.current.rotation.x = 0;
         } else if (currentLocal >= 0.32 && currentLocal < 0.55) {
           // Controlled low-side slide: smoothly tilt bike onto crash guard
           const fallAlpha = (currentLocal - 0.32) / (0.55 - 0.32);
-          bikeGroupRef.current.position.y = THREE.MathUtils.lerp(0.06, 0.28, fallAlpha);
+          bikeGroupRef.current.position.y = THREE.MathUtils.lerp(0.0, 0.22, fallAlpha);
           bikeGroupRef.current.position.x = THREE.MathUtils.lerp(0, 0.6, fallAlpha);
           bikeGroupRef.current.rotation.z = THREE.MathUtils.lerp(0, 1.15, fallAlpha); // tilts onto right crash bar
           bikeGroupRef.current.rotation.y = THREE.MathUtils.lerp(0, 0.2, fallAlpha);
         } else {
           // Rested safely on road shoulder crash guard
-          bikeGroupRef.current.position.y = 0.28;
+          bikeGroupRef.current.position.y = 0.22;
           bikeGroupRef.current.position.x = 0.8;
           bikeGroupRef.current.rotation.z = 1.18;
           bikeGroupRef.current.rotation.y = 0.25;
@@ -429,6 +429,30 @@ export default function Act3Bikes({ milestoneId, localProgress }: Act3BikesProps
           <boxGeometry args={[0.3, 0.12, 0.9]} />
           <meshStandardMaterial color="#18181b" roughness={0.8} />
         </mesh>
+
+        {/* Rider Footpegs with Rubber Grip Knurls */}
+        <group position={[0, 0.28, -0.05]}>
+          <mesh position={[-0.28, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.024, 0.024, 0.22, 12]} />
+            <meshStandardMaterial color="#1e293b" metalness={0.7} roughness={0.3} />
+          </mesh>
+          <mesh position={[0.28, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.024, 0.024, 0.22, 12]} />
+            <meshStandardMaterial color="#1e293b" metalness={0.7} roughness={0.3} />
+          </mesh>
+        </group>
+
+        {/* Pillion Passenger Footpegs */}
+        <group position={[0, 0.34, 0.50]}>
+          <mesh position={[-0.26, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.02, 0.02, 0.18, 12]} />
+            <meshStandardMaterial color="#1e293b" metalness={0.7} roughness={0.3} />
+          </mesh>
+          <mesh position={[0.26, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.02, 0.02, 0.18, 12]} />
+            <meshStandardMaterial color="#1e293b" metalness={0.7} roughness={0.3} />
+          </mesh>
+        </group>
 
         {/* Handlebars & Headlamp */}
         <group position={[0, 0.95, -0.75]}>
