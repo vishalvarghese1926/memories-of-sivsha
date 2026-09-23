@@ -62,5 +62,5 @@ export default function SmoothScrollProvider({
     };
   }, []);
 
-  return <div className="w-full relative">{children}</div>;
+  return <div className="w-full relative pointer-events-none">{children}</div>;
 }

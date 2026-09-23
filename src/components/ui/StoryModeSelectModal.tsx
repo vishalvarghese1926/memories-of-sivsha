@@ -16,6 +16,7 @@ export default function StoryModeSelectModal({ onComplete }: StoryModeSelectModa
   if (hasChosenStoryMode) return null;
 
   const handleConfirm = () => {
+    if (isFadingOut) return;
     setIsFadingOut(true);
     setTimeout(() => {
       setStoryMode(selected);
@@ -28,14 +29,18 @@ export default function StoryModeSelectModal({ onComplete }: StoryModeSelectModa
       role="dialog"
       aria-modal="true"
       aria-label="How do you want to experience our story?"
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#07050d]/96 backdrop-blur-xl select-none transition-opacity duration-500 ${
+      className={`fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-6 bg-[#07050d]/96 backdrop-blur-xl select-none transition-opacity duration-500 overscroll-contain ${
         isFadingOut ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
       }`}
+      onTouchMove={(e) => {
+        // Prevent background touch scrolling while modal is active
+        e.stopPropagation();
+      }}
     >
       {/* Subtle ambient cyan glow in background */}
       <div className="absolute w-96 h-96 rounded-full bg-[#22d3ee]/10 blur-[120px] pointer-events-none" />
 
-      <div className="relative max-w-lg w-full flex flex-col items-center text-center space-y-8 px-4 py-8">
+      <div className="relative max-w-lg w-full flex flex-col items-center text-center space-y-8 px-4 py-8 pointer-events-auto">
         {/* Subtle Eyebrow */}
         <span className="text-[11px] font-mono tracking-[0.35em] uppercase text-[#22d3ee]/80 font-light">
           A Cinematic Journey For Sivani
@@ -51,8 +56,11 @@ export default function StoryModeSelectModal({ onComplete }: StoryModeSelectModa
           {/* MANUAL OPTION */}
           <button
             type="button"
-            onClick={() => setSelected("manual")}
-            className={`group relative flex flex-col items-center p-6 rounded-2xl border text-left transition-all duration-300 cursor-pointer ${
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!isFadingOut) setSelected("manual");
+            }}
+            className={`group relative flex flex-col items-center p-6 rounded-2xl border text-left transition-all duration-300 cursor-pointer touch-manipulation pointer-events-auto ${
               selected === "manual"
                 ? "bg-[#0f172a]/90 border-[#22d3ee] shadow-[0_0_25px_rgba(34,211,238,0.25)] scale-[1.02]"
                 : "bg-white/[0.03] border-white/10 hover:border-white/20 hover:bg-white/[0.05] opacity-70"
@@ -82,8 +90,11 @@ export default function StoryModeSelectModal({ onComplete }: StoryModeSelectModa
           {/* AUTO OPTION */}
           <button
             type="button"
-            onClick={() => setSelected("auto")}
-            className={`group relative flex flex-col items-center p-6 rounded-2xl border text-left transition-all duration-300 cursor-pointer ${
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!isFadingOut) setSelected("auto");
+            }}
+            className={`group relative flex flex-col items-center p-6 rounded-2xl border text-left transition-all duration-300 cursor-pointer touch-manipulation pointer-events-auto ${
               selected === "auto"
                 ? "bg-[#0f172a]/90 border-[#22d3ee] shadow-[0_0_25px_rgba(34,211,238,0.25)] scale-[1.02]"
                 : "bg-white/[0.03] border-white/10 hover:border-white/20 hover:bg-white/[0.05] opacity-70"
@@ -114,8 +125,11 @@ export default function StoryModeSelectModal({ onComplete }: StoryModeSelectModa
         {/* Confirm Button */}
         <button
           type="button"
-          onClick={handleConfirm}
-          className="mt-6 px-10 py-3.5 rounded-full text-xs font-sans tracking-[0.25em] uppercase font-semibold text-[#07050d] bg-gradient-to-r from-[#22d3ee] to-[#38bdf8] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] active:scale-95 transition-all duration-200 cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleConfirm();
+          }}
+          className="mt-6 px-10 py-3.5 rounded-full text-xs font-sans tracking-[0.25em] uppercase font-semibold text-[#07050d] bg-gradient-to-r from-[#22d3ee] to-[#38bdf8] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] active:scale-95 transition-all duration-200 cursor-pointer touch-manipulation pointer-events-auto"
         >
           Begin Journey
         </button>

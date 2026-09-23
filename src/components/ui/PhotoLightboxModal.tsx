@@ -48,7 +48,7 @@ export default function PhotoLightboxModal() {
       role="dialog"
       aria-modal="true"
       aria-label={activeLightboxPhoto.sceneTitle}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-8 bg-[#07050d]/92 backdrop-blur-md transition-opacity duration-300 select-none animate-fadeIn"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-8 bg-[#07050d]/92 backdrop-blur-md transition-opacity duration-300 select-none animate-fadeIn pointer-events-auto"
       onClick={(e) => {
         // Tap backdrop to close
         if (e.target === e.currentTarget) {

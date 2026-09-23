@@ -31,7 +31,7 @@ export default function StoryEngineClient() {
   return (
     <div className="relative w-full bg-[#07050d] text-[#f4edea] select-none">
       {/* Fixed Sticky Story Viewport */}
-      <div className="fixed inset-0 w-full h-[100dvh] overflow-hidden bg-[#07050d]">
+      <div className="fixed inset-0 z-20 w-full h-[100dvh] overflow-hidden bg-[#07050d] pointer-events-none">
         {/* ONE Persistent R3F Canvas */}
         <StoryCanvas />
 

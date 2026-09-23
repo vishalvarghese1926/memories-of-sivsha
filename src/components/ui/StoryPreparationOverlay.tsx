@@ -47,7 +47,9 @@ export default function StoryPreparationOverlay({ onReady }: StoryPreparationOve
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#07050d] select-none pointer-events-auto transition-opacity duration-700 ease-out"
+      className={`fixed inset-0 z-40 flex flex-col items-center justify-center bg-[#07050d] select-none transition-opacity duration-700 ease-out ${
+        opacity === 0 ? "pointer-events-none" : "pointer-events-auto"
+      }`}
       style={{ opacity }}
       aria-live="polite"
     >
