@@ -217,33 +217,33 @@ export default function EntryPage() {
   }, [router]);
 
   return (
-    <main className="relative min-h-[100dvh] w-full flex items-center justify-center p-4 sm:p-6 overflow-hidden bg-[#04060d] text-[#f4edea]">
+    <main className="relative min-h-[100dvh] w-full flex items-center justify-center p-4 sm:p-6 overflow-hidden bg-[#07050d] text-[#fcfbf7]">
       {/* Cinematic Ambient Background Particles */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-        {/* Soft Ambient Radial Lights (Midnight Rose & Cyan Harmony) */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[550px] h-[550px] bg-rose-900/15 rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-[480px] h-[480px] bg-cyan-900/15 rounded-full blur-[130px]" />
-        <div className="absolute top-1/3 left-1/4 w-[350px] h-[350px] bg-blue-950/20 rounded-full blur-[100px]" />
+        {/* Soft Ambient Radial Lights (Deep Wine & Warm Graphite Harmony) */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[550px] h-[550px] bg-[#831843]/10 rounded-full blur-[140px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-[480px] h-[480px] bg-[#2e1065]/10 rounded-full blur-[150px]" />
+        <div className="absolute top-1/3 left-1/4 w-[350px] h-[350px] bg-[#1c1926]/40 rounded-full blur-[120px]" />
 
-        {/* Ambient Shimmer Grid */}
-        <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:32px_32px] opacity-30" />
+        {/* Ambient Subtle Grid */}
+        <div className="absolute inset-0 bg-[radial-gradient(#27272a_1px,transparent_1px)] [background-size:32px_32px] opacity-20" />
       </div>
 
       {/* Main Glass Card Container */}
       <div className="relative z-10 w-full max-w-lg my-auto pt-safe pb-safe">
-        <div className="glass-panel rounded-3xl p-6 sm:p-10 border border-white/10 shadow-[0_0_50px_rgba(34,211,238,0.06)] hover:border-cyan-500/20 transition-all duration-500">
+        <div className="glass-panel rounded-3xl p-6 sm:p-10 border border-[#e2c275]/20 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] hover:border-[#e2c275]/35 transition-all duration-500 bg-[#0c0914]/80 backdrop-blur-xl">
           {/* Brand Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full glass-pill text-xs tracking-widest uppercase text-cyan-300/80 mb-3 font-medium border border-cyan-500/20 shadow-sm">
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-              <span>A PRIVATE STORY</span>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs tracking-widest uppercase text-[#e2c275] mb-3.5 font-medium border border-[#e2c275]/30 bg-[#e2c275]/5 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-[#e2c275]" />
+              <span>PRIVATE ARCHIVE</span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl font-serif tracking-wide text-gradient-rose font-bold mb-2">
+            <h1 className="text-3xl sm:text-4xl font-serif tracking-wide text-[#fcfbf7] font-bold mb-2">
               MEMORIES OF SIVSHA
             </h1>
 
-            <p className="text-sm text-neutral-400 font-light">
+            <p className="text-sm text-[#a8a29e] font-light">
               Some stories are meant to be discovered.
             </p>
           </div>
@@ -256,7 +256,7 @@ export default function EntryPage() {
               <div>
                 <label
                   htmlFor="recipient-name"
-                  className="block text-xs font-medium uppercase tracking-wider text-neutral-300 mb-1.5"
+                  className="block text-xs font-medium uppercase tracking-wider text-[#d6d3d1] mb-1.5"
                 >
                   Your Name
                 </label>
@@ -269,14 +269,14 @@ export default function EntryPage() {
                   placeholder="Enter your name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-3 text-base rounded-xl bg-black/40 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-rose-400/80 focus:ring-1 focus:ring-rose-400/80 transition-all duration-200"
+                  className="w-full px-4 py-3 text-base rounded-xl bg-black/40 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-[#e2c275] focus:ring-1 focus:ring-[#e2c275]/40 transition-all duration-200"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="recipient-email"
-                  className="block text-xs font-medium uppercase tracking-wider text-neutral-300 mb-1.5"
+                  className="block text-xs font-medium uppercase tracking-wider text-[#d6d3d1] mb-1.5"
                 >
                   Email Address
                 </label>
@@ -289,14 +289,14 @@ export default function EntryPage() {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 text-base rounded-xl bg-black/40 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-rose-400/80 focus:ring-1 focus:ring-rose-400/80 transition-all duration-200"
+                  className="w-full px-4 py-3 text-base rounded-xl bg-black/40 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-[#e2c275] focus:ring-1 focus:ring-[#e2c275]/40 transition-all duration-200"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="master-password"
-                  className="block text-xs font-medium uppercase tracking-wider text-neutral-300 mb-1.5"
+                  className="block text-xs font-medium uppercase tracking-wider text-[#d6d3d1] mb-1.5"
                 >
                   Master Password
                 </label>
@@ -310,7 +310,7 @@ export default function EntryPage() {
                     placeholder="Enter private archive password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 text-base rounded-xl bg-black/40 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-rose-400/80 focus:ring-1 focus:ring-rose-400/80 transition-all duration-200 pr-10"
+                    className="w-full px-4 py-3 text-base rounded-xl bg-black/40 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-[#e2c275] focus:ring-1 focus:ring-[#e2c275]/40 transition-all duration-200 pr-10"
                   />
                   <KeyRound className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500 pointer-events-none" />
                 </div>
@@ -321,9 +321,9 @@ export default function EntryPage() {
                 <div
                   role="alert"
                   aria-live="polite"
-                  className="flex items-center gap-2 p-3 rounded-xl bg-rose-950/40 border border-rose-800/50 text-rose-200 text-xs font-medium"
+                  className="flex items-center gap-2 p-3 rounded-xl bg-[#4c0519]/60 border border-[#831843] text-[#fecdd3] text-xs font-medium"
                 >
-                  <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+                  <AlertCircle className="w-4 h-4 text-[#fb7185] flex-shrink-0" />
                   <span>{entryError}</span>
                 </div>
               )}
@@ -332,7 +332,7 @@ export default function EntryPage() {
               <button
                 type="submit"
                 disabled={isSubmittingEntry}
-                className="w-full mt-2 py-3.5 px-6 rounded-xl bg-gradient-to-r from-rose-700 via-rose-600 to-rose-700 text-white font-medium text-sm tracking-wide shadow-romantic-glow hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[48px]"
+                className="w-full mt-2 py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#831843] via-[#9d174d] to-[#831843] hover:from-[#701a3c] hover:to-[#701a3c] text-white font-medium text-sm tracking-wide shadow-[0_4px_20px_rgba(131,24,67,0.35)] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[48px] cursor-pointer"
               >
                 {isSubmittingEntry ? (
                   <span className="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
@@ -352,10 +352,10 @@ export default function EntryPage() {
           {stage === "trivia" && (
             <div className="space-y-6">
               <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <span className="text-xs font-medium tracking-widest uppercase text-rose-300/90 font-mono">
+                <span className="text-xs font-medium tracking-widest uppercase text-[#e2c275] font-mono">
                   ONE MORE THING...
                 </span>
-                <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-neutral-300">
+                <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-[#d6d3d1]">
                   {String(currentQIndex + 1).padStart(2, "0")} /{" "}
                   {String(questions.length || 3).padStart(2, "0")}
                 </span>
@@ -365,7 +365,7 @@ export default function EntryPage() {
                 <form onSubmit={handleTriviaSubmit} className="space-y-5" noValidate>
                   {/* Question Prompt */}
                   <div className="space-y-2">
-                    <p className="text-base sm:text-lg font-serif text-rose-100/95 leading-relaxed">
+                    <p className="text-base sm:text-lg font-serif text-[#fcfbf7] leading-relaxed">
                       {questions[currentQIndex].question}
                     </p>
 
@@ -375,7 +375,7 @@ export default function EntryPage() {
                         <button
                           type="button"
                           onClick={() => setShowHint(!showHint)}
-                          className="text-xs inline-flex items-center gap-1.5 text-neutral-400 hover:text-rose-300 transition-colors"
+                          className="text-xs inline-flex items-center gap-1.5 text-neutral-400 hover:text-[#e2c275] transition-colors cursor-pointer"
                         >
                           <HelpCircle className="w-3.5 h-3.5" />
                           <span>{showHint ? "Hide hint" : "Need a memory hint?"}</span>
@@ -403,7 +403,7 @@ export default function EntryPage() {
                       value={currentAnswer}
                       onChange={(e) => setCurrentAnswer(e.target.value)}
                       autoFocus
-                      className="w-full px-4 py-3 text-base rounded-xl bg-black/40 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-rose-400/80 focus:ring-1 focus:ring-rose-400/80 transition-all duration-200"
+                      className="w-full px-4 py-3 text-base rounded-xl bg-black/40 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-[#e2c275] focus:ring-1 focus:ring-[#e2c275]/40 transition-all duration-200"
                     />
                   </div>
 
@@ -412,9 +412,9 @@ export default function EntryPage() {
                     <div
                       role="alert"
                       aria-live="polite"
-                      className="flex items-center gap-2 p-3 rounded-xl bg-rose-950/40 border border-rose-800/50 text-rose-200 text-xs font-medium"
+                      className="flex items-center gap-2 p-3 rounded-xl bg-[#4c0519]/60 border border-[#831843] text-[#fecdd3] text-xs font-medium"
                     >
-                      <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+                      <AlertCircle className="w-4 h-4 text-[#fb7185] flex-shrink-0" />
                       <span>{triviaError}</span>
                     </div>
                   )}
@@ -423,7 +423,7 @@ export default function EntryPage() {
                   <button
                     type="submit"
                     disabled={isCheckingTrivia}
-                    className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-rose-700 via-rose-600 to-rose-700 text-white font-medium text-sm tracking-wide shadow-romantic-glow hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[48px]"
+                    className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#831843] via-[#9d174d] to-[#831843] hover:from-[#701a3c] hover:to-[#701a3c] text-white font-medium text-sm tracking-wide shadow-[0_4px_20px_rgba(131,24,67,0.35)] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[48px] cursor-pointer"
                   >
                     {isCheckingTrivia ? (
                       <span className="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
@@ -437,7 +437,7 @@ export default function EntryPage() {
                 </form>
               ) : (
                 <div className="py-8 text-center text-sm text-neutral-400 flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 border-2 border-rose-400/40 border-t-rose-400 rounded-full animate-spin" />
+                  <span className="w-4 h-4 border-2 border-[#e2c275]/40 border-t-[#e2c275] rounded-full animate-spin" />
                   <span>Loading memories...</span>
                 </div>
               )}
@@ -449,19 +449,19 @@ export default function EntryPage() {
           {/* ========================================================================= */}
           {stage === "ready-to-unlock" && (
             <div className="text-center py-4 space-y-6">
-              <div className="w-16 h-16 rounded-full bg-rose-950/50 border border-rose-500/30 flex items-center justify-center mx-auto shadow-romantic-glow">
+              <div className="w-16 h-16 rounded-full bg-[#831843]/20 border border-[#831843]/50 flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(131,24,67,0.3)]">
                 {unlockState === "unlocked" ? (
-                  <LockOpen className="w-8 h-8 text-rose-300" />
+                  <LockOpen className="w-8 h-8 text-[#fbcfe8]" />
                 ) : (
-                  <CheckCircle2 className="w-8 h-8 text-rose-400" />
+                  <CheckCircle2 className="w-8 h-8 text-[#e2c275]" />
                 )}
               </div>
 
               <div className="space-y-2">
-                <h2 className="text-2xl font-serif text-gradient-rose font-bold">
+                <h2 className="text-2xl font-serif text-[#fcfbf7] font-bold">
                   {unlockState === "unlocked" ? "OUR ARCHIVE IS OPEN" : "OUR STORY AWAITS"}
                 </h2>
-                <p className="text-sm text-neutral-300 font-light max-w-sm mx-auto leading-relaxed">
+                <p className="text-sm text-[#d6d3d1] font-light max-w-sm mx-auto leading-relaxed">
                   {unlockState === "unlocked"
                     ? "Welcome home, Sivani. Every chapter of our memory world has been unlocked."
                     : "Welcome, Sivani. Every step of our journey is ready for you."}
@@ -473,9 +473,9 @@ export default function EntryPage() {
                   <button
                     type="button"
                     onClick={handleEnterStory}
-                    className="w-full py-4 px-8 rounded-2xl bg-gradient-to-r from-rose-600 via-rose-500 to-cyan-600 text-white font-medium tracking-widest uppercase text-sm shadow-[0_0_30px_rgba(34,211,238,0.25)] hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-3 min-h-[52px]"
+                    className="w-full py-4 px-8 rounded-2xl bg-gradient-to-r from-[#831843] via-[#9d174d] to-[#831843] hover:from-[#701a3c] hover:to-[#701a3c] text-white font-medium tracking-widest uppercase text-sm shadow-[0_4px_25px_rgba(131,24,67,0.4)] active:scale-[0.98] transition-all flex items-center justify-center gap-3 min-h-[52px] cursor-pointer"
                   >
-                    <Sparkles className="w-4 h-4 text-cyan-200" />
+                    <Sparkles className="w-4 h-4 text-[#e2c275]" />
                     <span>ENTER THE STORY</span>
                   </button>
                 ) : (
@@ -483,7 +483,7 @@ export default function EntryPage() {
                     type="button"
                     onClick={handleUnlockClick}
                     disabled={unlockState === "unlocking"}
-                    className="w-full py-4 px-8 rounded-2xl bg-gradient-to-r from-rose-600 via-rose-500 to-cyan-600 text-white font-medium tracking-widest uppercase text-sm shadow-[0_0_30px_rgba(34,211,238,0.25)] hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-3 min-h-[52px] disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full py-4 px-8 rounded-2xl bg-gradient-to-r from-[#831843] via-[#9d174d] to-[#831843] hover:from-[#701a3c] hover:to-[#701a3c] text-white font-medium tracking-widest uppercase text-sm shadow-[0_4px_25px_rgba(131,24,67,0.4)] active:scale-[0.98] transition-all flex items-center justify-center gap-3 min-h-[52px] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {unlockState === "unlocking" ? (
                       <>

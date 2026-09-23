@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { ContactShadows } from "@react-three/drei";
 import CharacterBoy from "../characters/CharacterBoy";
 import CharacterGirl from "../characters/CharacterGirl";
+import FloatingMediaFrame from "../media/FloatingMediaFrame";
 
 interface Act2FriendGroupProps {
   progress?: number;
@@ -323,6 +324,14 @@ export default function Act2FriendGroup({ progress = 0 }: Act2FriendGroupProps) 
           <meshStandardMaterial color="#fb7185" roughness={0.5} />
         </mesh>
       </group>
+
+      {/* Milestone 5: The Friend Group Photo Floating Media Frame */}
+      <FloatingMediaFrame
+        milestoneId="m-5"
+        position={[0, 2.5, -2.0]}
+        rotation={[-0.1, 0, 0]}
+        scale={0.9}
+      />
 
       {/* Contact Shadows Grounding the entire 6-person study group */}
       <ContactShadows

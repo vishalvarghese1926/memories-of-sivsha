@@ -265,12 +265,12 @@ export default function Act3Train({ localProgress }: Act3TrainProps) {
           frames={1}
         />
 
-        {/* Milestone 6 Floating Media Frame */}
+        {/* Milestone 6 Floating Media Frame — Framed prominently in carriage doorway */}
         <FloatingMediaFrame
           milestoneId="m-6"
-          position={[0.2, 2.1, 2.4]}
-          rotation={[0, -0.32, 0]}
-          scale={0.9}
+          position={[-0.45, 1.95, -0.3]}
+          rotation={[0, -0.38, 0]}
+          scale={1.05}
         />
       </group>
 

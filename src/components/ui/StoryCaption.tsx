@@ -127,25 +127,25 @@ export default function StoryCaption() {
             : `translateY(${(1 - opacity) * 8}px)`,
         }}
       >
-        {/* Subtle Cyan Eyebrow with sequence & title */}
-        <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono tracking-[0.25em] uppercase text-[#22d3ee]/90 font-medium drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
+        {/* Subtle Champagne Gold Eyebrow with sequence & title */}
+        <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono tracking-[0.25em] uppercase text-[#e2c275] font-medium drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
           <span>{String(currentMilestone.sequence + 1).padStart(2, "0")}</span>
           <span className="text-white/30">·</span>
           <span>{currentMilestone.title}</span>
         </div>
 
-        {/* Dynamic Narrative Body (Compact, serif/sans, zero bulky opaque box) */}
+        {/* Dynamic Narrative Body (Compact, refined editorial sans, zero bulky opaque box) */}
         {activeCaption && (
           <p
             key={activeCaption}
-            className="text-xs sm:text-sm font-sans font-light tracking-wide text-rose-50/95 leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]"
+            className="text-xs sm:text-sm font-sans font-light tracking-wide text-[#fcfbf7] leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]"
           >
             &ldquo;{activeCaption}&rdquo;
           </p>
         )}
 
-        {/* Minimal Cyan Accent Line */}
-        <div className="w-6 h-[1.5px] bg-[#22d3ee]/70 rounded-full mt-1 shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
+        {/* Minimal Champagne Accent Line */}
+        <div className="w-6 h-[1.5px] bg-[#e2c275]/70 rounded-full mt-1 shadow-[0_0_8px_rgba(226,194,117,0.3)]" />
       </div>
     </aside>
   );

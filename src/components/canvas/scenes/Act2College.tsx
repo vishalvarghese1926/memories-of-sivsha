@@ -628,6 +628,13 @@ export default function Act2College({
             </mesh>
           </group>
         ))}
+        {/* Milestone 2: College Corridors Group Photo Floating Media Frame */}
+        <FloatingMediaFrame
+          milestoneId="m-2"
+          position={[-2.4, 2.2, -1.2]}
+          rotation={[0, 0.35, 0]}
+          scale={0.9}
+        />
       </group>
 
       {/* ========================================================================= */}

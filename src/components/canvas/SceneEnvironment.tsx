@@ -5,7 +5,8 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useStory } from "@/context/StoryContext";
 
-import { Sparkles, ContactShadows } from "@react-three/drei";
+import { Sparkles } from "@react-three/drei";
+import ScenicWorldBridge from "./environment/ScenicWorldBridge";
 
 interface EnvStage {
   t: number;
@@ -152,6 +153,9 @@ export default function SceneEnvironment() {
         distance={25}
       />
 
+      {/* Continuous Cinematic Environmental Bridge (Eliminates all empty voids) */}
+      <ScenicWorldBridge />
+
       {/* Continuous Celestial Starlit Floor Ribbon connecting all memories (z: 10 to -700) */}
       <mesh position={[0, -0.18, -345]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[28, 720]} />
@@ -162,35 +166,35 @@ export default function SceneEnvironment() {
         />
       </mesh>
 
-      {/* Subtle Cyan-Tinged Memory Pathway Edge Accents */}
-      {[-8, 8].map((x, idx) => (
+      {/* Muted Champagne-Gold Memory Pathway Edge Accents */}
+      {[-7.5, 7.5].map((x, idx) => (
         <mesh key={`path-edge-${idx}`} position={[x, -0.16, -345]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[0.08, 720]} />
+          <planeGeometry args={[0.06, 720]} />
           <meshBasicMaterial
-            color="#22d3ee"
+            color="#e2c275"
             transparent
-            opacity={0.18}
+            opacity={0.16}
           />
         </mesh>
       ))}
 
-      {/* Ambient floating dust / romantic cyan and rose embers travelling along story spline */}
+      {/* Ambient floating dust & romantic warm gold/rose embers travelling along story spline */}
       <group ref={sparklesGroupRef}>
         <Sparkles
-          count={65}
+          count={50}
           scale={[24, 16, 24]}
-          size={2.8}
+          size={2.6}
           speed={0.35}
-          opacity={0.55}
+          opacity={0.5}
           color="#ffd1dc"
         />
         <Sparkles
-          count={40}
+          count={35}
           scale={[26, 18, 26]}
-          size={3.2}
+          size={2.8}
           speed={0.25}
-          opacity={0.45}
-          color="#22d3ee"
+          opacity={0.4}
+          color="#fde047"
         />
       </group>
     </>

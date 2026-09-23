@@ -61,7 +61,7 @@ export default function PhotoLightboxModal() {
         type="button"
         onClick={handleClose}
         aria-label="Close memory photograph"
-        className="absolute top-4 right-4 z-50 flex items-center justify-center w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-[#e0f2fe] border border-[#22d3ee]/30 shadow-[0_0_15px_rgba(34,211,238,0.25)] transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#22d3ee]"
+        className="absolute top-4 right-4 z-50 flex items-center justify-center w-12 h-12 rounded-full bg-[#07050d]/80 hover:bg-[#07050d] active:scale-95 text-[#fcfbf7] border border-[#e2c275]/40 shadow-[0_4px_20px_rgba(0,0,0,0.6)] transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#e2c275]"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -77,22 +77,22 @@ export default function PhotoLightboxModal() {
 
       {/* Main Photograph Frame */}
       <div
-        className="relative max-w-4xl w-full max-h-[88vh] flex flex-col items-center justify-center p-2 sm:p-3 rounded-2xl bg-[#0e0c18] border border-[#22d3ee]/25 shadow-[0_15px_50px_rgba(0,0,0,0.85),0_0_30px_rgba(34,211,238,0.15)] transition-transform duration-300"
+        className="relative max-w-4xl w-full max-h-[88vh] flex flex-col items-center justify-center p-2.5 sm:p-3.5 rounded-2xl bg-[#0c0914] border border-[#e2c275]/30 shadow-[0_25px_60px_rgba(0,0,0,0.9),0_0_25px_rgba(226,194,117,0.12)] transition-transform duration-300"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Subtle Cyan Header Ribbon */}
-        <div className="w-full flex items-center justify-between px-3 py-1.5 mb-1 border-b border-white/5 text-[11px] font-mono tracking-widest text-[#22d3ee]/80 uppercase">
+        {/* Subtle Header Ribbon */}
+        <div className="w-full flex items-center justify-between px-3 py-1.5 mb-1 border-b border-white/5 text-[11px] font-mono tracking-widest text-[#e2c275] uppercase">
           <span>{activeLightboxPhoto.sceneTitle}</span>
           {activeLightboxPhoto.date && (
-            <span className="text-white/40">{activeLightboxPhoto.date}</span>
+            <span className="text-[#a8a29e]">{activeLightboxPhoto.date}</span>
           )}
           {activeLightboxPhoto.location && !activeLightboxPhoto.date && (
-            <span className="text-white/40">{activeLightboxPhoto.location}</span>
+            <span className="text-[#a8a29e]">{activeLightboxPhoto.location}</span>
           )}
         </div>
 
         {/* High-Resolution Image Container */}
-        <div className="relative w-full max-h-[72vh] flex items-center justify-center overflow-hidden rounded-xl bg-black/40">
+        <div className="relative w-full max-h-[72vh] flex items-center justify-center overflow-hidden rounded-xl bg-black/50">
           <Image
             src={activeLightboxPhoto.highResUrl}
             alt={activeLightboxPhoto.caption || activeLightboxPhoto.sceneTitle}
@@ -107,7 +107,7 @@ export default function PhotoLightboxModal() {
         {/* Emotionally Intimate Caption */}
         {activeLightboxPhoto.caption && (
           <div className="w-full px-4 pt-2.5 pb-1 text-center">
-            <p className="text-xs sm:text-sm font-sans font-light tracking-wide text-rose-100/90 leading-relaxed italic">
+            <p className="text-xs sm:text-sm font-sans font-light tracking-wide text-[#fcfbf7] leading-relaxed italic">
               &ldquo;{activeLightboxPhoto.caption}&rdquo;
             </p>
           </div>

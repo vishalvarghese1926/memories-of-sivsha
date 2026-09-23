@@ -18,9 +18,9 @@ export default function StoryHeader() {
     <header className="fixed top-0 left-0 right-0 z-30 flex items-center justify-between p-4 sm:p-6 pointer-events-none pt-safe">
       {/* Brand Watermark */}
       <div className="flex items-center gap-2 pointer-events-auto">
-        <div className="px-3.5 py-1.5 rounded-full glass-pill border border-white/10 text-xs tracking-widest uppercase font-medium text-rose-200/90 shadow-sm flex items-center gap-2 backdrop-blur-md">
-          <Sparkles className="w-3.5 h-3.5 text-rose-400" />
-          <span className="font-serif">MEMORIES OF SIVSHA</span>
+        <div className="px-3.5 py-1.5 rounded-full border border-[#e2c275]/25 bg-[#07050d]/80 text-xs tracking-widest uppercase font-medium text-[#fcfbf7] shadow-[0_4px_20px_rgba(0,0,0,0.5)] flex items-center gap-2 backdrop-blur-md">
+          <Sparkles className="w-3.5 h-3.5 text-[#e2c275]" />
+          <span className="font-serif tracking-wider">MEMORIES OF SIVSHA</span>
         </div>
       </div>
 
@@ -30,12 +30,12 @@ export default function StoryHeader() {
           type="button"
           onClick={toggleAudioMute}
           aria-label={isMuted ? "Unmute audio" : "Mute audio"}
-          className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-full glass-pill border border-white/10 flex items-center justify-center text-neutral-300 hover:text-white hover:border-white/25 interactive-spring shadow-sm backdrop-blur-md"
+          className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-[#07050d]/80 border border-[#e2c275]/25 flex items-center justify-center text-[#d6d3d1] hover:text-[#fcfbf7] hover:border-[#e2c275]/50 shadow-[0_4px_20px_rgba(0,0,0,0.5)] backdrop-blur-md cursor-pointer transition-all duration-200"
         >
           {isMuted ? (
-            <VolumeX className="w-4 h-4 text-rose-400" />
+            <VolumeX className="w-4 h-4 text-[#e2c275]" />
           ) : (
-            <Volume2 className="w-4 h-4 text-neutral-200" />
+            <Volume2 className="w-4 h-4 text-[#d6d3d1]" />
           )}
         </button>
       </div>

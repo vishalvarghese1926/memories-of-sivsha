@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { ContactShadows } from "@react-three/drei";
 import CharacterBoy from "../characters/CharacterBoy";
 import CharacterGirl from "../characters/CharacterGirl";
+import FloatingMediaFrame from "../media/FloatingMediaFrame";
 
 interface Act2ClassroomProps {
   progress?: number;
@@ -624,6 +625,14 @@ export default function Act2Classroom({ progress = 0 }: Act2ClassroomProps) {
           depthWrite={false}
         />
       </points>
+
+      {/* Milestone 4: Classroom Lecture Hall Photo Floating Media Frame */}
+      <FloatingMediaFrame
+        milestoneId="m-4"
+        position={[2.4, 2.1, -0.6]}
+        rotation={[0, -0.35, 0]}
+        scale={0.9}
+      />
 
       {/* Ground Contact Shadow for grounding */}
       <ContactShadows
