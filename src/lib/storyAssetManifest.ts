@@ -197,6 +197,8 @@ export function preloadGLTFAsset(url: string) {
   }
 }
 
+import { preloadAllStoryTextures } from "./storyTextureManager";
+
 // Pre-decode an image bitmap off the main thread
 export function preloadAndDecodeImage(url: string): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
@@ -222,10 +224,13 @@ export async function runStagedPreloader(
   let completedBytes = 0;
   const totalBytes = coreAssets.reduce((sum, item) => sum + item.estimatedBytes, 0);
 
-  // Load and cache all core models, images, and wasm decoders
+  // 1. Preload all Three.js story textures concurrently
+  const texturePromise = preloadAllStoryTextures().catch(() => {});
+
+  // 2. Load and cache all core models, images, and wasm decoders
   for (const item of coreAssets) {
     if (onProgress) {
-      const pct = Math.min(95, Math.round((completedBytes / totalBytes) * 100));
+      const pct = Math.min(92, Math.round((completedBytes / totalBytes) * 92));
       onProgress(pct, item.name);
     }
 
@@ -245,7 +250,11 @@ export async function runStagedPreloader(
     completedBytes += item.estimatedBytes;
   }
 
+  // Ensure Three.js texture objects have completed preparation
+  await texturePromise;
+
   if (onProgress) {
     onProgress(100, "Ready");
   }
 }
+

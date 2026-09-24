@@ -7,12 +7,14 @@ import { Sparkles, Text, ContactShadows, useTexture } from "@react-three/drei";
 import { useStory } from "@/context/StoryContext";
 import { audioEngine } from "@/lib/audioEngine";
 
+import { getStoryTexture, getFallbackMonogramTexture } from "@/lib/storyTextureManager";
+
 interface Act4FinaleProps {
   localProgress: number;
 }
 
 function LetterPaper() {
-  const texture = useTexture("/media/photos/letter_seal.webp");
+  const texture = getStoryTexture("/media/photos/letter_seal.webp") || getFallbackMonogramTexture();
   return (
     <mesh>
       <planeGeometry args={[0.9, 1.2]} />
@@ -24,6 +26,7 @@ function LetterPaper() {
     </mesh>
   );
 }
+
 
 export default function Act4Finale({ localProgress }: Act4FinaleProps) {
   const { setIsLetterModalOpen } = useStory();

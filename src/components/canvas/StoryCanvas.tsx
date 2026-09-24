@@ -9,7 +9,32 @@ import StorySceneManager from "./StorySceneManager";
 import CanvasErrorBoundary from "@/components/ui/CanvasErrorBoundary";
 
 import { Preload } from "@react-three/drei";
+import { useThree } from "@react-three/fiber";
 import { useAdaptiveQuality } from "@/lib/adaptiveQuality";
+import { warmAllStoryTexturesOnGPU } from "@/lib/storyTextureManager";
+
+function SceneWarmup() {
+  const { gl, scene, camera } = useThree();
+  const hasWarmed = React.useRef(false);
+
+  React.useEffect(() => {
+    if (hasWarmed.current) return;
+    hasWarmed.current = true;
+
+    const timer = setTimeout(() => {
+      try {
+        warmAllStoryTexturesOnGPU(gl);
+        gl.compile(scene, camera);
+      } catch {
+        // Safe non-blocking failover
+      }
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [gl, scene, camera]);
+
+  return null;
+}
 
 export default function StoryCanvas() {
   const quality = useAdaptiveQuality();
@@ -35,6 +60,7 @@ export default function StoryCanvas() {
           {/* Camera and Environment render unconditionally without suspending */}
           <CameraRig />
           <SceneEnvironment />
+          <SceneWarmup />
 
           {/* StorySceneManager has its own suspense boundary with preloader */}
           <Suspense fallback={null}>
@@ -43,6 +69,7 @@ export default function StoryCanvas() {
           </Suspense>
         </Canvas>
       </CanvasErrorBoundary>
+
 
       {/* Lusion-Grade Cinematic Vignette & Edge Framing */}
       <div

@@ -127,17 +127,14 @@ export default function Act3Beach({ localProgress }: Act3BeachProps) {
         position={[0, 0.01, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
       >
-        <meshPhysicalMaterial
+        <meshStandardMaterial
           color="#0d1b2a"
-          transmission={0.8}
-          roughness={0.08}
-          metalness={0.18}
-          ior={1.333}
+          roughness={0.15}
+          metalness={0.25}
           transparent
           opacity={0.88}
-          clearcoat={0.95}
-          clearcoatRoughness={0.06}
         />
+
       </mesh>
 
       {/* Subtle Moving Shore Foam Wash Line */}
