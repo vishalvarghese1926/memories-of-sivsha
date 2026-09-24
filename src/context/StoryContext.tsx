@@ -262,17 +262,6 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       setActiveMilestoneIndex(foundIndex);
       setScrollProgressState(clamped);
     }
-
-    // Low-frequency throttle for any residual DOM state consumers (~150ms)
-    if (!rafPendingRef.current) {
-      rafPendingRef.current = true;
-      setTimeout(() => {
-        rafPendingRef.current = false;
-        if (Math.abs(scrollProgressRef.current - clamped) < 0.05) {
-          setScrollProgressState(scrollProgressRef.current);
-        }
-      }, 150);
-    }
   }, [milestones]);
 
   const toggleAudioMute = useCallback(() => {

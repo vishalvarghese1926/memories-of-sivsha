@@ -39,6 +39,9 @@ export default function SmoothScrollProvider({
     });
 
     lenisRef.current = lenis;
+    if (typeof window !== "undefined") {
+      (window as any).__lenis = lenis;
+    }
 
     // Connect Lenis to GSAP ScrollTrigger and forward progress + velocity
     lenis.on("scroll", (e: { progress: number; velocity: number }) => {
@@ -57,6 +60,9 @@ export default function SmoothScrollProvider({
 
     return () => {
       gsap.ticker.remove(updateTicker);
+      if (typeof window !== "undefined" && (window as any).__lenis === lenis) {
+        delete (window as any).__lenis;
+      }
       lenis.destroy();
       lenisRef.current = null;
     };

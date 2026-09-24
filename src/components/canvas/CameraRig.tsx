@@ -110,9 +110,9 @@ const CAMERA_KEYFRAMES: CameraWaypoint[] = [
   // 6. Act III: Kozhikode Train (0.53 - 0.61) - Carriage z = -185, Doorway at [-0.55, 0.4, -186]
   {
     progress: 0.57,
-    position: new THREE.Vector3(-2.8, 1.9, -185),
-    lookAt: new THREE.Vector3(-0.8, 1.45, -185),
-    fov: 48,
+    position: new THREE.Vector3(-3.2, 1.85, -183.5),
+    lookAt: new THREE.Vector3(-0.7, 1.75, -183.5),
+    fov: 46,
   },
   {
     progress: 0.61,

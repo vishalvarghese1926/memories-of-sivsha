@@ -181,60 +181,33 @@ function RiggedGLTFGirlCharacter({
 
     const t = state.clock.getElapsedTime();
 
-    // 1. Skeletal Bone Articulation (GPU skinning with grounded root)
-    if (rigInstance) {
-      updateHumanoidSkeletalPose(
-        rigInstance,
-        t,
-        delta,
-        pose || "idle",
-        targetTuple,
-        posTuple,
-        false
-      );
-    } else {
-      computeCharacterKinematics(
-        t,
-        delta,
-        (pose as CharacterMotionState) || "idle",
-        {
-          lookAtTarget: targetTuple,
-          characterPos: posTuple,
-          windIntensity,
-          isBoy: false,
-          reachProgress: offerProgress || reachProgress || 0,
-        },
-        kinematicsScratch.current
-      );
+    // Natural grounded posture and ambient respiration
+    if (innerRef.current) {
+      const breath = Math.sin(t * 1.35) * 0.005;
+      let targetRotX = 0;
+      let targetRotY = 0;
+      let targetOffsetY = groundOffset + breath;
 
-      // Keep root Y anchored to groundOffset without whole-body bobbing
-      if (innerRef.current && (!actions || Object.keys(actions).length === 0)) {
-        innerRef.current.position.y = groundOffset;
-        innerRef.current.rotation.x = kinematicsScratch.current.spineRotX * 0.4;
-        innerRef.current.rotation.y = kinematicsScratch.current.spineRotY * 0.4;
+      if (pose === "sit" || pose === "sitting") {
+        targetOffsetY = groundOffset - 0.22;
+        targetRotX = -0.12;
+      } else if (pose === "biker" || pose === "bikerPillion") {
+        targetOffsetY = groundOffset - 0.12;
+        targetRotX = 0.16;
       }
-    }
 
-    // 2. Skeletal Head Tracking (if armature is present)
-    const activeLookTarget = lookAtTarget || lookAtConfig?.target;
-    if (activeLookTarget && bones.head) {
-      applySkeletalLookAt({
-        headBone: bones.head,
-        neckBone: bones.neck,
-        target: activeLookTarget,
-        config: lookAtConfig,
-        delta,
-      });
-    }
+      // Smooth look-at tracking on Y axis
+      if (targetTuple && posTuple) {
+        const dx = targetTuple[0] - posTuple[0];
+        const dz = targetTuple[2] - posTuple[2];
+        if (Math.abs(dx) > 0.01 || Math.abs(dz) > 0.01) {
+          targetRotY = THREE.MathUtils.clamp(Math.atan2(dx, dz), -0.5, 0.5);
+        }
+      }
 
-    // 3. Facial Blendshapes
-    if (facialMesh) {
-      updateFacialBlendshapes({
-        mesh: facialMesh,
-        config: facialConfig,
-        state: facialState.current,
-        delta,
-      });
+      innerRef.current.position.y = THREE.MathUtils.lerp(innerRef.current.position.y, targetOffsetY, delta * 4);
+      innerRef.current.rotation.x = THREE.MathUtils.lerp(innerRef.current.rotation.x, targetRotX, delta * 3);
+      innerRef.current.rotation.y = THREE.MathUtils.lerp(innerRef.current.rotation.y, targetRotY, delta * 3);
     }
   });
 
@@ -243,12 +216,9 @@ function RiggedGLTFGirlCharacter({
     return null;
   }
 
-  const activeScale = rigInstance?.normalizedScale ?? normalizedScale;
-  const activeOffset = rigInstance?.groundOffset ?? groundOffset;
-
   return (
-    <group ref={innerRef} position={[0, activeOffset, 0]} scale={activeScale}>
-      <primitive object={rigInstance?.skinnedMesh ?? clonedScene} />
+    <group ref={innerRef} position={[0, groundOffset, 0]} scale={normalizedScale}>
+      <primitive object={clonedScene} />
     </group>
   );
 }
@@ -853,24 +823,22 @@ export default function CharacterGirl({
       {!forceProcedural ? (
         <GLTFErrorBoundary fallback={proceduralFallback} onError={() => setLoadFailed(true)}>
           <React.Suspense fallback={proceduralFallback}>
-            <CrossfadeGirlWrapper proceduralMesh={proceduralFallback}>
-              <RiggedGLTFGirlCharacter
-                modelUrl={modelUrl}
-                pose={pose}
-                lookAtTarget={lookAtTarget}
-                lookAtConfig={lookAtConfig}
-                offerProgress={offerProgress}
-                reachProgress={reachProgress}
-                reachConfig={reachConfig}
-                facialConfig={facialConfig}
-                playbackSpeed={playbackSpeed}
-                scrollVelocity={scrollVelocity}
-                crossfadeDuration={crossfadeDuration}
-                castShadow={castShadow}
-                receiveShadow={receiveShadow}
-                onError={() => setLoadFailed(true)}
-              />
-            </CrossfadeGirlWrapper>
+            <RiggedGLTFGirlCharacter
+              modelUrl={modelUrl}
+              pose={pose}
+              lookAtTarget={lookAtTarget}
+              lookAtConfig={lookAtConfig}
+              offerProgress={offerProgress}
+              reachProgress={reachProgress}
+              reachConfig={reachConfig}
+              facialConfig={facialConfig}
+              playbackSpeed={playbackSpeed}
+              scrollVelocity={scrollVelocity}
+              crossfadeDuration={crossfadeDuration}
+              castShadow={castShadow}
+              receiveShadow={receiveShadow}
+              onError={() => setLoadFailed(true)}
+            />
           </React.Suspense>
         </GLTFErrorBoundary>
       ) : (

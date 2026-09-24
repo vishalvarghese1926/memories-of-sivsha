@@ -3,12 +3,26 @@
 import React, { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { Sparkles, Text, ContactShadows } from "@react-three/drei";
+import { Sparkles, Text, ContactShadows, useTexture } from "@react-three/drei";
 import { useStory } from "@/context/StoryContext";
 import { audioEngine } from "@/lib/audioEngine";
 
 interface Act4FinaleProps {
   localProgress: number;
+}
+
+function LetterPaper() {
+  const texture = useTexture("/media/photos/letter_seal.webp");
+  return (
+    <mesh>
+      <planeGeometry args={[0.9, 1.2]} />
+      <meshStandardMaterial
+        map={texture}
+        roughness={0.7}
+        toneMapped={false}
+      />
+    </mesh>
+  );
 }
 
 export default function Act4Finale({ localProgress }: Act4FinaleProps) {
@@ -223,15 +237,9 @@ export default function Act4Finale({ localProgress }: Act4FinaleProps) {
           </>
         )}
 
-        {/* Letter paper sliding out when opened */}
+        {/* Authentic Letter paper sliding out when opened */}
         <group ref={letterRef} position={[0, 0, 0.02]} rotation={[0.35, 0, 0]}>
-          <mesh>
-            <planeGeometry args={[1.0, 0.7]} />
-            <meshStandardMaterial
-              color="#ffffff"
-              roughness={0.9}
-            />
-          </mesh>
+          <LetterPaper />
         </group>
       </group>
 

@@ -18,34 +18,29 @@ import { useStory } from "@/context/StoryContext";
 function getMilestoneAwareSpeed(normalizedProgress: number): number {
   const p = Math.max(0, Math.min(1, normalizedProgress));
 
-  // Hero Emotional Moment focal windows (where the director lingers)
-  const heroWindows = [
-    { start: 0.05, peak: 0.09, end: 0.15, slowSpeed: 80 },  // Before We Met
-    { start: 0.22, peak: 0.28, end: 0.36, slowSpeed: 85 },  // College Corridors & Pen Moment
-    { start: 0.39, peak: 0.42, end: 0.45, slowSpeed: 85 },  // Classroom
-    { start: 0.46, peak: 0.49, end: 0.53, slowSpeed: 85 },  // Friend Group
-    { start: 0.54, peak: 0.57, end: 0.61, slowSpeed: 80 },  // Kozhikode Train Doorway
-    { start: 0.62, peak: 0.65, end: 0.68, slowSpeed: 80 },  // Beach Sunset
-    { start: 0.69, peak: 0.72, end: 0.75, slowSpeed: 80 },  // Late Night Talks
-    { start: 0.75, peak: 0.78, end: 0.81, slowSpeed: 70 },  // 31 August 2025 Car Cabin (Climax)
-    { start: 0.81, peak: 0.835, end: 0.86, slowSpeed: 75 }, // Classic 350 Ride
-    { start: 0.87, peak: 0.895, end: 0.92, slowSpeed: 70 }, // Himalayan 450 Mountain Fall
-    { start: 0.92, peak: 0.94, end: 0.96, slowSpeed: 75 },  // Home Warmth
-    { start: 0.96, peak: 0.985, end: 1.00, slowSpeed: 60 }, // Finale Letter Pedestal
-  ];
+  // Milestone-aware cinematic velocity windows per creative director specifications:
+  // Before We Met: slow (~75 px/s)
+  // College: medium (~140 px/s)
+  // Classroom: medium/slower (~105 px/s)
+  // Friends: medium (~140 px/s)
+  // Train: slow (~75 px/s)
+  // Beach: very slow (~50 px/s)
+  // August 31: slow/emotional (~60 px/s)
+  // Motorcycles: medium (~140 px/s)
+  // Home: slow (~75 px/s)
+  // Letter / Finale: very slow / near still (~40 px/s, controlled conclusion)
 
-  for (const win of heroWindows) {
-    if (p >= win.start && p <= win.end) {
-      // Smooth bell curve deceleration
-      const distFromPeak = Math.abs(p - win.peak) / Math.max(0.001, (win.end - win.start) / 2);
-      const factor = Math.cos(Math.min(Math.PI / 2, distFromPeak * (Math.PI / 2)));
-      // Interpolate between fast cruise speed (230px/s) and slow reading speed
-      return 230 - (230 - win.slowSpeed) * factor;
-    }
-  }
-
-  // Fast cruising speed in transitional landscape corridors
-  return 240;
+  if (p < 0.08) return 120; // Entry transition
+  if (p < 0.18) return 75;  // Before We Met (slow)
+  if (p < 0.38) return 140; // College Admission & Paperwork Desk (medium)
+  if (p < 0.45) return 105; // Classroom (medium / slower)
+  if (p < 0.53) return 140; // Friend Group (medium)
+  if (p < 0.61) return 75;  // Train Exterior Camera Pass (slow)
+  if (p < 0.68) return 50;  // Beach Sunset & Waves (very slow)
+  if (p < 0.80) return 60;  // Late Night Talks & August 31 (slow / emotional)
+  if (p < 0.92) return 140; // Motorcycles: Classic 350 & Himalayan 450 (medium)
+  if (p < 0.96) return 75;  // Home / Everyday Life (slow)
+  return 42;                // Letter Pedestal & Finale (very slow / near still)
 }
 
 export default function AutoModeControls() {
@@ -62,7 +57,7 @@ export default function AutoModeControls() {
   const rafRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
 
-  // Cinematic Auto-scroll engine with milestone-aware director velocity
+  // Cinematic Auto-scroll engine synchronized with Lenis driver
   useEffect(() => {
     if (!isAutoPlaying || activeLightboxPhoto) {
       if (rafRef.current) {
@@ -80,7 +75,7 @@ export default function AutoModeControls() {
 
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
 
-      // Stop naturally at the finale or when reaching max scroll
+      // Stop gracefully at the finale or when reaching max scroll
       if (window.scrollY >= maxScroll - 6 || activeMilestoneIndex >= 13) {
         pauseAuto();
         return;
@@ -89,9 +84,14 @@ export default function AutoModeControls() {
       const currentNorm = maxScroll > 0 ? window.scrollY / maxScroll : 0;
       const currentSpeed = getMilestoneAwareSpeed(currentNorm);
 
-      // Smooth step
       if (dt > 0 && dt < 0.1) {
-        window.scrollBy({ top: currentSpeed * dt, behavior: "auto" });
+        const deltaScroll = currentSpeed * dt;
+        const lenis = (window as any).__lenis;
+        if (lenis && typeof lenis.scrollTo === "function") {
+          lenis.scrollTo(lenis.scroll + deltaScroll, { immediate: true });
+        } else {
+          window.scrollBy({ top: deltaScroll, behavior: "auto" });
+        }
       }
 
       rafRef.current = requestAnimationFrame(step);

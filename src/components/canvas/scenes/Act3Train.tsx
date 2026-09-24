@@ -265,13 +265,39 @@ export default function Act3Train({ localProgress }: Act3TrainProps) {
           frames={1}
         />
 
-        {/* Milestone 6 Floating Media Frame — Framed prominently in carriage doorway */}
-        <FloatingMediaFrame
-          milestoneId="m-6"
-          position={[-0.45, 1.95, -0.3]}
-          rotation={[0, -0.38, 0]}
-          scale={1.05}
-        />
+        {/* ======================================================================= */}
+        {/* EXTERIOR TRAIN WINDOW SHOWCASE: PHOTOGRAPH PRESENTED CLEARLY ON BODY    */}
+        {/* ======================================================================= */}
+        <group position={[-1.46, 1.85, 2.8]} rotation={[0, -Math.PI / 2 + 0.08, 0]}>
+          {/* Exterior Window / Display Frame Border */}
+          <mesh position={[0, 0, -0.04]}>
+            <boxGeometry args={[1.7, 2.45, 0.06]} />
+            <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.7} />
+          </mesh>
+          {/* Chrome / Brushed Steel Outer Bevel Trim */}
+          <mesh position={[0, 0, -0.02]}>
+            <boxGeometry args={[1.76, 2.52, 0.02]} />
+            <meshStandardMaterial color="#e2e8f0" roughness={0.2} metalness={0.9} />
+          </mesh>
+          {/* Cream Accent Header */}
+          <mesh position={[0, 1.3, -0.02]}>
+            <boxGeometry args={[1.4, 0.12, 0.04]} />
+            <meshStandardMaterial color="#fef08a" roughness={0.4} />
+          </mesh>
+
+          {/* Dedicated Exterior Fill Light to guarantee crisp readability from outside */}
+          <pointLight position={[0, 0.2, 1.8]} color="#ffedd5" intensity={1.8} distance={8} />
+
+          {/* Floating Media Frame (m6_train) Mounted Flush on Exterior Window */}
+          <FloatingMediaFrame
+            milestoneId="m-6"
+            position={[0, 0, 0.01]}
+            rotation={[0, 0, 0]}
+            scale={0.96}
+            width={1.5}
+            height={2.2}
+          />
+        </group>
       </group>
 
       {/* ========================================================================= */}
