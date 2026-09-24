@@ -223,35 +223,29 @@ export default function FloatingMediaFrame({
 
   return (
     <group ref={groupRef} position={position} rotation={rotation} scale={scale}>
-      {/* Outer Curved Glass Border Frame */}
-      <mesh position={[0, 0, -0.01]}>
-        <boxGeometry args={[width + 0.16, height + 0.16, 0.05]} />
-        <meshPhysicalMaterial
-          color="#082f49"
-          transmission={0.88}
-          roughness={0.12}
-          ior={1.45}
-          thickness={0.6}
-          clearcoat={1.0}
-          transparent
-          opacity={0.85}
-        />
-      </mesh>
-
-      {/* Rim Accent Border Glow with Sivani's Signature Cyan */}
-      <mesh position={[0, 0, 0.01]}>
-        <boxGeometry args={[width + 0.04, height + 0.04, 0.01]} />
+      {/* Luxury Obsidian Satin Backing Bezel */}
+      <mesh position={[0, 0, -0.015]}>
+        <boxGeometry args={[width + 0.14, height + 0.14, 0.03]} />
         <meshStandardMaterial
-          color="#22d3ee"
-          emissive="#06b6d4"
-          emissiveIntensity={isHovered ? 0.75 : 0.25}
-          roughness={0.2}
+          color="#0f0d14"
+          roughness={0.45}
+          metalness={0.25}
         />
       </mesh>
 
-      {/* Main Image / Video Plane — EXCLUSIVELY CLICKABLE TARGET */}
+      {/* Hairline Champagne Gold Inset Trim */}
+      <mesh position={[0, 0, -0.005]}>
+        <boxGeometry args={[width + 0.03, height + 0.03, 0.01]} />
+        <meshStandardMaterial
+          color={isHovered ? "#f5ebd4" : "#e2c275"}
+          roughness={0.3}
+          metalness={0.85}
+        />
+      </mesh>
+
+      {/* Main Photograph Plane — EXCLUSIVELY CLICKABLE TARGET */}
       <mesh
-        position={[0, 0, 0.02]}
+        position={[0, 0, 0.01]}
         onPointerOver={(e) => {
           e.stopPropagation();
           setIsHovered(true);
@@ -274,14 +268,6 @@ export default function FloatingMediaFrame({
           side={THREE.DoubleSide}
         />
       </mesh>
-
-      {/* Soft Cyan Ambient Backlight for the Frame */}
-      <pointLight
-        position={[0, 0, -0.2]}
-        color="#38bdf8"
-        intensity={isHovered ? 1.5 : 0.8}
-        distance={3.5}
-      />
     </group>
   );
 }

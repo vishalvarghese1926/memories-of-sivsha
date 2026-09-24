@@ -309,7 +309,7 @@ const TARGET_POS_SCRATCH = new THREE.Vector3();
 const TARGET_LOOK_SCRATCH = new THREE.Vector3();
 
 export default function CameraRig() {
-  const { scrollProgressRef, orientation } = useStory();
+  const { scrollProgressRef, scrollVelocityRef, orientation } = useStory();
   const { camera } = useThree();
 
   const currentPos = useRef(new THREE.Vector3(0, 4, 18));
@@ -398,8 +398,12 @@ export default function CameraRig() {
       TARGET_POS_SCRATCH.y += orientation.beta * 0.15;
     }
 
-    // Steadycam kinematic damping: responsive yet cinematic (eliminates sluggish lag)
-    const damping = reducedMotion ? Math.min(1, delta * 12.0) : Math.min(1, delta * 10.0);
+    // Steadycam kinematic damping: velocity-aware for immediate finger tracking & buttery settling
+    const isActivelyMoving = Math.abs(scrollVelocityRef?.current ?? 0) > 0.02;
+    const damping = isActivelyMoving
+      ? Math.min(1, delta * 24.0)
+      : Math.min(1, delta * 15.0);
+
     currentPos.current.lerp(TARGET_POS_SCRATCH, damping);
     currentLookAt.current.lerp(TARGET_LOOK_SCRATCH, damping);
 

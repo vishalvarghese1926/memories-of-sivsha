@@ -35,7 +35,7 @@ export default function ScenicWorldBridge() {
   // 2. Railway Track Ties (z: -150 to -260)
   const railwayTies = useMemo(() => {
     const list: number[] = [];
-    for (let z = -150; z >= -260; z -= 1.8) {
+    for (let z = -150; z >= -260; z -= 3.6) {
       list.push(z);
     }
     return list;
@@ -44,7 +44,7 @@ export default function ScenicWorldBridge() {
   // 3. Telegraph Poles alongside train route (z: -155 to -265)
   const telegraphPoles = useMemo(() => {
     const list: number[] = [];
-    for (let z = -155; z >= -265; z -= 22) {
+    for (let z = -155; z >= -265; z -= 28) {
       list.push(z);
     }
     return list;
@@ -53,7 +53,7 @@ export default function ScenicWorldBridge() {
   // 4. Highway Guardrails & Roadside Reflectors (z: -270 to -385)
   const highwayMarkers = useMemo(() => {
     const list: number[] = [];
-    for (let z = -270; z >= -385; z -= 14) {
+    for (let z = -270; z >= -385; z -= 20) {
       list.push(z);
     }
     return list;
@@ -62,15 +62,15 @@ export default function ScenicWorldBridge() {
   // 5. Mountain Ghat Boulder Cliffs & Terrain Walls (z: -390 to -600)
   const mountainCliffs = useMemo(() => {
     const list: { pos: [number, number, number]; scale: [number, number, number]; rot: number }[] = [];
-    for (let z = -390; z >= -600; z -= 24) {
+    for (let z = -390; z >= -600; z -= 36) {
       list.push({
         pos: [-14.5, 4.5, z],
-        scale: [6.5, 11, 26],
+        scale: [6.5, 11, 36],
         rot: 0.15,
       });
       list.push({
-        pos: [14.5, 5.0, z - 12],
-        scale: [7.0, 12, 26],
+        pos: [14.5, 5.0, z - 18],
+        scale: [7.0, 12, 36],
         rot: -0.18,
       });
     }

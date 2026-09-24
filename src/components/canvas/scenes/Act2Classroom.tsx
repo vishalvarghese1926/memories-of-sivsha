@@ -212,16 +212,10 @@ export default function Act2Classroom({ progress = 0 }: Act2ClassroomProps) {
   useFrame((state, delta) => {
     const t = state.clock.getElapsedTime();
 
-    // Subtle drift in window dust
+    // Subtle drift in window dust (zero-allocation continuous rotation)
     if (dustRef.current && !reducedMotion) {
-      const positions = dustRef.current.geometry.attributes.position.array as Float32Array;
-      for (let i = 1; i < dustCount * 3; i += 3) {
-        positions[i] -= delta * 0.04;
-        if (positions[i] < 0.6) {
-          positions[i] = 3.2;
-        }
-      }
-      dustRef.current.geometry.attributes.position.needsUpdate = true;
+      dustRef.current.rotation.y = t * 0.04;
+      dustRef.current.position.y = 1.8 + Math.sin(t * 0.6) * 0.06;
     }
 
     // Background students subtle asynchronous breathing & writing

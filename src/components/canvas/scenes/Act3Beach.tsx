@@ -22,29 +22,16 @@ export default function Act3Beach({ localProgress }: Act3BeachProps) {
   const charactersRef = useRef<THREE.Group>(null);
   const pierRef = useRef<THREE.Group>(null);
 
-  // Performance-optimized low-poly wave grid (28x28 is smooth yet extremely lightweight for mobile)
-  const waterGeometry = useMemo(() => new THREE.PlaneGeometry(36, 32, 28, 28), []);
-  const initialPositions = useMemo(
-    () => waterGeometry.attributes.position.array.slice() as Float32Array,
-    [waterGeometry]
-  );
+  // Performance-optimized ocean water plane
+  const waterGeometry = useMemo(() => new THREE.PlaneGeometry(36, 32, 12, 12), []);
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
 
-    // Subtle breathing wave wash
+    // Zero-allocation subtle coastal wave wash
     if (waterRef.current) {
-      waterRef.current.position.y = -0.02 + Math.sin(t * 1.4) * 0.015;
-
-      const positions = waterGeometry.attributes.position.array as Float32Array;
-      for (let i = 0; i < positions.length; i += 3) {
-        const x = initialPositions[i];
-        const y = initialPositions[i + 1];
-        positions[i + 2] =
-          Math.sin(x * 0.4 + t * 2.0) * 0.05 +
-          Math.cos(y * 0.35 + t * 1.6) * 0.035;
-      }
-      waterGeometry.attributes.position.needsUpdate = true;
+      waterRef.current.position.y = -0.02 + Math.sin(t * 1.4) * 0.025;
+      waterRef.current.rotation.x = -Math.PI / 2 + Math.sin(t * 1.1) * 0.006;
     }
 
     // Moving shoreline foam wash line

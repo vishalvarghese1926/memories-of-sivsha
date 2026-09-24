@@ -276,17 +276,10 @@ export default function Act2College({
       });
     }
 
-    // 2. Dust drift in sun shafts
+    // 2. Dust drift in sun shafts (zero-allocation continuous rotation)
     if (dustParticlesRef.current && !reducedMotion) {
-      dustParticlesRef.current.rotation.y = time * 0.01;
-      const positions = dustParticlesRef.current.geometry.attributes.position.array as Float32Array;
-      for (let i = 1; i < dustCount * 3; i += 3) {
-        positions[i] -= delta * 0.08;
-        if (positions[i] < 0.3) {
-          positions[i] = 4.8;
-        }
-      }
-      dustParticlesRef.current.geometry.attributes.position.needsUpdate = true;
+      dustParticlesRef.current.rotation.y = time * 0.04;
+      dustParticlesRef.current.position.y = 2.4 + Math.sin(time * 0.5) * 0.08;
     }
 
     // =========================================================================

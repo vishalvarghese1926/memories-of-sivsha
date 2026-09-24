@@ -26,15 +26,15 @@ export default function SmoothScrollProvider({
       typeof window !== "undefined" &&
       ("ontouchstart" in window || navigator.maxTouchPoints > 0);
 
-    // Premium mobile-first responsive scrollytelling feel
+    // Immediate, direct mobile touch responsiveness + snappy desktop wheel
     const lenis = new Lenis({
-      duration: isTouch ? 0.75 : 1.1,
+      duration: isTouch ? 0.2 : 0.65,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: true,
-      wheelMultiplier: 0.95,
-      touchMultiplier: 1.25,
+      wheelMultiplier: 1.0,
+      touchMultiplier: 1.0,
       infinite: false,
     });
 
