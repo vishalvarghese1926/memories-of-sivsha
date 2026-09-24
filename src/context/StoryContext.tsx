@@ -14,6 +14,15 @@ export type UnlockState = "locked" | "unlocking" | "unlocked";
 export type ScrollListener = (progress: number, velocity: number) => void;
 export type StoryMode = "manual" | "auto";
 
+export const canvasStore = {
+  milestones: INITIAL_MILESTONES,
+  orientation: { beta: 0, gamma: 0 },
+  openPhotoLightbox: (target: string | SemanticPhotoSlot) => {},
+  setIsLetterModalOpen: (open: boolean) => {},
+  scrollProgressRef: { current: 0 } as React.MutableRefObject<number>,
+  scrollVelocityRef: { current: 0 } as React.MutableRefObject<number>,
+};
+
 interface StoryContextType {
   milestones: Milestone[];
   letter: BirthdayLetter;
@@ -30,7 +39,6 @@ interface StoryContextType {
   beginUnlock: () => Promise<void>;
   isLetterModalOpen: boolean;
   setIsLetterModalOpen: (open: boolean) => void;
-  orientation: { beta: number; gamma: number };
   setScrollProgress: (progress: number, velocity?: number) => void;
   toggleAudioMute: () => void;
   setLetter: React.Dispatch<React.SetStateAction<BirthdayLetter>>;
@@ -68,7 +76,6 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
   const [isUnlocked, setIsUnlocked] = useState<boolean>(false);
   const [unlockState, setUnlockState] = useState<UnlockState>("locked");
   const [isLetterModalOpen, setIsLetterModalOpen] = useState<boolean>(false);
-  const [orientation, setOrientation] = useState<{ beta: number; gamma: number }>({ beta: 0, gamma: 0 });
 
   // Phase 3 state
   const [storyMode, setStoryModeState] = useState<StoryMode>("manual");
@@ -77,7 +84,12 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
   const wasAutoPlayingBeforePhotoRef = useRef<boolean>(false);
   const [activeLightboxPhoto, setActiveLightboxPhoto] = useState<SemanticPhotoSlot | null>(null);
 
-  // Initialize story mode from session storage
+  // Phase 3 state
+
+  useEffect(() => {
+    canvasStore.milestones = milestones;
+  }, [milestones]);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedMode = sessionStorage.getItem("sivsha_story_mode") as StoryMode | null;
@@ -150,6 +162,13 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
     // Note: Auto mode REMAINS PAUSED per requirements until user explicitly taps "RESUME AUTO"
   }, []);
 
+  useEffect(() => {
+    canvasStore.scrollProgressRef = scrollProgressRef;
+    canvasStore.scrollVelocityRef = scrollVelocityRef;
+    canvasStore.openPhotoLightbox = openPhotoLightbox;
+    canvasStore.setIsLetterModalOpen = setIsLetterModalOpen;
+  }, [openPhotoLightbox, setIsLetterModalOpen]);
+
   // Load any local overrides or Supabase data
   const refreshFromSupabase = useCallback(async () => {
     if (!isSupabaseConfigured || !supabase) {
@@ -211,7 +230,7 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
         // Clamp and smooth
         const beta = Math.max(-30, Math.min(30, e.beta - 45)) * 0.05;
         const gamma = Math.max(-30, Math.min(30, e.gamma)) * 0.05;
-        setOrientation({ beta, gamma });
+        canvasStore.orientation = { beta, gamma };
       }
     };
 
@@ -340,7 +359,6 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
         beginUnlock,
         isLetterModalOpen,
         setIsLetterModalOpen,
-        orientation,
         setScrollProgress,
         toggleAudioMute,
         setLetter,

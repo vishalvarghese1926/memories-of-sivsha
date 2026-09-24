@@ -3,7 +3,7 @@
 import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { useStory } from "@/context/StoryContext";
+import { canvasStore } from "@/context/StoryContext";
 
 import { Sparkles } from "@react-three/drei";
 import ScenicWorldBridge from "./environment/ScenicWorldBridge";
@@ -25,7 +25,6 @@ const RIM_TARGET_WARM = new THREE.Color("#fde047");
 const RIM_TARGET_ROSE = new THREE.Color("#fda4af");
 
 export default function SceneEnvironment() {
-  const { scrollProgressRef, milestones } = useStory();
   const fogRef = useRef<THREE.FogExp2>(null);
   const ambientLightRef = useRef<THREE.AmbientLight>(null);
   const dirLightRef = useRef<THREE.DirectionalLight>(null);
@@ -35,6 +34,7 @@ export default function SceneEnvironment() {
 
   // Derive environment stages dynamically from milestones in storyData (source of truth)
   const environmentStages: EnvStage[] = useMemo(() => {
+    const milestones = canvasStore.milestones;
     if (!milestones || milestones.length === 0) {
       return [{ t: 0.0, fog: "#07070d", ambient: "#140e24", intensity: 1.2, fogDensity: 0.02 }];
     }
@@ -63,10 +63,10 @@ export default function SceneEnvironment() {
     }
 
     return stages.sort((a, b) => a.t - b.t);
-  }, [milestones]);
+  }, []);
 
   useFrame((_, delta) => {
-    const t = THREE.MathUtils.clamp(scrollProgressRef.current, 0, 1);
+    const t = THREE.MathUtils.clamp(canvasStore.scrollProgressRef.current, 0, 1);
 
     // Find bounding stages for color and density lerp
     let prev = environmentStages[0];

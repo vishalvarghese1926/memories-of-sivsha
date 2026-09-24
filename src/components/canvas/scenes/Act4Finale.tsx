@@ -4,7 +4,7 @@ import React, { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Sparkles, Text, ContactShadows, useTexture } from "@react-three/drei";
-import { useStory } from "@/context/StoryContext";
+import { canvasStore } from "@/context/StoryContext";
 import { audioEngine } from "@/lib/audioEngine";
 
 import { getStoryTexture, getFallbackMonogramTexture } from "@/lib/storyTextureManager";
@@ -29,7 +29,6 @@ function LetterPaper() {
 
 
 export default function Act4Finale({ localProgress }: Act4FinaleProps) {
-  const { setIsLetterModalOpen } = useStory();
   const envelopeRef = useRef<THREE.Group>(null);
   const sealRef = useRef<THREE.Mesh>(null);
   const letterRef = useRef<THREE.Group>(null);
@@ -80,7 +79,7 @@ export default function Act4Finale({ localProgress }: Act4FinaleProps) {
     }
     // Open parchment letter modal with slight delay for the visual seal crack
     setTimeout(() => {
-      setIsLetterModalOpen(true);
+      canvasStore.setIsLetterModalOpen(true);
     }, 450);
   };
 
