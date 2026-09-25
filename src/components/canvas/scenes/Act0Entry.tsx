@@ -4,7 +4,11 @@ import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
+import { useSceneLifecycle } from "../SceneTransitionWrapper";
+import { canvasStore } from "@/context/StoryContext";
+
 export default function Act0Entry() {
+  const lifecycle = useSceneLifecycle();
   const pointsRef = useRef<THREE.Points>(null);
   const count = 1200;
 
@@ -38,6 +42,7 @@ export default function Act0Entry() {
   }, [count]);
 
   useFrame((_, delta) => {
+    if (lifecycle.current.state === "dormant" || canvasStore.isStoryPaused) return;
     if (pointsRef.current) {
       pointsRef.current.rotation.z += delta * 0.35;
     }

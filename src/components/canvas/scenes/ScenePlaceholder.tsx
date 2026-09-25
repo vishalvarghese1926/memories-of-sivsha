@@ -5,6 +5,9 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Milestone } from "@/types";
 
+import { useSceneLifecycle } from "../SceneTransitionWrapper";
+import { canvasStore } from "@/context/StoryContext";
+
 interface ScenePlaceholderProps {
   milestone: Milestone;
   localProgress: number;
@@ -16,11 +19,14 @@ export default function ScenePlaceholder({
   localProgress,
   positionZ,
 }: ScenePlaceholderProps) {
+  const lifecycle = useSceneLifecycle();
   const ringRef = useRef<THREE.Mesh>(null);
   const glowLightRef = useRef<THREE.PointLight>(null);
 
   // Subtle floating ring & gentle beacon for future scene anchor
   useFrame((state) => {
+    if (lifecycle.current.state === "dormant" || canvasStore.isStoryPaused) return;
+
     const t = state.clock.getElapsedTime();
     if (ringRef.current) {
       ringRef.current.rotation.z = t * 0.2;

@@ -8,12 +8,15 @@ import CharacterBoy from "../characters/CharacterBoy";
 import CharacterGirl from "../characters/CharacterGirl";
 import FloatingMediaFrame from "../media/FloatingMediaFrame";
 import { useSceneProgress } from "@/lib/useSceneProgress";
+import { useSceneLifecycle } from "../SceneTransitionWrapper";
+import { canvasStore } from "@/context/StoryContext";
 
 interface Act3TrainProps {
   localProgress: number;
 }
 
 export default function Act3Train({ localProgress }: Act3TrainProps) {
+  const lifecycle = useSceneLifecycle();
   const { getProgress } = useSceneProgress("m-6", localProgress);
   const trainRef = useRef<THREE.Group>(null);
   const tracksRef = useRef<THREE.Group>(null);
@@ -21,6 +24,8 @@ export default function Act3Train({ localProgress }: Act3TrainProps) {
   const platformRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
+    if (lifecycle.current.state === "dormant" || canvasStore.isStoryPaused) return;
+
     const t = state.clock.getElapsedTime();
     const currentLocal = getProgress();
 

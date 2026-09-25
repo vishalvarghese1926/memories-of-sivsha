@@ -8,17 +8,22 @@ import CharacterBoy from "../characters/CharacterBoy";
 import CharacterGirl from "../characters/CharacterGirl";
 import FloatingMediaFrame from "../media/FloatingMediaFrame";
 import ExternalAsset from "../environment/ExternalAsset";
+import { useSceneLifecycle } from "../SceneTransitionWrapper";
+import { canvasStore } from "@/context/StoryContext";
 
 interface Act3CarProps {
   localProgress: number;
 }
 
 export default function Act3Car({ localProgress }: Act3CarProps) {
+  const lifecycle = useSceneLifecycle();
   const carGroupRef = useRef<THREE.Group>(null);
   const roadLinesRef = useRef<THREE.Group>(null);
   const streetlampsRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
+    if (lifecycle.current.state === "dormant" || canvasStore.isStoryPaused) return;
+
     const t = state.clock.getElapsedTime();
 
     // Road speed motion

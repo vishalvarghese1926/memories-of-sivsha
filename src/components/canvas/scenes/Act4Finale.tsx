@@ -8,6 +8,7 @@ import { canvasStore } from "@/context/StoryContext";
 import { audioEngine } from "@/lib/audioEngine";
 
 import { getStoryTexture, getFallbackMonogramTexture } from "@/lib/storyTextureManager";
+import { useSceneLifecycle } from "../SceneTransitionWrapper";
 
 interface Act4FinaleProps {
   localProgress: number;
@@ -45,7 +46,11 @@ export default function Act4Finale({ localProgress }: Act4FinaleProps) {
     { pos: [4.5, 3.8, -7], speed: 1.2, offset: 0.8 },
   ];
 
+  const lifecycle = useSceneLifecycle();
+
   useFrame((state, delta) => {
+    if (lifecycle.current.state === "dormant" || canvasStore.isStoryPaused) return;
+
     const t = state.clock.getElapsedTime();
 
     // Envelope gentle float above pedestal

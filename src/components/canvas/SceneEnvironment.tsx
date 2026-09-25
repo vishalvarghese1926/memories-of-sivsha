@@ -4,6 +4,7 @@ import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { canvasStore } from "@/context/StoryContext";
+import { useAdaptiveQuality } from "@/lib/adaptiveQuality";
 
 import { Sparkles } from "@react-three/drei";
 import ScenicWorldBridge from "./environment/ScenicWorldBridge";
@@ -25,6 +26,7 @@ const RIM_TARGET_WARM = new THREE.Color("#fde047");
 const RIM_TARGET_ROSE = new THREE.Color("#fda4af");
 
 export default function SceneEnvironment() {
+  const quality = useAdaptiveQuality();
   const fogRef = useRef<THREE.FogExp2>(null);
   const ambientLightRef = useRef<THREE.AmbientLight>(null);
   const dirLightRef = useRef<THREE.DirectionalLight>(null);
@@ -66,6 +68,8 @@ export default function SceneEnvironment() {
   }, []);
 
   useFrame((_, delta) => {
+    if (canvasStore.isStoryPaused) return;
+
     const t = THREE.MathUtils.clamp(canvasStore.scrollProgressRef.current, 0, 1);
 
     // Find bounding stages for color and density lerp
@@ -120,6 +124,9 @@ export default function SceneEnvironment() {
     }
   });
 
+  const shouldCastShadow = quality.enableContactShadows && quality.tier !== "low";
+  const shadowMapDim = quality.tier === "high" ? 1024 : 512;
+
   return (
     <>
       <fogExp2 ref={fogRef} attach="fog" args={["#07070d", 0.025]} />
@@ -131,8 +138,8 @@ export default function SceneEnvironment() {
         position={[14, 24, 16]}
         intensity={2.4}
         color="#fff1f2"
-        castShadow
-        shadow-mapSize={[1024, 1024]}
+        castShadow={shouldCastShadow}
+        shadow-mapSize={[shadowMapDim, shadowMapDim]}
         shadow-bias={-0.0001}
       />
 

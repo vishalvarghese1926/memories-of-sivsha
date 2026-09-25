@@ -21,6 +21,9 @@ export const canvasStore = {
   setIsLetterModalOpen: (open: boolean) => {},
   scrollProgressRef: { current: 0 } as React.MutableRefObject<number>,
   scrollVelocityRef: { current: 0 } as React.MutableRefObject<number>,
+  isStoryPaused: false,
+  isPreparationActive: true,
+  isLightboxActive: false,
 };
 
 interface StoryContextType {
@@ -167,7 +170,22 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
     canvasStore.scrollVelocityRef = scrollVelocityRef;
     canvasStore.openPhotoLightbox = openPhotoLightbox;
     canvasStore.setIsLetterModalOpen = setIsLetterModalOpen;
-  }, [openPhotoLightbox, setIsLetterModalOpen]);
+    canvasStore.isLightboxActive = !!activeLightboxPhoto;
+
+    const syncPauseState = () => {
+      const isHidden = typeof document !== "undefined" && document.visibilityState !== "visible";
+      canvasStore.isStoryPaused = isHidden || !!activeLightboxPhoto || canvasStore.isPreparationActive;
+    };
+
+    syncPauseState();
+
+    if (typeof document !== "undefined") {
+      document.addEventListener("visibilitychange", syncPauseState);
+      return () => {
+        document.removeEventListener("visibilitychange", syncPauseState);
+      };
+    }
+  }, [openPhotoLightbox, setIsLetterModalOpen, activeLightboxPhoto]);
 
   // Load any local overrides or Supabase data
   const refreshFromSupabase = useCallback(async () => {

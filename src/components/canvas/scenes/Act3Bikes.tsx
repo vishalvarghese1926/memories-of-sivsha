@@ -9,6 +9,8 @@ import CharacterGirl from "../characters/CharacterGirl";
 import FloatingMediaFrame from "../media/FloatingMediaFrame";
 import ExternalAsset from "../environment/ExternalAsset";
 import { useSceneProgress } from "@/lib/useSceneProgress";
+import { useSceneLifecycle } from "../SceneTransitionWrapper";
+import { canvasStore } from "@/context/StoryContext";
 
 interface Act3BikesProps {
   milestoneId: string; // "m-10" (Classic 350) or "m-11" (Himalayan 450)
@@ -16,6 +18,7 @@ interface Act3BikesProps {
 }
 
 export default function Act3Bikes({ milestoneId, localProgress }: Act3BikesProps) {
+  const lifecycle = useSceneLifecycle();
   const { getProgress } = useSceneProgress(milestoneId, localProgress);
   const wheelsRef = useRef<THREE.Group>(null);
   const roadRef = useRef<THREE.Group>(null);
@@ -41,6 +44,8 @@ export default function Act3Bikes({ milestoneId, localProgress }: Act3BikesProps
   const isClassicRiding = isClassic && localProgress >= 0.58;
 
   useFrame((state, delta) => {
+    if (lifecycle.current.state === "dormant" || canvasStore.isStoryPaused) return;
+
     const t = state.clock.getElapsedTime();
 
     // Road speed motion (stops during aftermath of mountain fall)
@@ -196,12 +201,12 @@ export default function Act3Bikes({ milestoneId, localProgress }: Act3BikesProps
               <cylinderGeometry args={[2.5, 9.5, 12, 5]} />
               <meshStandardMaterial color="#172033" roughness={0.9} />
             </mesh>
-            {/* Subtle cyan moonlight crest accent */}
+            {/* Subtle ivory moonlight crest accent */}
             <mesh position={[0.2, 5.8, 0]}>
               <cylinderGeometry args={[0.4, 2.2, 2.4, 5]} />
               <meshStandardMaterial
-                color="#22d3ee"
-                emissive="#0e3a47"
+                color="#f1f5f9"
+                emissive="#1e293b"
                 emissiveIntensity={0.3}
                 roughness={0.8}
               />

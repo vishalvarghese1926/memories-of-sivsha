@@ -8,16 +8,22 @@ import CharacterBoy from "../characters/CharacterBoy";
 import CharacterGirl from "../characters/CharacterGirl";
 import FloatingMediaFrame from "../media/FloatingMediaFrame";
 import ExternalAsset from "../environment/ExternalAsset";
+import { useSceneLifecycle } from "../SceneTransitionWrapper";
+import { canvasStore } from "@/context/StoryContext";
 
 interface Act3HomeProps {
   localProgress: number;
 }
 
 export default function Act3Home({ localProgress }: Act3HomeProps) {
+  const lifecycle = useSceneLifecycle();
   const steamRef = useRef<THREE.Group>(null);
   const lampLightRef = useRef<THREE.PointLight>(null);
 
   useFrame((state) => {
+    if (lifecycle.current.state === "dormant" || canvasStore.isStoryPaused) return;
+    if (lifecycle.current.state !== "active") return;
+
     const t = state.clock.getElapsedTime();
 
     // Gentle tea steam drift
@@ -33,10 +39,10 @@ export default function Act3Home({ localProgress }: Act3HomeProps) {
 
   return (
     <group position={[0, 0, -625]}>
-      {/* Warm Ambient Home Interior Light with subtle signature cyan accent */}
+      {/* Warm Ambient Home Interior Light with subtle signature ivory accent */}
       <ambientLight color="#2d1e2f" intensity={0.9} />
       <directionalLight position={[4, 6, 2]} color="#fed7aa" intensity={1.2} />
-      <pointLight position={[-2.8, 2.8, -2.2]} color="#22d3ee" intensity={0.35} distance={6} />
+      <pointLight position={[-2.8, 2.8, -2.2]} color="#fdf8f6" intensity={0.35} distance={6} />
 
       {/* ========================================================================= */}
       {/* 1. ROOM ARCHITECTURE (Living Room Floor, Walls, Evening Window)          */}

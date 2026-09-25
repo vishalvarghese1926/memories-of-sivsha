@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { useStory } from "@/context/StoryContext";
+import { canvasStore } from "@/context/StoryContext";
 
 interface CameraWaypoint {
   progress: number;
@@ -309,7 +309,6 @@ const TARGET_POS_SCRATCH = new THREE.Vector3();
 const TARGET_LOOK_SCRATCH = new THREE.Vector3();
 
 export default function CameraRig() {
-  const { scrollProgressRef, scrollVelocityRef, orientation } = useStory();
   const { camera } = useThree();
 
   const currentPos = useRef(new THREE.Vector3(0, 4, 18));
@@ -330,7 +329,9 @@ export default function CameraRig() {
   }, []);
 
   useFrame((_, delta) => {
-    const t = THREE.MathUtils.clamp(scrollProgressRef.current, 0, 1);
+    if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
+
+    const t = THREE.MathUtils.clamp(canvasStore.scrollProgressRef.current, 0, 1);
 
     // 1. Evaluate smooth Catmull-Rom spline at normalized scroll progress
     const targetFov = interpolateCamera(
@@ -394,12 +395,12 @@ export default function CameraRig() {
 
     // Apply gentle gyro parallax if not reduced motion
     if (!reducedMotion) {
-      TARGET_POS_SCRATCH.x += orientation.gamma * 0.2;
-      TARGET_POS_SCRATCH.y += orientation.beta * 0.15;
+      TARGET_POS_SCRATCH.x += canvasStore.orientation.gamma * 0.2;
+      TARGET_POS_SCRATCH.y += canvasStore.orientation.beta * 0.15;
     }
 
     // Steadycam kinematic damping: velocity-aware for immediate finger tracking & buttery settling
-    const isActivelyMoving = Math.abs(scrollVelocityRef?.current ?? 0) > 0.02;
+    const isActivelyMoving = Math.abs(canvasStore.scrollVelocityRef?.current ?? 0) > 0.02;
     const damping = isActivelyMoving
       ? Math.min(1, delta * 24.0)
       : Math.min(1, delta * 15.0);

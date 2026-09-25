@@ -10,6 +10,8 @@ import CharacterGirl from "../characters/CharacterGirl";
 import Act2Classroom from "./Act2Classroom";
 import Act2FriendGroup from "./Act2FriendGroup";
 import { useSceneProgress } from "@/lib/useSceneProgress";
+import { useSceneLifecycle } from "../SceneTransitionWrapper";
+import { canvasStore } from "@/context/StoryContext";
 
 interface Act2CollegeProps {
   localProgress?: number;
@@ -265,19 +267,27 @@ export default function Act2College({
     return undefined;
   }, [penProgress]);
 
+  // Vector3 for pen world position to avoid per-frame allocation
+  const penWorldPosRef = useRef(new THREE.Vector3(1.3, 0.85, -75.2));
+
+  const lifecycle = useSceneLifecycle();
+
   useFrame((state, delta) => {
+    if (lifecycle.current.state === "dormant" || canvasStore.isStoryPaused) return;
+
+    const isSceneActive = lifecycle.current.state === "active";
     const time = state.clock.getElapsedTime();
 
-    // 1. Subtle idle breathing of background figures
-    if (charactersGroupRef.current && !reducedMotion) {
+    // 1. Subtle idle breathing of background figures (active only)
+    if (isSceneActive && charactersGroupRef.current && !reducedMotion) {
       charactersGroupRef.current.children.forEach((charGroup, idx) => {
         const phase = idx * 0.9;
         charGroup.position.y = Math.sin(time * 1.6 + phase) * 0.015;
       });
     }
 
-    // 2. Dust drift in sun shafts (zero-allocation continuous rotation)
-    if (dustParticlesRef.current && !reducedMotion) {
+    // 2. Dust drift in sun shafts (zero-allocation continuous rotation, active only)
+    if (isSceneActive && dustParticlesRef.current && !reducedMotion) {
       dustParticlesRef.current.rotation.y = time * 0.04;
       dustParticlesRef.current.position.y = 2.4 + Math.sin(time * 0.5) * 0.08;
     }
@@ -332,7 +342,8 @@ export default function Act2College({
     let userArmRotX = 0;
     let userArmRotZ = 0;
 
-    let penWorldPos = new THREE.Vector3(1.3, 0.85, -75.2);
+    const penWorldPos = penWorldPosRef.current;
+    penWorldPos.set(1.3, 0.85, -75.2);
     let penRotZ = 0;
     let warmLightIntensity = 0.8;
 

@@ -7,6 +7,8 @@ import { ContactShadows } from "@react-three/drei";
 import CharacterGirl from "../characters/CharacterGirl";
 import FloatingMediaFrame from "../media/FloatingMediaFrame";
 import { useSceneProgress } from "@/lib/useSceneProgress";
+import { useSceneLifecycle } from "../SceneTransitionWrapper";
+import { canvasStore } from "@/context/StoryContext";
 
 interface Act1BeforeProps {
   localProgress?: number;
@@ -39,7 +41,11 @@ export default function Act1Before({ localProgress = 0 }: Act1BeforeProps) {
     return () => mq.removeEventListener("change", handler);
   }, []);
 
+  const lifecycle = useSceneLifecycle();
+
   useFrame((state, delta) => {
+    if (lifecycle.current.state === "dormant" || canvasStore.isStoryPaused) return;
+
     const time = state.clock.getElapsedTime();
 
     // Character walking progression driven by real-time scroll progress

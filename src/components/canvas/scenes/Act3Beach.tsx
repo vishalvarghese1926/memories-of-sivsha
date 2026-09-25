@@ -9,12 +9,15 @@ import CharacterGirl from "../characters/CharacterGirl";
 import FloatingMediaFrame from "../media/FloatingMediaFrame";
 import ExternalAsset from "../environment/ExternalAsset";
 import { useSceneProgress } from "@/lib/useSceneProgress";
+import { useSceneLifecycle } from "../SceneTransitionWrapper";
+import { canvasStore } from "@/context/StoryContext";
 
 interface Act3BeachProps {
   localProgress: number;
 }
 
 export default function Act3Beach({ localProgress }: Act3BeachProps) {
+  const lifecycle = useSceneLifecycle();
   const { getProgress } = useSceneProgress("m-7", localProgress);
   const waterRef = useRef<THREE.Mesh>(null);
   const foamRef = useRef<THREE.Mesh>(null);
@@ -26,6 +29,8 @@ export default function Act3Beach({ localProgress }: Act3BeachProps) {
   const waterGeometry = useMemo(() => new THREE.PlaneGeometry(36, 32, 12, 12), []);
 
   useFrame((state) => {
+    if (lifecycle.current.state === "dormant" || canvasStore.isStoryPaused) return;
+
     const t = state.clock.getElapsedTime();
 
     // Zero-allocation subtle coastal wave wash
@@ -67,10 +72,10 @@ export default function Act3Beach({ localProgress }: Act3BeachProps) {
         <meshBasicMaterial color="#f97316" />
       </mesh>
 
-      {/* Radiant Sunset Horizon Lighting with subtle cyan coastal accent */}
+      {/* Radiant Sunset Horizon Lighting with subtle rose coastal accent */}
       <directionalLight position={[4, 5, -28]} color="#fdba74" intensity={2.6} />
       <pointLight position={[2, 4, -28]} color="#ea580c" intensity={3.5} distance={65} />
-      <pointLight position={[-4, 3, -10]} color="#22d3ee" intensity={0.85} distance={25} />
+      <pointLight position={[-4, 3, -10]} color="#fecdd3" intensity={0.85} distance={25} />
       <ambientLight color="#2a1420" intensity={0.9} />
 
       {/* Atmospheric Sky Backdrop Plane */}

@@ -7,12 +7,15 @@ import { Sparkles, Text, ContactShadows } from "@react-three/drei";
 import CharacterBoy from "../characters/CharacterBoy";
 import CharacterGirl from "../characters/CharacterGirl";
 import { useSceneProgress } from "@/lib/useSceneProgress";
+import { useSceneLifecycle } from "../SceneTransitionWrapper";
+import { canvasStore } from "@/context/StoryContext";
 
 interface Act3LateTalksProps {
   localProgress: number;
 }
 
 export default function Act3LateTalks({ localProgress }: Act3LateTalksProps) {
+  const lifecycle = useSceneLifecycle();
   const { getProgress } = useSceneProgress("m-8", localProgress);
   const phoneGlowRef = useRef<THREE.PointLight>(null);
   const card1Ref = useRef<THREE.Group>(null);
@@ -20,11 +23,13 @@ export default function Act3LateTalks({ localProgress }: Act3LateTalksProps) {
   const card3Ref = useRef<THREE.Group>(null);
 
   useFrame((state) => {
+    if (lifecycle.current.state === "dormant" || canvasStore.isStoryPaused) return;
+
     const t = state.clock.getElapsedTime();
     const currentLocal = getProgress();
 
-    // Subtle breathing pulse of smartphone screen glow
-    if (phoneGlowRef.current) {
+    // Subtle breathing pulse of smartphone screen glow (active only)
+    if (lifecycle.current.state === "active" && phoneGlowRef.current) {
       phoneGlowRef.current.intensity = 0.65 + Math.sin(t * 3.0) * 0.1;
     }
 
@@ -56,8 +61,8 @@ export default function Act3LateTalks({ localProgress }: Act3LateTalksProps) {
       {/* ========================================================================= */}
       {/* 1. DEEP NIGHT SKY & SUBTLE STARS                                          */}
       {/* ========================================================================= */}
-      {/* Cool Starlit Night Light */}
-      <directionalLight position={[0, 8, 4]} color="#38bdf8" intensity={0.4} />
+      {/* Warm Starlit Night Light */}
+      <directionalLight position={[0, 8, 4]} color="#94a3b8" intensity={0.4} />
       <ambientLight color="#0c0f1d" intensity={0.7} />
 
       {/* Gentle Constellation & Star Embers (controlled, subtle) */}
@@ -135,7 +140,7 @@ export default function Act3LateTalks({ localProgress }: Act3LateTalksProps) {
           <pointLight
             ref={phoneGlowRef}
             position={[0.22, 1.1, 0.3]}
-            color="#38bdf8"
+            color="#f1f5f9"
             intensity={0.65}
             distance={2.0}
           />

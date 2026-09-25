@@ -17,6 +17,10 @@ import {
   updateHumanoidSkeletalPose,
   RiggedCharacterInstance,
 } from "@/lib/skeletalDeformation";
+import { useSceneLifecycle } from "../SceneTransitionWrapper";
+import { canvasStore } from "@/context/StoryContext";
+
+const UP_VECTOR = new THREE.Vector3(0, 1, 0);
 
 interface ErrorBoundaryProps {
   fallback: React.ReactNode;
@@ -166,18 +170,28 @@ function RiggedGLTFGirlCharacter({
     leftLegRotX: 0, rightLegRotX: 0,
   });
 
+  const lifecycle = useSceneLifecycle();
+
   useFrame((state, delta) => {
-    if (!clonedScene) return;
+    if (!clonedScene || lifecycle.current.state === "dormant" || canvasStore.isStoryPaused) return;
 
     const rawTarget = lookAtTarget || lookAtConfig?.target || null;
-    const targetTuple: [number, number, number] | null = rawTarget
-      ? (Array.isArray(rawTarget)
-          ? (rawTarget as [number, number, number])
-          : [rawTarget.x, rawTarget.y, rawTarget.z])
-      : null;
-    const posTuple: [number, number, number] = Array.isArray(position)
-      ? (position as [number, number, number])
-      : [0, 0, 0];
+    let targetX = 0;
+    let targetZ = 0;
+    let hasTarget = false;
+    if (rawTarget) {
+      if (Array.isArray(rawTarget)) {
+        targetX = rawTarget[0];
+        targetZ = rawTarget[2];
+        hasTarget = true;
+      } else if (typeof (rawTarget as any).x === "number") {
+        targetX = (rawTarget as any).x;
+        targetZ = (rawTarget as any).z;
+        hasTarget = true;
+      }
+    }
+    const posX = Array.isArray(position) ? position[0] : 0;
+    const posZ = Array.isArray(position) ? position[2] : 0;
 
     const t = state.clock.getElapsedTime();
 
@@ -197,9 +211,9 @@ function RiggedGLTFGirlCharacter({
       }
 
       // Smooth look-at tracking on Y axis
-      if (targetTuple && posTuple) {
-        const dx = targetTuple[0] - posTuple[0];
-        const dz = targetTuple[2] - posTuple[2];
+      if (hasTarget) {
+        const dx = targetX - posX;
+        const dz = targetZ - posZ;
         if (Math.abs(dx) > 0.01 || Math.abs(dz) > 0.01) {
           targetRotY = THREE.MathUtils.clamp(Math.atan2(dx, dz), -0.5, 0.5);
         }
@@ -322,7 +336,11 @@ function ProceduralGirlMesh({
     []
   );
 
+  const lifecycle = useSceneLifecycle();
+
   useFrame((state, delta) => {
+    if (lifecycle.current.state === "dormant" || canvasStore.isStoryPaused) return;
+
     const t = state.clock.getElapsedTime();
 
     // 1. Natural Breathing & Organic Spine Kinematics
@@ -423,12 +441,12 @@ function ProceduralGirlMesh({
     if (headRef.current) {
       if (lookAtTarget) {
         if (Array.isArray(lookAtTarget)) {
-          tempTargetVec.set(...lookAtTarget);
+          tempTargetVec.set(lookAtTarget[0], lookAtTarget[1], lookAtTarget[2]);
         } else {
           tempTargetVec.copy(lookAtTarget);
         }
         headRef.current.getWorldPosition(tempHeadWorldPos);
-        tempMatrix.lookAt(tempHeadWorldPos, tempTargetVec, new THREE.Vector3(0, 1, 0));
+        tempMatrix.lookAt(tempHeadWorldPos, tempTargetVec, UP_VECTOR);
         targetQuaternion.setFromRotationMatrix(tempMatrix);
         headRef.current.quaternion.slerp(targetQuaternion, Math.min(1, delta * 4.5));
       } else {
@@ -706,7 +724,7 @@ function CrossfadeGirlWrapper({
 
   // Buttery-smooth alpha crossfade in useFrame: 400ms transition
   useFrame((_, delta) => {
-    if (!modelReady) return;
+    if (!modelReady || opacityRef.current >= 1) return;
 
     if (opacityRef.current < 1) {
       opacityRef.current = Math.min(1, opacityRef.current + delta * 2.5);

@@ -1,26 +1,49 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { createContext, useContext, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+
+export type SceneLifecycleState = "dormant" | "warm" | "active";
+
+export interface SceneLifecycleRef {
+  state: SceneLifecycleState;
+  distZ: number;
+}
+
+const defaultLifecycle: React.MutableRefObject<SceneLifecycleRef> = {
+  current: { state: "active", distZ: 0 },
+};
+
+const SceneLifecycleContext = createContext<React.MutableRefObject<SceneLifecycleRef>>(defaultLifecycle);
+
+/**
+ * Access the 3-stage continuous lifecycle of the parent chapter wrapper:
+ * - "dormant": Scene is far away. Child useFrame callbacks MUST early-return. 0 CPU, 0 allocations.
+ * - "warm": Scene is in the approaching fog buffer. Meshes/textures pre-bound in VRAM. Skip expensive secondary/decorative animations.
+ * - "active": Scene is in foreground focus. Full animations run.
+ */
+export function useSceneLifecycle(): React.MutableRefObject<SceneLifecycleRef> {
+  return useContext(SceneLifecycleContext);
+}
 
 interface SceneTransitionWrapperProps {
   children: React.ReactNode;
   positionZ: number;
   visibilityRange?: number;
   warmLookahead?: number;
-  isActive?: boolean;
 }
 
 /**
  * =========================================================================
- * SCENE TRANSITION WRAPPER — 3-STAGE CONTINUOUS LIFECYCLE
+ * SCENE TRANSITION WRAPPER — 3-STAGE CONTINUOUS LIFECYCLE (PHASE 7)
  * =========================================================================
  *
  * Implements a 3-Stage GPU Preparation & Rendering Lifecycle:
  *
  * STAGE 1: DORMANT (distZ > warmDistance)
  * - `visible = false` -> 0 draw calls, 0 vertex processing, 0 GPU load.
+ * - Child `useFrame` callbacks short-circuit immediately.
  *
  * STAGE 2: WARMED / IN-FOG PREPARATION (visibilityRange < distZ <= warmDistance)
  * - `visible = true` while deeply occluded in the atmospheric background fog.
@@ -36,12 +59,12 @@ export default function SceneTransitionWrapper({
   positionZ,
   visibilityRange = 90,
   warmLookahead = 65,
-  isActive = false,
 }: SceneTransitionWrapperProps) {
   const groupRef = useRef<THREE.Group>(null);
   const warmDistance = visibilityRange + warmLookahead;
+  const lifecycleRef = useRef<SceneLifecycleRef>({ state: "dormant", distZ: 999 });
 
-  useFrame(({ camera }, delta) => {
+  useFrame(({ camera }) => {
     if (!groupRef.current) return;
 
     // Measure travel distance from camera to chapter anchor along the Z-axis
@@ -54,21 +77,21 @@ export default function SceneTransitionWrapper({
       groupRef.current.visible = shouldBeMountedInPipeline;
     }
 
-    if (shouldBeMountedInPipeline) {
-      // Subtle scale settling when active in foreground
-      const targetScale = isActive ? 1.0 : 0.995;
-      const currentScale = groupRef.current.scale.x;
-      if (Math.abs(currentScale - targetScale) > 0.0005) {
-        const nextScale = THREE.MathUtils.lerp(currentScale, targetScale, Math.min(1, delta * 5));
-        groupRef.current.scale.setScalar(nextScale);
-      }
-    }
+    const state: SceneLifecycleState = !shouldBeMountedInPipeline
+      ? "dormant"
+      : distZ <= visibilityRange
+      ? "active"
+      : "warm";
+
+    lifecycleRef.current.state = state;
+    lifecycleRef.current.distZ = distZ;
   });
 
   return (
-    <group ref={groupRef}>
-      {children}
-    </group>
+    <SceneLifecycleContext.Provider value={lifecycleRef}>
+      <group ref={groupRef}>
+        {children}
+      </group>
+    </SceneLifecycleContext.Provider>
   );
 }
-

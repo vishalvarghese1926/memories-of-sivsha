@@ -7,6 +7,8 @@ import { ContactShadows } from "@react-three/drei";
 import CharacterBoy from "../characters/CharacterBoy";
 import CharacterGirl from "../characters/CharacterGirl";
 import FloatingMediaFrame from "../media/FloatingMediaFrame";
+import { useSceneLifecycle } from "../SceneTransitionWrapper";
+import { canvasStore } from "@/context/StoryContext";
 
 interface Act2ClassroomProps {
   progress?: number;
@@ -51,7 +53,7 @@ function createClassroomBoardTexture(): THREE.CanvasTexture {
     ctx.stroke();
 
     // Hull Waterline Schematic
-    ctx.strokeStyle = "#38bdf8";
+    ctx.strokeStyle = "#e2e8f0"; // natural chalk
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(36, 120);
@@ -62,7 +64,7 @@ function createClassroomBoardTexture(): THREE.CanvasTexture {
     ctx.stroke();
 
     // Waterline hatch
-    ctx.strokeStyle = "rgba(56, 189, 248, 0.35)";
+    ctx.strokeStyle = "rgba(226, 232, 240, 0.35)";
     ctx.lineWidth = 1;
     for (let x = 50; x < 220; x += 18) {
       ctx.beginPath();
@@ -70,12 +72,12 @@ function createClassroomBoardTexture(): THREE.CanvasTexture {
       ctx.lineTo(x + 10, 130);
       ctx.stroke();
     }
-    ctx.fillStyle = "#7dd3fc";
+    ctx.fillStyle = "#cbd5e1";
     ctx.font = "11px monospace";
     ctx.fillText("DWL (Designed Waterline)", 40, 175);
 
     // 4-Blade Propeller Diagram
-    ctx.strokeStyle = "#a7f3d0";
+    ctx.strokeStyle = "#f8fafc";
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.arc(360, 110, 16, 0, Math.PI * 2);
@@ -96,7 +98,7 @@ function createClassroomBoardTexture(): THREE.CanvasTexture {
       ctx.stroke();
     });
 
-    ctx.fillStyle = "#6ee7b7";
+    ctx.fillStyle = "#e2e8f0";
     ctx.font = "11px monospace";
     ctx.fillText("Fixed Pitch Propeller (P/D = 0.88)", 265, 175);
 
@@ -209,7 +211,14 @@ export default function Act2Classroom({ progress = 0 }: Act2ClassroomProps) {
     return [0, 2.2, -7];
   }, [p]);
 
+  const lifecycle = useSceneLifecycle();
+
   useFrame((state, delta) => {
+    if (lifecycle.current.state === "dormant" || canvasStore.isStoryPaused) return;
+
+    // Only run decorative dust & secondary student breathing when active
+    if (lifecycle.current.state !== "active") return;
+
     const t = state.clock.getElapsedTime();
 
     // Subtle drift in window dust (zero-allocation continuous rotation)

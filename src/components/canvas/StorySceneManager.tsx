@@ -2,7 +2,6 @@
 
 import React, { Suspense } from "react";
 import * as THREE from "three";
-import { useStory } from "@/context/StoryContext";
 import SceneTransitionWrapper from "./SceneTransitionWrapper";
 import Act0Entry from "./scenes/Act0Entry";
 import Act1Before from "./scenes/Act1Before";
@@ -39,7 +38,6 @@ export function calculateLocalProgress(
  * - Zero React unmount/mount hitches or WebGL shader re-compilation during travel.
  */
 export default function StorySceneManager() {
-  const { activeMilestoneIndex } = useStory();
 
   return (
     <group name="story-scene-manager">
@@ -47,7 +45,6 @@ export default function StorySceneManager() {
       <SceneTransitionWrapper
         positionZ={0}
         visibilityRange={65}
-        isActive={activeMilestoneIndex === 0}
       >
         <Suspense fallback={null}>
           <Act0Entry />
@@ -58,7 +55,6 @@ export default function StorySceneManager() {
       <SceneTransitionWrapper
         positionZ={-31}
         visibilityRange={80}
-        isActive={activeMilestoneIndex === 1}
       >
         <Suspense fallback={null}>
           <Act1Before />
@@ -69,7 +65,6 @@ export default function StorySceneManager() {
       <SceneTransitionWrapper
         positionZ={-105}
         visibilityRange={115}
-        isActive={activeMilestoneIndex >= 2 && activeMilestoneIndex <= 5}
       >
         <Suspense fallback={null}>
           <Act2College />
@@ -80,7 +75,6 @@ export default function StorySceneManager() {
       <SceneTransitionWrapper
         positionZ={-185}
         visibilityRange={85}
-        isActive={activeMilestoneIndex === 6}
       >
         <Suspense fallback={null}>
           <Act3Train localProgress={0} />
@@ -91,7 +85,6 @@ export default function StorySceneManager() {
       <SceneTransitionWrapper
         positionZ={-235}
         visibilityRange={85}
-        isActive={activeMilestoneIndex === 7}
       >
         <Suspense fallback={null}>
           <Act3Beach localProgress={0} />
@@ -102,7 +95,6 @@ export default function StorySceneManager() {
       <SceneTransitionWrapper
         positionZ={-290}
         visibilityRange={85}
-        isActive={activeMilestoneIndex === 8}
       >
         <Suspense fallback={null}>
           <Act3LateTalks localProgress={0} />
@@ -113,7 +105,6 @@ export default function StorySceneManager() {
       <SceneTransitionWrapper
         positionZ={-345}
         visibilityRange={90}
-        isActive={activeMilestoneIndex === 9}
       >
         <Suspense fallback={null}>
           <Act3Car localProgress={0} />
@@ -124,7 +115,6 @@ export default function StorySceneManager() {
       <SceneTransitionWrapper
         positionZ={-450}
         visibilityRange={95}
-        isActive={activeMilestoneIndex === 10}
       >
         <Suspense fallback={null}>
           <Act3Bikes milestoneId="m-10" localProgress={0} />
@@ -135,7 +125,6 @@ export default function StorySceneManager() {
       <SceneTransitionWrapper
         positionZ={-570}
         visibilityRange={95}
-        isActive={activeMilestoneIndex === 11}
       >
         <Suspense fallback={null}>
           <Act3Bikes milestoneId="m-11" localProgress={0} />
@@ -146,7 +135,6 @@ export default function StorySceneManager() {
       <SceneTransitionWrapper
         positionZ={-625}
         visibilityRange={85}
-        isActive={activeMilestoneIndex === 12}
       >
         <Suspense fallback={null}>
           <Act3Home localProgress={0} />
@@ -157,7 +145,6 @@ export default function StorySceneManager() {
       <SceneTransitionWrapper
         positionZ={-685}
         visibilityRange={90}
-        isActive={activeMilestoneIndex === 13}
       >
         <Suspense fallback={null}>
           <Act4Finale localProgress={0} />

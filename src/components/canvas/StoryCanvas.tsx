@@ -10,7 +10,7 @@ import CanvasErrorBoundary from "@/components/ui/CanvasErrorBoundary";
 
 import { Preload } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import { useAdaptiveQuality } from "@/lib/adaptiveQuality";
+import { useAdaptiveQuality, AdaptiveQualityController } from "@/lib/adaptiveQuality";
 import { warmAllStoryTexturesOnGPU } from "@/lib/storyTextureManager";
 
 function SceneWarmup() {
@@ -57,15 +57,18 @@ export default function StoryCanvas() {
           }}
           flat={false}
         >
+          {/* Adaptive Quality Controller: rolling window frame time and dynamic DPR */}
+          <AdaptiveQualityController />
+
           {/* Camera and Environment render unconditionally without suspending */}
           <CameraRig />
           <SceneEnvironment />
-          <SceneWarmup />
 
           {/* StorySceneManager has its own suspense boundary with preloader */}
           <Suspense fallback={null}>
             <StorySceneManager />
             <Preload all />
+            <SceneWarmup />
           </Suspense>
         </Canvas>
       </CanvasErrorBoundary>

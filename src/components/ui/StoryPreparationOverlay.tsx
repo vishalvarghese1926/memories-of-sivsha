@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { runStagedPreloader } from "@/lib/storyAssetManifest";
+import { canvasStore } from "@/context/StoryContext";
 
 interface StoryPreparationOverlayProps {
   onReady?: () => void;
@@ -29,6 +30,8 @@ export default function StoryPreparationOverlay({ onReady }: StoryPreparationOve
       // Slight hold at 100% so the user perceives a finished, serene preparation
       setTimeout(() => {
         if (!isMounted) return;
+        canvasStore.isPreparationActive = false;
+        canvasStore.isStoryPaused = false;
         setOpacity(0);
         if (onReady) onReady();
         // Fully unmount from DOM after transition completes

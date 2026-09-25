@@ -3,9 +3,10 @@
 import React, { useRef, useMemo, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { useStory } from "@/context/StoryContext";
+import { canvasStore } from "@/context/StoryContext";
 import { resolveMilestoneMedia } from "@/lib/mediaRegistry";
 import { getStoryTexture, getFallbackMonogramTexture, loadStoryTexture } from "@/lib/storyTextureManager";
+import { useSceneLifecycle } from "../SceneTransitionWrapper";
 
 interface FloatingMediaFrameProps {
   milestoneId: string;
@@ -24,7 +25,6 @@ export default function FloatingMediaFrame({
   width = 2.0,
   height = 1.35,
 }: FloatingMediaFrameProps) {
-  const { milestones, openPhotoLightbox } = useStory();
   const groupRef = useRef<THREE.Group>(null);
   const [asyncTexture, setAsyncTexture] = useState<THREE.Texture | null>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -42,8 +42,8 @@ export default function FloatingMediaFrame({
 
   // Retrieve milestone and resolved personal media
   const milestone = useMemo(() => {
-    return milestones.find((m) => m.id === milestoneId);
-  }, [milestones, milestoneId]);
+    return canvasStore.milestones.find((m) => m.id === milestoneId);
+  }, [milestoneId]);
 
   const mediaAsset = useMemo(() => {
     return resolveMilestoneMedia(milestoneId, milestone?.media);
@@ -70,9 +70,18 @@ export default function FloatingMediaFrame({
     }
   }, [cachedTexture, mediaAsset?.url]);
 
-  // Frame floating animation: gentle breath & tilt (disabled under reduced-motion)
+  const lifecycle = useSceneLifecycle();
+
+  // Frame floating animation: gentle breath & tilt (disabled under reduced-motion, dormant, or paused)
   useFrame((state) => {
-    if (reducedMotion || !groupRef.current) return;
+    if (
+      reducedMotion ||
+      !groupRef.current ||
+      lifecycle.current.state === "dormant" ||
+      canvasStore.isStoryPaused
+    ) {
+      return;
+    }
     const t = state.clock.getElapsedTime();
     groupRef.current.position.y = position[1] + Math.sin(t * 1.5 + position[0]) * 0.04;
     groupRef.current.rotation.z = rotation[2] + Math.sin(t * 1.2 + position[2]) * 0.015;
@@ -126,7 +135,7 @@ export default function FloatingMediaFrame({
         }}
         onClick={(e) => {
           e.stopPropagation();
-          openPhotoLightbox(milestoneId);
+          canvasStore.openPhotoLightbox(milestoneId);
         }}
       >
         <planeGeometry args={[width, height]} />
